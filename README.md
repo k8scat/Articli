@@ -43,6 +43,24 @@
 
 ## 安装
 
+### homebrew
+
+```shell
+brew install k8scat/tap/acli
+```
+
+### Docker
+
+```shell
+# 将配置文件的目录挂载到容器内
+docker run --rm \
+  -v $HOME/.config:/root/.articli \
+  acli:latest \
+  juejin auth login
+```
+
+### 二进制
+
 Please download from the [releases page](https://github.com/k8scat/Articli/releases).
 
 ## 文章模板
@@ -105,7 +123,11 @@ csdn:
 使用浏览器 Cookie 进行登录
 
 ```shell
-acli juejin auth login --with-cookie < cookie_file 
+# 交互式登录
+acli juejin auth login
+
+# 从文件中读取 Cookie
+acli juejin auth login --with-cookie < cookie.txt
 ```
 
 #### 创建/更新文章
