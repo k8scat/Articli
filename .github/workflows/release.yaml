@@ -36,7 +36,7 @@ jobs:
       - name: Bump formula
         uses: dawidd6/action-homebrew-bump-formula@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.HOMEBREW_TOKEN }}
           formula: articli
 
       - name: Log in to Docker Hub
