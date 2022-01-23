@@ -8,20 +8,20 @@ import (
 )
 
 type Config struct {
-	Platforms Platforms `yaml:"platforms"`
+	Platforms Platforms `yaml:"platforms,omitempty"`
 }
 
 type Platforms struct {
-	Juejin  Juejin  `yaml:"juejin"`
-	OSChina OSChina `yaml:"oschina"`
+	Juejin  Juejin  `yaml:"juejin,omitempty"`
+	OSChina OSChina `yaml:"oschina,omitempty"`
 }
 
 type Juejin struct {
-	Cookie string `yaml:"cookie"`
+	Cookie string `yaml:"cookie,omitempty"`
 }
 
 type OSChina struct {
-	Cookie string `yaml:"cookie"`
+	Cookie string `yaml:"cookie,omitempty"`
 }
 
 func ParseConfig(cfgFile string) (*Config, error) {
