@@ -1,4 +1,6 @@
 bin
 .vscode
 .idea
-
+acli
+*.txt
+*.tar.gz

@@ -18,6 +18,13 @@ jobs:
         with:
           go-version: 1.17
 
+      - name: Release info
+        id: release
+        run: |
+          echo "::set-output name=version::${GITHUB_REF/refs\/tags\//}"
+          echo "::set-output name=commit::$(git rev-parse --short HEAD)"
+          echo "::set-output name=build_date::$(date +'%Y-%m-%d')"
+
       - name: Validates GO releaser config
         uses: goreleaser/goreleaser-action@v2
         with:
@@ -39,22 +46,39 @@ jobs:
 #          token: ${{ secrets.HOMEBREW_TOKEN }}
 #          formula: articli
 
+      # BUILDING MULTI-ARCHITECTURE IMAGES WITH GITHUB ACTIONS: https://blog.oddbit.com/post/2020-09-25-building-multi-architecture-im/
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
           username: k8scat
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
         with:
-          images: k8scat/articli
-
+          registry: ghcr.io
+          username: k8scat
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ghcr.io/k8scat/articli:latest
+            ghcr.io/k8scat/articli:${{ steps.release.outputs.version }}
+            k8scat/articli:latest
+            k8scat/articli:${{ steps.release.outputs.version }}
+          platforms: linux/amd64,linux/arm64
+          # Multiple build-args: https://github.com/docker/build-push-action/issues/380#issuecomment-855477968
+          build-args: |
+            "VERSION=${{ steps.release.outputs.version }}"
+            "COMMIT=${{ steps.release.outputs.commit }}""
+            "BUILD_DATE=${{ steps.release.outputs.build_date }}"
