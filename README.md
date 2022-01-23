@@ -54,7 +54,7 @@ brew install k8scat/tap/acli
 ```shell
 # 将配置文件的目录挂载到容器内
 docker run --rm \
-  -v $HOME/.config:/root/.articli \
+  -v $HOME/.config/articli:/root/.config/articli \
   acli:latest \
   juejin auth login
 ```
