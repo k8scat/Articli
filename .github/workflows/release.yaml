@@ -30,9 +30,10 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HOMEBREW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Token for homebrew-tap repo: https://github.com/k8scat/homebrew-tap
+          HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
 
-      - name: Bump formulae
+      - name: Bump formula
         uses: dawidd6/action-homebrew-bump-formula@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

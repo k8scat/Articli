@@ -121,3 +121,13 @@ build-image:
 		--build-arg COMMIT=$(COMMIT) \
 		--build-arg BUILD_DATE=$(BUILD_DATE) \
 		.
+
+TAG =
+.PHONY: delete-tag
+delete-tag:
+ifneq ($(TAG),)
+	git push --delete origin $(TAG)
+	git tag --delete $(TAG)
+else
+	@echo "Usage: make delete-tag TAG=<tag>"
+endif
