@@ -10,13 +10,13 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.15
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.15
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+          go-version: 1.16
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2

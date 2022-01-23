@@ -8,10 +8,9 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	raw, content, brief, options, err := Parse("/home/hsowan/go/src/github.com/k8scat/parti/configs/article.md")
+	mark, err := Parse("/Users/hsowan/workspace/articli/configs/article.md")
 	assert.Nil(t, err)
-	fmt.Printf("raw: %s\n", raw)
-	fmt.Printf("content: %s\n", content)
-	fmt.Printf("brief: %s\n", brief)
-	fmt.Printf("options: %+v\n", options)
+	fmt.Println(mark)
+	fmt.Println(string(mark.Raw))
+	fmt.Println(string(mark.Content))
 }

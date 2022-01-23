@@ -2,7 +2,9 @@ package juejin
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -12,7 +14,11 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-const DefaultBaseAPI = "https://api.juejin.cn"
+const (
+	DefaultBaseAPI = "https://api.juejin.cn"
+
+	MaxPageSize = 20
+)
 
 type Client struct {
 	Cookie  string
@@ -20,19 +26,20 @@ type Client struct {
 	BaseAPI string
 }
 
-func NewClient(cookie string) (c *Client, err error) {
+func NewClient(cookie string) (*Client, error) {
 	if cookie == "" {
-		err = errors.New("empty cookie")
-		return
+		return nil, errors.New("empty cookie")
 	}
-	c = &Client{
+	c := &Client{
 		BaseAPI: DefaultBaseAPI,
 		Cookie:  cookie,
 	}
-
+	var err error
 	c.User, err = c.GetUser()
-	err = errors.Trace(err)
-	return
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	return c, nil
 }
 
 // Get request and return raw body
@@ -60,12 +67,22 @@ func (c *Client) Get(endpoint string, params *url.Values) (string, error) {
 }
 
 // Post request and return raw body
-func (c *Client) Post(endpoint string, body []byte) (string, error) {
+func (c *Client) Post(endpoint string, body interface{}) (string, error) {
 	if endpoint == "" {
 		return "", errors.New("empty request endpoint")
 	}
+
+	var r io.Reader
+	if body != nil {
+		b, err := json.Marshal(body)
+		if err != nil {
+			return "", errors.Trace(err)
+		}
+		r = bytes.NewReader(b)
+	}
+
 	path := fmt.Sprintf("%s%s", c.BaseAPI, endpoint)
-	req, err := http.NewRequest(http.MethodPost, path, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, path, r)
 	if err != nil {
 		return "", errors.Trace(err)
 	}

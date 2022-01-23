@@ -9,18 +9,21 @@ import (
 )
 
 var (
-	c *Client
+	client *Client
 
-	cookie = os.Getenv("ARTICLI_OSCHINA_COOKIE")
+	cookie = ""
 )
 
-func setup(t *testing.T) {
+func setupClient(t *testing.T) {
+	if cookie == "" {
+		cookie = os.Getenv("ARTICLI_OSCHINA_COOKIE")
+	}
 	var err error
-	c, err = NewClient(cookie)
+	client, err = NewClient(cookie)
 	assert.Nil(t, err)
 }
 
 func TestNewClient(t *testing.T) {
-	setup(t)
-	log.Printf("client: %+v", c)
+	setupClient(t)
+	log.Printf("client: %+v", client)
 }

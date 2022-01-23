@@ -2,7 +2,7 @@ project_name: articli
 builds:
   - env:
       - CGO_ENABLED=0
-    binary: articli
+    binary: acli
     goarch:
       - amd64
       - arm64

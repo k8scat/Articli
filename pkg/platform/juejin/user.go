@@ -66,15 +66,15 @@ type Badge struct {
 
 func (c *Client) GetUser() (*User, error) {
 	endpoint := "/user_api/v1/user/get"
-	data, err := c.Get(endpoint, nil)
+	raw, err := c.Get(endpoint, nil)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
-	result := gjson.Get(data, "data").String()
-	if result == "" {
-		return nil, errors.Errorf("invalid response: %s", data)
+	data := gjson.Get(raw, "data").String()
+	if data == "" {
+		return nil, errors.Errorf("invalid response: %s", raw)
 	}
-	user := new(User)
-	err = json.Unmarshal([]byte(result), user)
+	var user *User
+	err = json.Unmarshal([]byte(data), &user)
 	return user, errors.Trace(err)
 }

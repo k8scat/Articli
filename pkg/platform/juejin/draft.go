@@ -2,6 +2,8 @@ package juejin
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/juju/errors"
 
 	"github.com/tidwall/gjson"
 )
@@ -12,9 +14,30 @@ const (
 	DefaultHTMLContent = "deprecated"
 )
 
-// CreateDraft create draft if id is empty
-// or update draft
-func (c *Client) SaveDraft(id, title, content, coverImage, categoryID, brief string, tagIDs []string) (string, error) {
+type Draft struct {
+	ID           string  `json:"id"`
+	CoverImage   string  `json:"cover_image"`
+	CreateTime   string  `json:"ctime"`
+	ArticleID    string  `json:"article_id"`
+	EditType     int     `json:"edit_type"`
+	IsEnglish    int     `json:"is_english"`
+	IsGfw        int     `json:"is_gfw"`
+	IsOriginal   int     `json:"is_original"`
+	ModifyTime   string  `json:"mtime"`
+	OriginalType int     `json:"original_type"`
+	Status       int     `json:"status"`
+	TagIDs       []int64 `json:"tag_ids"`
+	Title        string  `json:"title"`
+	UserID       string  `json:"user_id"`
+	HtmlContent  string  `json:"html_content"`
+	MarkContent  string  `json:"mark_content"`
+	CategoryID   string  `json:"category_id"`
+	BriefContent string  `json:"brief_content"`
+	LinkURL      string  `json:"link_url"`
+}
+
+// SaveDraft create a draft if id is empty, otherwise update the draft
+func (c *Client) SaveDraft(id, title, brief, content, coverImage, categoryID string, tagIDs []string) (string, error) {
 	var endpoint string
 	if id == "" {
 		endpoint = "/content_api/v1/article_draft/create"
@@ -36,46 +59,57 @@ func (c *Client) SaveDraft(id, title, content, coverImage, categoryID, brief str
 	if categoryID != "" {
 		payload["category_id"] = categoryID
 	}
-	body, err := json.Marshal(payload)
+	data, err := c.Post(endpoint, payload)
 	if err != nil {
-		return "", err
-	}
-	data, err := c.Post(endpoint, body)
-	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	id = gjson.Get(data, "data.id").String()
-	return id, err
+	if id == "" {
+		return "", errors.Errorf("invalid response: %s", data)
+	}
+	return id, nil
 }
 
-// PublishDraft publish a draft
-// Set syncToOrg to false if you are only an individual writer in juejin.com
-//
-// Return article id
-func (c *Client) PublishDraft(id string, syncToOrg bool) (string, error) {
-	endpoint := "/content_api/v1/article/publish"
+type ListDraftsResponse struct {
+	Drafts []*Draft `json:"data"`
+	Count  int      `json:"count"`
+	APIError
+}
+
+func (c *Client) ListDrafts(keyword string, page, pageSize int) (drafts []*Draft, count int, err error) {
+	if pageSize > MaxPageSize {
+		pageSize = MaxPageSize
+	}
+
+	endpoint := buildDraftEndpoint("list_by_user")
 	payload := map[string]interface{}{
-		"draft_id":    id,
-		"sync_to_org": syncToOrg,
+		"keyword":   keyword,
+		"page_no":   page,
+		"page_size": pageSize,
 	}
-	body, err := json.Marshal(payload)
+	var raw string
+	raw, err = c.Post(endpoint, payload)
 	if err != nil {
-		return "", err
+		err = errors.Trace(err)
+		return
 	}
-	raw, err := c.Post(endpoint, body)
-	if err != nil {
-		return "", err
+	var resp *ListDraftsResponse
+	if err = json.Unmarshal([]byte(raw), &resp); err != nil {
+		err = errors.Trace(err)
+		return
 	}
-	articleID := gjson.Get(raw, "data.article_id").String()
-	return articleID, nil
+	drafts = resp.Drafts
+	count = resp.Count
+	return
 }
 
 // ListAllDrafts list all drafts
+// Deprecated
 func (c *Client) ListAllDrafts() ([]string, error) {
-	endpoint := "/content_api/v1/article_draft/query_list"
-	data, err := c.Post(endpoint, []byte("{}"))
+	endpoint := buildDraftEndpoint("query_list")
+	data, err := c.Post(endpoint, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	ids := make([]string, 0)
 	for _, d := range gjson.Get(data, "data").Array() {
@@ -85,14 +119,18 @@ func (c *Client) ListAllDrafts() ([]string, error) {
 }
 
 func (c *Client) DeleteDraft(id string) error {
-	endpoint := "/content_api/v1/article_draft/delete"
+	endpoint := buildDraftEndpoint("delete")
 	payload := map[string]string{
 		"draft_id": id,
 	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-	_, err = c.Post(endpoint, body)
-	return err
+	_, err := c.Post(endpoint, payload)
+	return errors.Trace(err)
+}
+
+func buildDraftEndpoint(path string) string {
+	return fmt.Sprintf("/content_api/v1/article_draft/%s", path)
+}
+
+func BuildDraftEditorURL(id string) string {
+	return fmt.Sprintf("https://juejin.cn/editor/drafts/%s", id)
 }

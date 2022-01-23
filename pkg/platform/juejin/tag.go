@@ -2,80 +2,77 @@ package juejin
 
 import (
 	"encoding/json"
-	"strconv"
-
+	"github.com/fatih/color"
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
-type Option struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+const StartCursor = "0"
+
+type TagItem struct {
+	ID           string          `json:"tag_id"`
+	Tag          *Tag            `json:"tag"`
+	UserInteract json.RawMessage `json:"user_interact"`
 }
 
-// ListTags list tags and filter by key and cursor
-func (c *Client) ListTags(key string, cursor int) (count int, tags []*Option, err error) {
+// ListTags list tags by keyword
+func (c *Client) ListTags(key string, cursor string) (tags []*TagItem, nextCursor string, err error) {
 	endpoint := "/tag_api/v1/query_tag_list"
 	payload := map[string]interface{}{
 		"key_word": key,
-		"cursor":   strconv.Itoa(cursor),
+		"cursor":   cursor,
 	}
-	var body []byte
-	body, err = json.Marshal(payload)
+	var raw string
+	raw, err = c.Post(endpoint, payload)
 	if err != nil {
+		err = errors.Trace(err)
 		return
 	}
-	var data string
-	data, err = c.Post(endpoint, body)
-	if err != nil {
-		return
+
+	hasMore := gjson.Get(raw, "has_more").Bool()
+	if hasMore {
+		nextCursor = gjson.Get(raw, "cursor").String()
 	}
-	d := gjson.Parse(data)
-	tags = make([]*Option, 0)
-	t := d.Get("data")
-	for _, tag := range t.Array() {
-		tags = append(tags, &Option{
-			ID:   tag.Get("tag_id").String(),
-			Name: tag.Get("tag.tag_name").String(),
-		})
-	}
-	count = int(d.Get("count").Int())
+	data := gjson.Get(raw, "data").String()
+	err = json.Unmarshal([]byte(data), &tags)
+	err = errors.Trace(err)
 	return
 }
 
-// ListAllTags list all tags and filter by key
-func (c *Client) ListAllTags(key string) ([]*Option, error) {
-	allTags := make([]*Option, 0)
-	cursor := 0
+func (c *Client) ListAllTags() (result []*TagItem, err error) {
+	cursor := StartCursor
 	for {
-		count, tags, err := c.ListTags(key, cursor)
+		var tags []*TagItem
+		tags, cursor, err = c.ListTags("", cursor)
 		if err != nil {
-			return nil, err
+			err = errors.Trace(err)
+			return
 		}
-		allTags = append(allTags, tags...)
-		l := len(allTags)
-		if l == count {
+		result = append(result, tags...)
+		if cursor == "" {
 			break
 		}
-		cursor = l
 	}
-	return allTags, nil
+	return
 }
 
-// ListAllCategories list all categories
-func (c *Client) ListAllCategories() (categories []*Option, err error) {
-	endpoint := "/tag_api/v1/query_category_list"
-	var data string
-	data, err = c.Post(endpoint, nil)
+func ConvertTagNamesToIDs(client *Client, names []string) (ids []string, err error) {
+	tags, err := client.ListAllTags()
 	if err != nil {
+		err = errors.Trace(err)
 		return
 	}
-	d := gjson.Parse(data)
-	categories = make([]*Option, 0)
-	for _, tag := range d.Get("data").Array() {
-		categories = append(categories, &Option{
-			ID:   tag.Get("category_id").String(),
-			Name: tag.Get("category.category_name").String(),
-		})
+
+	nameIDMap := make(map[string]string)
+	for _, t := range tags {
+		nameIDMap[t.Tag.Name] = t.ID
+	}
+	for _, name := range names {
+		if id, ok := nameIDMap[name]; ok {
+			ids = append(ids, id)
+		} else {
+			color.Yellow("! Tag '%s' not found!", name)
+		}
 	}
 	return
 }

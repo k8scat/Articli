@@ -1,7 +1,6 @@
 package juejin
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,30 +8,15 @@ import (
 
 func TestListTags(t *testing.T) {
 	setupClient(t)
-	count, tags, err := client.ListTags("docker", 0)
+	tags, count, err := client.ListTags("docker", StartCursor)
 	assert.Nil(t, err)
-	fmt.Printf("count: %d\n", count)
-	fmt.Printf("get: %d\n", len(tags))
-	for _, tag := range tags {
-		fmt.Printf("id: %s, name: %s\n", tag.ID, tag.Name)
-	}
-}
-
-func TestListAllTags(t *testing.T) {
-	setupClient(t)
-	tags, err := client.ListAllTags("")
-	assert.Nil(t, err)
-	fmt.Printf("get: %d\n", len(tags))
-	for _, tag := range tags {
-		fmt.Printf("id: %s, name: %s\n", tag.ID, tag.Name)
-	}
+	assert.NotEqual(t, 0, len(tags))
+	assert.NotEqual(t, 0, count)
 }
 
 func TestListAllCategories(t *testing.T) {
 	setupClient(t)
-	categories, err := client.ListAllCategories()
+	categories, err := client.ListCategories()
 	assert.Nil(t, err)
-	for _, c := range categories {
-		fmt.Printf("id: %s, name: %s\n", c.ID, c.Name)
-	}
+	assert.NotEqual(t, 0, len(categories))
 }

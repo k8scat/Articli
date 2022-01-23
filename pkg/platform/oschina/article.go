@@ -9,7 +9,20 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-const ArticleURLFormat = "https://my.oschina.net/k8scat/blog/%s"
+const ArticleURLFormat = "https://my.oschina.net/%s/blog/%s"
+
+type MarkdownOptions struct {
+	Publish       bool   `yaml:"publish"`
+	Title         string `yaml:"title"`
+	Category      string `yaml:"category"`
+	Field         string `yaml:"field"`
+	OriginURL     string `yaml:"origin_url"`
+	Original      bool   `yaml:"original"`
+	Privacy       bool   `yaml:"privacy"`
+	DownloadImage bool   `yaml:"download_image"`
+	Top           bool   `yaml:"top"`
+	DenyComment   bool   `yaml:"deny_comment"`
+}
 
 // SaveArticle publish new article if id is empty
 // or update existed article.

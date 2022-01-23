@@ -12,9 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -42,9 +40,6 @@ const (
 
 var (
 	newLine = []byte{'\n'}
-
-	// if object matches reserved string, no need to encode them
-	reservedObjectNames = regexp.MustCompile("^[a-zA-Z0-9-_.~/]+$")
 )
 
 type ImageX struct {
@@ -108,11 +103,6 @@ type ImageURL struct {
 	MainURL   string `json:"main_url"`
 }
 
-type GetImageResponse struct {
-	Data *ImageURL `json:"data"`
-	APIError
-}
-
 func (c *Client) GetImageURL(uri string) (*ImageURL, error) {
 	endpoint := "/imagex/get_img_url"
 	params := &url.Values{
@@ -126,7 +116,7 @@ func (c *Client) GetImageURL(uri string) (*ImageURL, error) {
 	if data == "" {
 		return nil, errors.Errorf("invalid response: %s", raw)
 	}
-	result := new(ImageURL)
+	var result *ImageURL
 	err = json.Unmarshal([]byte(data), &result)
 	return result, errors.Trace(err)
 }
@@ -371,18 +361,33 @@ func makeHMac(key []byte, data []byte) []byte {
 	return hash.Sum(nil)
 }
 
-func (ix *ImageX) Upload(rawurl, filePath, auth string) error {
-	crc32, err := hashFileCRC32(filePath)
-	if err != nil {
-		return errors.Trace(err)
+// Upload upload image to ByteDance Storage, support local file and web resource
+func (ix *ImageX) Upload(uploadURL, path, auth string) error {
+	var data []byte
+	if isValidURL(path) {
+		resp, err := http.Get(path)
+		if err != nil {
+			return errors.Trace(err)
+		}
+		defer resp.Body.Close()
+		data, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return errors.Trace(err)
+		}
+	} else {
+		var err error
+		data, err = ioutil.ReadFile(path)
+		if err != nil {
+			return errors.Trace(err)
+		}
 	}
-	file, err := os.Open(filePath)
-	if err != nil {
-		return errors.Trace(err)
-	}
-	defer file.Close()
 
-	req, err := http.NewRequest(http.MethodPost, rawurl, file)
+	crc32, err := hashFileCRC32(bytes.NewBuffer(data))
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, uploadURL, bytes.NewBuffer(data))
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -407,16 +412,25 @@ func (ix *ImageX) Upload(rawurl, filePath, auth string) error {
 
 // hashFileCRC32 generate CRC32 hash of a file
 // Refer https://mrwaggel.be/post/generate-crc32-hash-of-a-file-in-golang-turorial/
-func hashFileCRC32(filePath string) (string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return "", errors.Trace(err)
-	}
-	defer file.Close()
+func hashFileCRC32(r io.Reader) (string, error) {
 	tablePolynomial := crc32.MakeTable(polynomialCRC32)
 	hash := crc32.New(tablePolynomial)
-	if _, err := io.Copy(hash, file); err != nil {
+	if _, err := io.Copy(hash, r); err != nil {
 		return "", errors.Trace(err)
 	}
 	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+
+// https://golangcode.com/how-to-check-if-a-string-is-a-url/
+func isValidURL(s string) bool {
+	_, err := url.ParseRequestURI(s)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+	return true
 }

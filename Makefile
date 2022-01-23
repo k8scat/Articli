@@ -1,10 +1,10 @@
-NAME := articli
+NAME := acli
 CGO_ENABLED = 0
 BUILD_GOOS = $(shell go env GOOS)
 GO := go
 BUILD_TARGET = build
 COMMIT := $(shell git rev-parse --short HEAD)
-BIN_PATH := $(shell rm -f articli && which articli || echo "/usr/local/bin/articli")
+BIN_PATH := $(shell rm -f acli && which acli || echo "/usr/local/bin/acli")
 VERSION := dev-$(shell git describe --tags $(shell git rev-list --tags --max-count=1) || echo "1.0.0")
 BUILD_FLAGS = -ldflags "-X main.version=$(VERSION) \
 	-X main.commit=$(COMMIT) \
@@ -61,9 +61,6 @@ release: build-all
 clean: ## Clean the generated articlifacts
 	rm -rf bin release
 	rm -rf coverage.out
-	rm -rf app/cmd/test-app.xml
-	rm -rf app/test-app.xml
-	rm -rf util/test-utils.xml
 
 .PHONY: copy
 copy: build
@@ -104,16 +101,7 @@ fmt:
 
 .PHONY: test
 test:
-	mkdir -p bin
-	go test ./pkg ./internal ./cmd/ -v -count=1 -coverprofile coverage.out
-	go test ./app/cmd -v -count=1
-#	go test ./util -v -count=1
-#	go test ./client -v -count=1 -coverprofile coverage.out
-#	go test ./app -v -count=1
-#	go test ./app/health -v -count=1
-#	go test ./app/helper -v -count=1
-#	go test ./app/i18n -v -count=1
-#	go test ./app/cmd -v -count=1
+	go test ./pkg/platform/juejin -v -count=1 -coverprofile coverage.out
 
 .PHONY: test-release
 test-release:
@@ -121,12 +109,7 @@ test-release:
 
 .PHONY: dep
 dep:
-	go get github.com/AlecAivazis/survey/v2
-	go get github.com/spf13/cobra
-	go get github.com/spf13/viper
-	go get gopkg.in/yaml.v2
-	go get github.com/Pallinder/go-randomdata
-	go install github.com/gosuri/uiprogress
+	go mod download
 
 .PHONY: build-image
 build-image:

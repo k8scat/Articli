@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,7 +12,6 @@ import (
 	"github.com/k8scat/articli/pkg/cmd/juejin"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -26,7 +24,7 @@ var (
 	cfg         = new(config.Config)
 
 	rootCmd = &cobra.Command{
-		Use:   "articli",
+		Use:   "acli",
 		Short: "Manage articles in multi platforms.",
 	}
 )
@@ -52,16 +50,15 @@ func initConfig() {
 				log.Fatalf("create config file failed: %+v", errors.Trace(err))
 			}
 			defer f.Close()
-			b, _ := yaml.Marshal(config.Config{})
-			f.Write(b)
+			cfg = new(config.Config)
+			if err = config.SaveConfig(cfgFile, cfg); err != nil {
+				log.Fatalf("write config file failed: %+v", errors.Trace(err))
+			}
 		}
 	}
 
-	b, err := ioutil.ReadFile(cfgFile)
-	if err != nil {
-		log.Fatalf("read config file failed: %+v", errors.Trace(err))
-	}
-	err = yaml.Unmarshal(b, &cfg)
+	var err error
+	cfg, err = config.ParseConfig(cfgFile)
 	if err != nil {
 		log.Fatalf("parse config file failed: %+v", errors.Trace(err))
 	}
@@ -74,8 +71,7 @@ func main() {
 		}
 	}()
 
-	args := os.Args
-	if len(args) == 2 && (args[1] == "--version" || args[1] == "-v") {
+	if showVersion {
 		fmt.Println("Release version:", version)
 		fmt.Println("Git commit:", commit)
 		fmt.Println("Build date:", date)

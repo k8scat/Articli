@@ -8,8 +8,8 @@ import (
 )
 
 func TestListAllTechnicalFields(t *testing.T) {
-	setup(t)
-	fields, err := c.ListAllTechnicalFields()
+	setupClient(t)
+	fields, err := client.ListAllTechnicalFields()
 	assert.Nil(t, err)
 	for i, f := range fields {
 		fmt.Printf("%d. name: %s, val: %s\n", i+1, f.Name, f.ID)
@@ -17,8 +17,8 @@ func TestListAllTechnicalFields(t *testing.T) {
 }
 
 func TestListAllCategories(t *testing.T) {
-	setup(t)
-	categories, err := c.ListAllCategories()
+	setupClient(t)
+	categories, err := client.ListAllCategories()
 	assert.Nil(t, err)
 	for i, cate := range categories {
 		fmt.Printf("%d. name: %s, val: %s\n", i+1, cate.Name, cate.ID)

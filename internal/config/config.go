@@ -8,12 +8,12 @@ import (
 )
 
 type Config struct {
-	Platforms *Platforms `yaml:"platforms"`
+	Platforms Platforms `yaml:"platforms"`
 }
 
 type Platforms struct {
-	Juejin  *Juejin  `yaml:"juejin"`
-	OSChina *OSChina `yaml:"oschina"`
+	Juejin  Juejin  `yaml:"juejin"`
+	OSChina OSChina `yaml:"oschina"`
 }
 
 type Juejin struct {
