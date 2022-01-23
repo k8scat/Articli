@@ -33,11 +33,11 @@ jobs:
           # Token for homebrew-tap repo: https://github.com/k8scat/homebrew-tap
           HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
 
-      - name: Bump formula
-        uses: dawidd6/action-homebrew-bump-formula@v3
-        with:
-          token: ${{ secrets.HOMEBREW_TOKEN }}
-          formula: articli
+#      - name: Bump formula
+#        uses: dawidd6/action-homebrew-bump-formula@v3
+#        with:
+#          token: ${{ secrets.HOMEBREW_TOKEN }}
+#          formula: articli
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
