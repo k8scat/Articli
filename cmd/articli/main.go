@@ -49,7 +49,12 @@ func initConfig() {
 			log.Fatalf("get home dir failed: %+v", errors.Trace(err))
 		}
 
-		cfgFile = filepath.Join(homeDir, ".articli.yml")
+		cfgDir := filepath.Join(homeDir, ".config", "articli")
+		if err = os.MkdirAll(cfgDir, os.ModePerm); err != nil {
+			log.Fatalf("create config dir failed: %+v", errors.Trace(err))
+		}
+
+		cfgFile = filepath.Join(cfgDir, "config.yml")
 		f, err := os.Stat(cfgFile)
 		// Init default config if default config file not exists
 		if err != nil || f.IsDir() {

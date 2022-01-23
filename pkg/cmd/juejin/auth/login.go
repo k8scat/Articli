@@ -69,7 +69,9 @@ var (
 
 			client, err := juejinsdk.NewClient(cookie)
 			if err != nil {
-				return errors.Errorf("invalid cookie: %+v", errors.Trace(err))
+				fmt.Printf("error validating cookie: %s\n", err.Error())
+				os.Exit(1)
+				return nil
 			}
 			fmt.Print("✓ Logged in as ")
 			bo.Printf("%s\n", client.User.Name)
