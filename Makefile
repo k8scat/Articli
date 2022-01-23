@@ -72,6 +72,8 @@ get-golint:
 
 .PHONY: tools
 tools: get-golint
+	brew install goreleaser/tap/goreleaser
+	brew install --build-from-source upx
 
 .PHONY: verify
 verify: dep tools lint

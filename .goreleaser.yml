@@ -19,6 +19,7 @@ builds:
       - -X main.date={{.Date}}
       - -w
       - -s
+    main: ./cmd/articli
 dist: release # The dist folder
 archives:
   - name_template: "{{ .Binary }}-{{ .Os }}-{{ .Arch }}"
