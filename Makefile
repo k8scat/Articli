@@ -6,10 +6,11 @@ BUILD_TARGET = build
 COMMIT := $(shell git rev-parse --short HEAD)
 BIN_PATH := $(shell rm -f acli && which acli || echo "/usr/local/bin/acli")
 VERSION := dev-$(shell git describe --tags $(shell git rev-list --tags --max-count=1) || echo "1.0.0")
+BUILD_DATE := $(shell date +'%Y-%m-%d')
 BUILD_FLAGS = -ldflags "-X main.version=$(VERSION) \
 	-X main.commit=$(COMMIT) \
-	-X main.date=$(shell date +'%Y-%m-%d')" \
-	--trimpath
+	-X main.date=$(BUILD_DATE) -w -s" \
+	-trimpath
 MAIN_SRC_FILE = cmd/articli/main.go
 
 .PHONY: build
@@ -115,4 +116,8 @@ dep:
 
 .PHONY: build-image
 build-image:
-	docker build . -t k8scat/$(NAME)
+	docker build -t k8scat/articli \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg COMMIT=$(COMMIT) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		.
