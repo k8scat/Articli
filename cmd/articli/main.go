@@ -19,19 +19,27 @@ var (
 	commit  = "none"
 	date    = "unknown"
 
-	cfgFile     string
-	showVersion bool
-	cfg         = new(config.Config)
+	cfgFile string
+	cfg     *config.Config
 
 	rootCmd = &cobra.Command{
 		Use:   "acli",
 		Short: "Manage articles in multi platforms.",
 	}
+
+	versionCmd = &cobra.Command{
+		Use:   "version",
+		Short: "Show version information",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Release version:", version)
+			fmt.Println("Git commit:", commit)
+			fmt.Println("Build date:", date)
+		},
+	}
 )
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "An alternative config file")
-	rootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version information")
 }
 
 func initConfig() {
@@ -71,17 +79,11 @@ func main() {
 		}
 	}()
 
-	if showVersion {
-		fmt.Println("Release version:", version)
-		fmt.Println("Git commit:", commit)
-		fmt.Println("Build date:", date)
-		return
-	}
-
 	initConfig()
+
+	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(juejin.NewJuejinCmd(cfgFile, cfg))
-	// rootCmd.AddCommand(oschina.NewOSChinaCmd(cfg))
-	// rootCmd.AddCommand(article.NewPublishCmd(cfg))
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("execute command failed: %+v", errors.Trace(err))
 	}
