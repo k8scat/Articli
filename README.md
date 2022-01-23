@@ -41,6 +41,10 @@
 - [ ] [开源中国](https://oschina.net)
 - [ ] [CSDN](https://csdn.net)
 
+## 安装
+
+Please download from the [releases page](https://github.com/k8scat/Articli/releases).
+
 ## 文章模板
 
 我们将文件内容开头的 `---` 之间的数据作为文章的配置信息。
