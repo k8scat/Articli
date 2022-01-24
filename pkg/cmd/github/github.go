@@ -14,8 +14,6 @@ var (
 	cfgFile string
 	cfg     *config.Config
 
-	authCmd *cobra.Command
-
 	githubCmd = &cobra.Command{
 		Use:   "github",
 		Short: "Manage content in github.com",
@@ -29,9 +27,7 @@ func NewGithubCmd(cf string, c *config.Config) *cobra.Command {
 		client, _ = githubsdk.NewClient(cfg.Platforms.Github.Token)
 	}
 
-	authCmd = auth.NewAuthCmd(cfgFile, cfg, client)
-
-	githubCmd.AddCommand(authCmd)
+	githubCmd.AddCommand(auth.NewAuthCmd(cfgFile, cfg, client))
 	githubCmd.AddCommand(file.NewFileCmd(client))
 	return githubCmd
 }
