@@ -49,8 +49,7 @@ var (
 	}
 )
 
-func newListCmd() *cobra.Command {
+func init() {
 	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Keyword")
 	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of drafts to list")
-	return listCmd
 }

@@ -3,6 +3,7 @@ package auth
 import (
 	"bufio"
 	"fmt"
+	githubsdk "github.com/k8scat/articli/pkg/platform/github"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -10,27 +11,26 @@ import (
 	"github.com/fatih/color"
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/internal/config"
-	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/spf13/cobra"
 )
 
 var (
-	cookieStdin bool
+	tokenStdin bool
 
 	loginCmd = &cobra.Command{
 		Use:   "login",
-		Short: "Authenticate with juejin.cn",
+		Short: "Authenticate with github.com",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			bo := color.New(color.Bold)
 			wo := color.New(color.FgWhite)
 
-			var cookie string
-			if cookieStdin {
+			var token string
+			if tokenStdin {
 				b, err := ioutil.ReadAll(os.Stdin)
 				if err != nil {
 					return errors.Trace(err)
 				}
-				cookie = strings.TrimSpace(string(b))
+				token = strings.TrimSpace(string(b))
 			} else {
 				s := bufio.NewScanner(os.Stdin)
 				if client != nil {
@@ -55,22 +55,22 @@ var (
 				}
 
 				for {
-					bo.Print("? Paste browser cookie: ")
+					bo.Print("? Paste browser token: ")
 					if !s.Scan() {
 						return nil
 					}
 
-					cookie = strings.TrimSpace(s.Text())
-					if cookie != "" {
+					token = strings.TrimSpace(s.Text())
+					if token != "" {
 						break
 					}
 					color.Red("X Sorry, your reply was invalid: Value is required")
 				}
 			}
 
-			client, err := juejinsdk.NewClient(cookie)
+			client, err := githubsdk.NewClient(token)
 			if err != nil {
-				fmt.Printf("error validating cookie: %s\n", err.Error())
+				fmt.Printf("error validating token: %s\n", err.Error())
 				os.Exit(1)
 				return nil
 			}
@@ -80,7 +80,7 @@ var (
 			fmt.Print("Logged in as ")
 			bo.Printf("%s\n", client.User.Name)
 
-			cfg.Platforms.Juejin.Cookie = cookie
+			cfg.Platforms.Github.Token = token
 			if err = config.SaveConfig(cfgFile, cfg); err != nil {
 				return errors.Errorf("save config failed: %+v", errors.Trace(err))
 			}
@@ -90,5 +90,5 @@ var (
 )
 
 func init() {
-	loginCmd.Flags().BoolVar(&cookieStdin, "with-cookie", false, "Read cookie from standard input")
+	loginCmd.Flags().BoolVar(&tokenStdin, "with-token", false, "Read cookie from standard input")
 }

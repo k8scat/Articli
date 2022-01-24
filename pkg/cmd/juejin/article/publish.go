@@ -27,7 +27,6 @@ var (
 	}
 )
 
-func newPublishCmd() *cobra.Command {
+func init() {
 	publishCmd.Flags().BoolVarP(&syncToOrg, "sync-org", "s", false, "Sync to org")
-	return publishCmd
 }

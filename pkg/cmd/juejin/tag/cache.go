@@ -84,9 +84,8 @@ var (
 	}
 )
 
-func newCacheCmd() *cobra.Command {
+func init() {
 	cacheCmd.Flags().BoolVarP(&force, "force", "f", false, "Force cache tags")
-	return cacheCmd
 }
 
 func getCacheFile() (string, error) {

@@ -18,6 +18,15 @@
 
 ## Support
 
+- [GitHub]
+  - [x] 认证
+    - [x] 登录
+    - [x] 登出
+    - [x] 查看状态
+  - [x] 仓库文件
+    - [x] 上传
+    - [x] 列取
+    - [x] 删除
 - [掘金](https://juejin.cn)
   - [x] 认证
     - [x] 登录
@@ -72,6 +81,47 @@ Please download from the [releases page](https://github.com/k8scat/Articli/relea
 
 所有的命令都可以通过 `-h` 或 `--help` 参数查看帮助信息。
 
+### GitHub
+
+#### 登录
+
+使用 GitHub Token 进行登录
+
+```shell
+# 交互式登录
+acli github auth login
+
+# 从标准输入获取 Token
+acli github auth login --with-token < token.txt
+```
+
+#### 上传文件
+
+```shell
+# 上传 README.md 文件到 testrepo 仓库
+acli github file upload --repo testrepo README.md
+```
+
+#### 列取文件
+
+```shell
+# 获取代码仓 testrepo 根目录的文件列表，包括文件和目录
+acli github file get --repo testrepo
+
+# 如果 testpath 是目录，则获取代码仓 testrepo 中 testpath 目录下的文件；
+# 如果 testpath 是文件，则只获取该文件
+acli github file get --repo testrepo --path testpath
+```
+
+![articli-github-file-upload.png](https://raw.githubusercontent.com/storimg/img/master/k8scat.com/articli-github-file-get.png)
+
+#### 删除文件
+
+```shell
+# 使用 -o 或 --owner 可以指定仓库的 owner
+acli github file delete --owner testowner --repo testrepo --path testdir/filename.txt
+```
+
 ### 掘金 CLI
 
 #### 登录
@@ -82,7 +132,7 @@ Please download from the [releases page](https://github.com/k8scat/Articli/relea
 # 交互式登录
 acli juejin auth login
 
-# 从文件中读取 Cookie
+# 从标准输入获取 Cookie
 acli juejin auth login --with-cookie < cookie.txt
 ```
 

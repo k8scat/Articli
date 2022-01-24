@@ -72,11 +72,10 @@ var (
 	}
 )
 
-func newListCmd() *cobra.Command {
+func init() {
 	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Filter keyword")
 	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of tags to list")
 	listCmd.Flags().BoolVar(&useCache, "use-cache", false, "Use cache data")
-	return listCmd
 }
 
 func filterTags(tags []*juejinsdk.TagItem, keyword string) []*juejinsdk.TagItem {

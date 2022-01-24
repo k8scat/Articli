@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/k8scat/articli/pkg/cmd/github"
 	"log"
 	"os"
 	"path/filepath"
@@ -82,6 +83,7 @@ func main() {
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(juejin.NewJuejinCmd(cfgFile, cfg))
+	rootCmd.AddCommand(github.NewGithubCmd(cfgFile, cfg))
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("execute command failed: %+v", errors.Trace(err))
