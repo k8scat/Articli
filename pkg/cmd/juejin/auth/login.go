@@ -89,7 +89,6 @@ var (
 	}
 )
 
-func newLoginCmd() *cobra.Command {
+func init() {
 	loginCmd.Flags().BoolVar(&cookieStdin, "with-cookie", false, "Read cookie from standard input")
-	return loginCmd
 }

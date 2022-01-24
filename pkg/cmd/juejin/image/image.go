@@ -22,8 +22,11 @@ var (
 	}
 )
 
+func init() {
+	imageCmd.AddCommand(uploadImageCmd)
+}
+
 func NewImageCmd(c *juejinsdk.Client) *cobra.Command {
 	client = c
-	imageCmd.AddCommand(newUploadCmd())
 	return imageCmd
 }

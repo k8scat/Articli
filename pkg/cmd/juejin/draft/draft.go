@@ -22,11 +22,14 @@ var (
 	}
 )
 
-func NewDraftCmd(c *juejinsdk.Client) *cobra.Command {
-	client = c
-	draftCmd.AddCommand(newListCmd())
+func init() {
+	draftCmd.AddCommand(listCmd)
 	draftCmd.AddCommand(editCmd)
 	draftCmd.AddCommand(createCmd)
 	draftCmd.AddCommand(deleteCmd)
+}
+
+func NewDraftCmd(c *juejinsdk.Client) *cobra.Command {
+	client = c
 	return draftCmd
 }

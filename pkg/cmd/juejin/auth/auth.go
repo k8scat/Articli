@@ -17,13 +17,15 @@ var (
 	}
 )
 
+func init() {
+	authCmd.AddCommand(loginCmd)
+	authCmd.AddCommand(logoutCmd)
+	authCmd.AddCommand(statusCmd)
+}
+
 func NewAuthCmd(cf string, c *config.Config, cl *juejinsdk.Client) *cobra.Command {
 	cfgFile = cf
 	cfg = c
 	client = cl
-
-	authCmd.AddCommand(newLoginCmd())
-	authCmd.AddCommand(logoutCmd)
-	authCmd.AddCommand(statusCmd)
 	return authCmd
 }

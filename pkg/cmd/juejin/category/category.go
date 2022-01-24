@@ -22,8 +22,11 @@ var (
 	}
 )
 
+func init() {
+	categoryCmd.AddCommand(listCmd)
+}
+
 func NewCategoryCmd(c *juejinsdk.Client) *cobra.Command {
 	client = c
-	categoryCmd.AddCommand(listCmd)
 	return categoryCmd
 }

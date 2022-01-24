@@ -22,12 +22,15 @@ var (
 	}
 )
 
+func init() {
+	articleCmd.AddCommand(listCmd)
+	articleCmd.AddCommand(createCmd)
+	articleCmd.AddCommand(viewCmd)
+	articleCmd.AddCommand(publishCmd)
+	articleCmd.AddCommand(deleteCmd)
+}
+
 func NewArticleCmd(c *juejinsdk.Client) *cobra.Command {
 	client = c
-	articleCmd.AddCommand(newListCmd())
-	articleCmd.AddCommand(newCreateCmd())
-	articleCmd.AddCommand(viewCmd)
-	articleCmd.AddCommand(newPublishCmd())
-	articleCmd.AddCommand(deleteCmd)
 	return articleCmd
 }

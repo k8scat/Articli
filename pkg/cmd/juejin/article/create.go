@@ -27,7 +27,6 @@ var (
 	}
 )
 
-func newCreateCmd() *cobra.Command {
+func init() {
 	createCmd.Flags().BoolVarP(&syncToOrg, "sync", "s", false, "Sync to org")
-	return createCmd
 }
