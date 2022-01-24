@@ -40,13 +40,25 @@ checksum:
   name_template: "checksums.txt"
 snapshot:
   name_template: "{{ .Tag }}-next-{{.ShortCommit}}"
+# https://goreleaser.com/customization/changelog/
 changelog:
-  skip: true
+  skip: false
+  use: git
   sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
   filters:
     exclude:
       - "^docs:"
       - "^test:"
+# https://goreleaser.com/customization/homebrew/
 brews:
   - name: acli
     tap:
