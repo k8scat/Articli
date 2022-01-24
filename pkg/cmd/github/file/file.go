@@ -18,7 +18,7 @@ var (
 
 	fileCmd = &cobra.Command{
 		Use:   "file",
-		Short: "Manage files",
+		Short: "Manage files in a repository",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if client == nil {
 				if token == "" {
