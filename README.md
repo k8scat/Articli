@@ -60,15 +60,15 @@ npm install -g @k8scat/articli
 ### Homebrew
 
 ```shell
-# 使用 tap
+# 添加 tap
 brew tap k8scat/tap
-# 安装 Articli
+# 安装
 brew install acli
 
-# 直接安装
+# 一条命令直接安装
 brew install k8scat/tap/acli
 
-# 升级
+# 后续升级
 brew update
 brew upgrade k8scat/tap/acli
 ```
