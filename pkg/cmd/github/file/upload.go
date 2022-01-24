@@ -24,11 +24,10 @@ var (
 			if message == "" {
 				message = fmt.Sprintf("Uploaded by Articli at %s", time.Now().Format("2006-01-02 15:04:05"))
 			}
-			filepath := args[0]
 			req := &githubsdk.UploadFileRequest{
-				Filepath: filepath,
-				Message:  message,
-				SHA:      sha,
+				Path:    args[0],
+				Message: message,
+				SHA:     sha,
 			}
 			result, err := client.UploadFile(owner, repo, path, req)
 			if err != nil {

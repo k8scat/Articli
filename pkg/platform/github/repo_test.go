@@ -23,8 +23,8 @@ func TestUploadFile(t *testing.T) {
 			repo:  "testrepo",
 			path:  fmt.Sprintf("testdir/%d.png", time.Now().Unix()),
 			req: &UploadFileRequest{
-				Message:  fmt.Sprintf("new file uploaded at %s", time.Now().Format("2006-01-02 15:04:05")),
-				Filepath: "/Users/hsowan/workspace/articli/images/go.png",
+				Message: fmt.Sprintf("new file uploaded at %s", time.Now().Format("2006-01-02 15:04:05")),
+				Path:    "/Users/hsowan/workspace/articli/images/go.png",
 			},
 		},
 		{
@@ -32,8 +32,8 @@ func TestUploadFile(t *testing.T) {
 			repo:  "testrepo",
 			path:  fmt.Sprintf("testdir/%d.md", time.Now().Unix()),
 			req: &UploadFileRequest{
-				Message:  fmt.Sprintf("update file1 at %s", time.Now().Format("2006-01-02 15:04:05")),
-				Filepath: "/Users/hsowan/workspace/articli/README.md",
+				Message: fmt.Sprintf("update file1 at %s", time.Now().Format("2006-01-02 15:04:05")),
+				Path:    "/Users/hsowan/workspace/articli/README.md",
 			},
 		},
 	}

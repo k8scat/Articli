@@ -7,6 +7,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
+	"github.com/k8scat/articli/pkg/utils"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
@@ -26,7 +27,7 @@ type UploadFileRequest struct {
 	Content   string     `json:"content"`
 	Committer *Committer `json:"committer,omitempty"`
 	Author    *Author    `json:"author,omitempty"`
-	Filepath  string     `json:"-"`
+	Path      string     `json:"-"`
 }
 
 func (p *UploadFileRequest) Validate() error {
@@ -34,7 +35,7 @@ func (p *UploadFileRequest) Validate() error {
 		return errors.New("message is required")
 	}
 	if p.Content == "" {
-		if p.Filepath != "" {
+		if p.Path != "" {
 			var err error
 			p.Content, err = p.fileEncoded()
 			return errors.Trace(err)
@@ -45,12 +46,27 @@ func (p *UploadFileRequest) Validate() error {
 }
 
 func (p *UploadFileRequest) fileEncoded() (string, error) {
-	if p.Filepath == "" {
+	if p.Path == "" {
 		return "", errors.New("file is empty")
 	}
-	b, err := ioutil.ReadFile(p.Filepath)
-	if err != nil {
-		return "", errors.Trace(err)
+
+	var b []byte
+	if utils.IsValidURL(p.Path) {
+		resp, err := http.Get(p.Path)
+		if err != nil {
+			return "", errors.Trace(err)
+		}
+		defer resp.Body.Close()
+		b, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", errors.Trace(err)
+		}
+	} else {
+		var err error
+		b, err = ioutil.ReadFile(p.Path)
+		if err != nil {
+			return "", errors.Trace(err)
+		}
 	}
 	return base64.StdEncoding.EncodeToString(b), nil
 }
@@ -106,8 +122,8 @@ func (c *Client) UploadFile(owner, repo, path string, req *UploadFileRequest) (*
 	}
 
 	if path == "" {
-		if req.Filepath != "" {
-			path = filepath.Base(req.Filepath)
+		if req.Path != "" {
+			path = filepath.Base(req.Path)
 		} else {
 			path = uuid.NewString()
 		}

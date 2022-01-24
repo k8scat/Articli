@@ -126,6 +126,12 @@ acli github auth login --with-token < token.txt
 ```shell
 # 上传 README.md 文件到 testrepo 仓库
 acli github file upload --repo testrepo README.md
+
+# 使用网络资源
+# 使用 -p 指定在仓库中存储的路径
+acli github file upload --repo testrepo \
+  -p testdir/homebrew-social-card.png \
+  https://brew.sh/assets/img/homebrew-social-card.png
 ```
 
 #### 列取文件
