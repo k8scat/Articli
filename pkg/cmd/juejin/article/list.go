@@ -56,7 +56,7 @@ var (
 
 func newListCmd() *cobra.Command {
 	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of articles to list")
-	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Keyword")
+	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Filter Keyword")
 	listCmd.Flags().IntVarP(&status, "status", "s", 0, "Audit status, 0: 全部, 1: 审核中, 2: 已发布, -1: 不通过")
 	return listCmd
 }

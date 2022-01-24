@@ -10,7 +10,6 @@ import (
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/internal/config"
 	"github.com/k8scat/articli/pkg/cmd/juejin"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
 
@@ -44,14 +43,9 @@ func init() {
 
 func initConfig() {
 	if cfgFile == "" {
-		homeDir, err := homedir.Dir()
+		cfgDir, err := config.GetConfigDir()
 		if err != nil {
-			log.Fatalf("get home dir failed: %+v", errors.Trace(err))
-		}
-
-		cfgDir := filepath.Join(homeDir, ".config", "articli")
-		if err = os.MkdirAll(cfgDir, os.ModePerm); err != nil {
-			log.Fatalf("create config dir failed: %+v", errors.Trace(err))
+			log.Fatalf("get config dir failed: %+v", errors.Trace(err))
 		}
 
 		cfgFile = filepath.Join(cfgDir, "config.yml")
