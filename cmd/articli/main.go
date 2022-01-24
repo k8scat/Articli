@@ -24,7 +24,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:   "acli",
-		Short: "Manage articles in multi platforms.",
+		Short: "Manage content in multi platforms.",
 	}
 
 	versionCmd = &cobra.Command{
