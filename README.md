@@ -3,8 +3,7 @@
 **Articli** is an Article CLI tool for managing content in multi platforms.
 
 **Articli** 是一个可以管理多个平台内容的命令行工具，
-通过解析 `Markdown` 文件内容以及调用平台接口，实现文章的发布、更新等功能，
-目前仅支持[掘金](https://juejin.cn)，后续会继续支持其他平台。
+通过解析 `Markdown` 文件内容以及调用平台接口，实现内容管理。
 
 最终目标是基于 **本地文件** + **Git 代码仓** 管理所有的文章，
 并且可以通过命令行操作以及 CI/CD，实现文章在各个平台的发布、更新等功能。
