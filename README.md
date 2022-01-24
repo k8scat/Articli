@@ -101,6 +101,12 @@ Please download from the [releases page](https://github.com/k8scat/Articli/relea
 
 所有的命令都可以通过 `-h` 或 `--help` 参数查看帮助信息。
 
+### 查看版本
+
+```shell
+acli version
+```
+
 ### GitHub
 
 #### 登录
