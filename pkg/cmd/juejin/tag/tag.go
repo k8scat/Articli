@@ -24,5 +24,6 @@ var (
 func NewTagCmd(c *juejinsdk.Client) *cobra.Command {
 	client = c
 	tagCmd.AddCommand(newListCmd())
+	tagCmd.AddCommand(newCacheCmd())
 	return tagCmd
 }

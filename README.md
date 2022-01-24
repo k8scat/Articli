@@ -156,13 +156,26 @@ acli juejin article view 7055689358657093646
 #### 查看分类
 
 ```shell
-acli juejin category list -k 后端
+acli juejin category list
 ```
 
 #### 查看标签
 
 ```shell
+# 过滤关键字
 acli juejin tag list -k Go
+```
+
+#### 缓存标签
+
+由于标签的数量比较多，可以通过设置缓存加快读取速度
+
+```shell
+# 设置缓存
+acli juejin tag cache
+
+# 使用缓存
+acli jujin tag list --use-cache
 ```
 
 #### 上传图片
