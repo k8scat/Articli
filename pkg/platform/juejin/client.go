@@ -43,7 +43,7 @@ func NewClient(cookie string) (*Client, error) {
 }
 
 // Get request and return raw body
-func (c *Client) Get(endpoint string, params *url.Values) (string, error) {
+func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
 	if endpoint == "" {
 		return "", errors.New("empty request endpoint")
 	}
@@ -54,8 +54,8 @@ func (c *Client) Get(endpoint string, params *url.Values) (string, error) {
 	}
 	req.Header.Set("Cookie", c.Cookie)
 	req.Header.Set("User-Agent", browser.Computer())
-	if params != nil {
-		req.URL.RawQuery = params.Encode()
+	if query != nil {
+		req.URL.RawQuery = query.Encode()
 	}
 
 	res, err := http.DefaultClient.Do(req)

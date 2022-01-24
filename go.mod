@@ -9,7 +9,9 @@ require (
 	github.com/antchfx/htmlquery v1.2.3
 	github.com/antchfx/xpath v1.1.11 // indirect
 	github.com/cli/browser v1.1.0
+	github.com/dustin/go-humanize v1.0.0
 	github.com/fatih/color v1.13.0
+	github.com/google/uuid v1.3.0
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0

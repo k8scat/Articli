@@ -48,7 +48,14 @@ var (
 
 			cfg.Platforms.Juejin.Cookie = ""
 			err := config.SaveConfig(cfgFile, cfg)
-			return errors.Trace(err)
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			gr := color.New(color.FgGreen)
+			gr.Print("✓ ")
+			fmt.Printf("Logged out of juejin.cn account '%s'\n", client.User.Name)
+			return nil
 		},
 	}
 )

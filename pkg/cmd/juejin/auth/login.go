@@ -74,7 +74,10 @@ var (
 				os.Exit(1)
 				return nil
 			}
-			fmt.Print("✓ Logged in as ")
+
+			gr := color.New(color.FgGreen)
+			gr.Print("✓ ")
+			fmt.Print("Logged in as ")
 			bo.Printf("%s\n", client.User.Name)
 
 			cfg.Platforms.Juejin.Cookie = cookie

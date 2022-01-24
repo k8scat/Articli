@@ -1,9 +1,10 @@
 package image
 
 import (
-	"github.com/juju/errors"
+	"fmt"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -12,11 +13,11 @@ var (
 	imageCmd = &cobra.Command{
 		Use:   "image",
 		Short: "Manage images",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if client == nil {
-				return errors.New("please login first")
+				fmt.Println("please login first")
+				os.Exit(1)
 			}
-			return nil
 		},
 	}
 )
