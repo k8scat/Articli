@@ -17,11 +17,11 @@ var (
 			}
 
 			markdownFile := args[0]
-			id, err := juejinsdk.SaveDraftOrArticle(client, juejinsdk.SaveTypeDraft, markdownFile, false)
+			_, draftID, err := juejinsdk.SaveDraftOrArticle(client, juejinsdk.SaveTypeDraft, markdownFile, false)
 			if err != nil {
 				return errors.Trace(err)
 			}
-			fmt.Println(id)
+			fmt.Println(draftID)
 			return nil
 		},
 	}
