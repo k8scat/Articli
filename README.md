@@ -18,7 +18,7 @@
 
 ## Support
 
-- [GitHub]
+- [GitHub](https://github.com)
   - [x] 认证
     - [x] 登录
     - [x] 登出
