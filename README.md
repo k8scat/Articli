@@ -51,20 +51,41 @@
 
 ## 安装
 
-### homebrew
+### NPM
 
 ```shell
+npm install -g @k8scat/articli
+```
+
+### Homebrew
+
+```shell
+# 使用 tap
+brew tap k8scat/tap
+# 安装 Articli
+brew install acli
+
+# 直接安装
 brew install k8scat/tap/acli
+
+# 升级
+brew update
+brew upgrade k8scat/tap/acli
 ```
 
 ### Docker
 
 ```shell
 # 将配置文件的目录挂载到容器内
-docker run --rm \
+docker run \
+  -it \
+  --rm \
   -v $HOME/.config/articli:/root/.config/articli \
-  acli:latest \
+  k8scat/articli:latest \
   juejin auth login
+
+# 升级
+docker pull k8scat/articli:latest
 ```
 
 ### 二进制
@@ -203,12 +224,13 @@ acli juejin image upload https://launchtoast.com/wp-content/uploads/2021/11/lear
 # 将 acli juejin 简化成 jcli
 cat >> ~/.bashrc << EOF
 alias jcli="acli juejin"
+alias gcli="acli github"
 EOF
 
 # 生效
 source ~/.bashrc
 
-# 使用简化后的命令查看登录状态
+# 使用简化后的命令查看掘金的登录状态
 jcli auth status
 ```
 

@@ -1,0 +1,28 @@
+{
+  "name": "@k8scat/articli",
+  "version": "0.2.2",
+  "description": "Manage content in multi platforms.",
+  "main": "index.js",
+  "goBinary": {
+    "name": "acli",
+    "path": "./bin",
+    "url": "https://github.com/k8scat/articli/releases/download/v{{version}}/acli-{{platform}}-{{arch}}.tar.gz"
+  },
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k8scat/articli.git"
+  },
+  "author": "K8sCat <k8scat@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/k8scat/articli/issues"
+  },
+  "homepage": "https://github.com/k8scat/articli#readme",
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  }
+}

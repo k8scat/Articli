@@ -4,3 +4,5 @@ bin
 acli
 *.txt
 *.tar.gz
+node_modules/
+.npmrc

@@ -73,7 +73,7 @@ brews:
       name: goreleaserbot
       email: goreleaser@carlosbecker.com
     homepage: "https://github.com/k8scat/articli"
-    description: "Manage articles in multi platforms."
+    description: "Manage content in multi platforms."
 
     # Packages your package depends on.
     dependencies:
