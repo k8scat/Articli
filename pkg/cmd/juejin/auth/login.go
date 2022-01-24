@@ -22,6 +22,7 @@ var (
 		Short: "Authenticate with juejin.cn",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			bo := color.New(color.Bold)
+			wo := color.New(color.FgWhite)
 
 			var cookie string
 			if cookieStdin {
@@ -35,7 +36,7 @@ var (
 				if client != nil {
 					for {
 						bo.Printf("? You're already logged in as '%s'. Do you want to re-login? ", client.User.Name)
-						color.White("(y/N) ")
+						wo.Print("(y/N) ")
 
 						if !s.Scan() {
 							return nil
