@@ -4,14 +4,12 @@ import (
 	"log"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var (
 	client *Client
 
-	cookie = ""
+	cookie = "_user_behavior_=31ba6082-c0fe-4c33-ba06-8b7a92400343; _ga=GA1.2.704792458.1640619283; oscid=InA%2F3ilXagEF1N0E%2FiHqqeAxKuxCLSKysKwCm%2B67wMW%2B4jiVEBUoO%2FY7j7TCKEwkHhueKRv1TyjjRKFxI8uG9G1D86e9zOk58rttEVuTkpUtmr0BHUsDw7cNM%2F258nD2twixuuj1iydvCZ%2F69Fj%2B8jsthuf0PPYN; Hm_lvt_a411c4d1664dd70048ee98afe7b28f0b=1640755313,1641404618,1641404709,1642991616; Hm_lpvt_a411c4d1664dd70048ee98afe7b28f0b=1643113319"
 )
 
 func setupClient(t *testing.T) {
@@ -20,7 +18,9 @@ func setupClient(t *testing.T) {
 	}
 	var err error
 	client, err = NewClient(cookie)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestNewClient(t *testing.T) {

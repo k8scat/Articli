@@ -2,25 +2,66 @@ package oschina
 
 import (
 	"fmt"
-	"testing"
-
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func TestListAllTechnicalFields(t *testing.T) {
+func TestSaveDraft(t *testing.T) {
 	setupClient(t)
-	fields, err := client.ListAllTechnicalFields()
+
+	bad := &ContentParams{
+		Content: "test",
+	}
+	_, err := client.SaveDraft(bad)
+	assert.NotNil(t, err)
+
+	good := &ContentParams{
+		DraftID:        "2686735",
+		Title:          "test1112222++111",
+		Content:        "test",
+		Category:       "11723151",
+		TechnicalField: "21",
+	}
+	id, err := client.SaveDraft(good)
 	assert.Nil(t, err)
-	for i, f := range fields {
-		fmt.Printf("%d. name: %s, val: %s\n", i+1, f.Name, f.ID)
+	fmt.Println(id)
+}
+
+func TestDeleteDraft(t *testing.T) {
+	setupClient(t)
+
+	err := client.DeleteDraft("2686724")
+	assert.Nil(t, err)
+}
+
+func TestListDrafts(t *testing.T) {
+	setupClient(t)
+
+	drafts, err := client.ListDrafts(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range drafts {
+		fmt.Printf("name: %s, id: %s\n", d.Title, d.ID)
 	}
 }
 
-func TestListAllCategories(t *testing.T) {
+func TestGetDraftDetail(t *testing.T) {
 	setupClient(t)
-	categories, err := client.ListAllCategories()
-	assert.Nil(t, err)
-	for i, cate := range categories {
-		fmt.Printf("%d. name: %s, val: %s\n", i+1, cate.Name, cate.ID)
+
+	draft, err := client.GetDraftDetail("2686735")
+	if err != nil {
+		t.Fatal(err)
 	}
+	fmt.Printf("%+v\n", draft)
+}
+
+func TestPublishDraft(t *testing.T) {
+	setupClient(t)
+
+	articleID, err := client.PublishDraft("2686735")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(client.BuildArticleURL(articleID))
 }

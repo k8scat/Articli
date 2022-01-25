@@ -2,118 +2,266 @@ package oschina
 
 import (
 	"fmt"
-	"net/url"
-	"strings"
-
 	"github.com/antchfx/htmlquery"
+	"github.com/google/go-querystring/query"
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
+	"net/url"
+	"path/filepath"
+	"strings"
 )
 
-const (
-	ContentTypeMarkdown = "3"
-	ContentTypeHTML     = "4"
-
-	TypeOriginal    = "1"
-	TypeNotOriginal = "4"
-)
-
-type Option struct {
-	Name string
-	ID   string
-}
-
-// SaveDraft create new draft if id is empty
-// or update draft
-func (c *Client) SaveDraft(id, title, content string) (string, error) {
-	path := fmt.Sprintf("%s%s", c.BaseURL, "/blog/save_draft")
-	payload := url.Values{
-		"content_type": []string{ContentTypeMarkdown},
-		"title":        []string{title},
-		"content":      []string{content},
-		"draft":        []string{id},
+// SaveDraft create a new draft if id is empty, otherwise update draft
+func (c *Client) SaveDraft(params *ContentParams) (string, error) {
+	if err := params.Validate(); err != nil {
+		return "", errors.Trace(err)
 	}
-	body := strings.NewReader(payload.Encode())
-	raw, err := c.Post(path, body, DefaultHandler)
+
+	rawurl := c.BuildURL("/blog/save_draft")
+	values, err := query.Values(params)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
-	if id == "" {
-		id = gjson.Get(raw, "result.draft").String()
+	raw, err := c.Post(rawurl, values, DefaultHandler)
+	if err != nil {
+		return "", errors.Trace(err)
 	}
-	return id, nil
+	if params.DraftID != "" {
+		return params.DraftID, nil
+	}
+	return gjson.Get(raw, "result.draft").String(), nil
 }
 
-// ListAllTechnicalFields list all available technical fields
-func (c *Client) ListAllTechnicalFields() ([]*Option, error) {
-	path := fmt.Sprintf("%s%s", c.BaseURL, "/blog/write")
+func (c *Client) DeleteDraft(id string) error {
+	rawurl := c.BuildURL("/blog/delete_draft")
+	values := url.Values{
+		"id": {id},
+	}
+	_, err := c.Post(rawurl, values, DefaultHandler)
+	return errors.Trace(err)
+}
+
+type Draft struct {
+	ID    string
+	Title string
+	URL   string
+}
+
+func (c *Client) ListDrafts(page int) ([]*Draft, error) {
+	if page < 1 {
+		page = 1
+	}
+	path := fmt.Sprintf("%s%s", c.BaseURL, fmt.Sprintf("/admin/drafts?p=%d", page))
 	raw, err := c.Get(path, nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	doc, err := htmlquery.Parse(strings.NewReader(raw))
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	q := `//div[@class="required field set-bottom field-groups"]//div[@class="menu"]/div[@class="item"]`
+	q := `//div[@class="ui relaxed divided items list-container"]//a[@class="header"]`
 	nodes, err := htmlquery.QueryAll(doc, q)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	fields := make([]*Option, 0)
+	drafts := make([]*Draft, 0)
 	for _, node := range nodes {
-		filed := &Option{
-			Name: node.FirstChild.Data,
+		draft := &Draft{
+			Title: node.FirstChild.Data,
 		}
 		for _, attr := range node.Attr {
-			if attr.Key == "data-value" {
-				filed.ID = attr.Val
+			if attr.Key == "href" {
+				draft.URL = attr.Val
+				draft.ID = filepath.Base(attr.Val)
 			}
 		}
-		fields = append(fields, filed)
+		drafts = append(drafts, draft)
 	}
-	return fields, nil
+	return drafts, nil
 }
 
-// ListAllCategories list all existed categories
-func (c *Client) ListAllCategories() ([]*Option, error) {
-	path := fmt.Sprintf("%s%s", c.BaseURL, "/blog/write")
+func (c *Client) GetDraftDetail(id string) (*ContentParams, error) {
+	path := fmt.Sprintf("%s%s", c.BaseURL, fmt.Sprintf("/blog/write/draft/%s", id))
 	raw, err := c.Get(path, nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
+
 	doc, err := htmlquery.Parse(strings.NewReader(raw))
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	q := `//select[@id="catalogDropdown"]/option`
+
+	result := new(ContentParams)
+
+	// Title
+	q := `//form[@class="ui write-article form"]//input[@name="title" and @type="text"]`
 	nodes, err := htmlquery.QueryAll(doc, q)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	categories := make([]*Option, 0)
-	for _, node := range nodes {
-		category := &Option{
-			Name: node.FirstChild.Data,
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one title node")
+	}
+	node := nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			result.Title = attr.Val
 		}
+	}
+
+	// Content
+	q = `//form[@class="ui write-article form"]//textarea[@name="body"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one body node")
+	}
+	result.Content = nodes[0].LastChild.Data
+
+	// 原文链接
+	q = `//form[@class="ui write-article form"]//input[@name="origin_url" and @type="text"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one origin_url node")
+	}
+	node = nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			result.OriginalURL = attr.Val
+		}
+	}
+
+	// 仅自己可见
+	q = `//form[@class="ui write-article form"]//input[@name="privacy" and @type="checkbox"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one privacy node")
+	}
+	node = nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			if attr.Val == "1" {
+				result.Privacy = 1
+			}
+		}
+	}
+
+	// 置顶
+	q = `//form[@class="ui write-article form"]//input[@name="as_top" and @type="checkbox"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one as_top node")
+	}
+	node = nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			if attr.Val == "1" {
+				result.Top = 1
+			}
+		}
+	}
+
+	// 禁止评论
+	q = `//form[@class="ui write-article form"]//input[@name="deny_comment" and @type="checkbox"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one deny_comment node")
+	}
+	node = nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			if attr.Val == "1" {
+				result.DenyComment = 1
+			}
+		}
+	}
+
+	// 下载外站图片到本地
+	q = `//form[@class="ui write-article form"]//input[@name="downloadImg" and @type="checkbox"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if len(nodes) != 1 {
+		return nil, errors.New("found more none or than one downloadImg node")
+	}
+	node = nodes[0]
+	for _, attr := range node.Attr {
+		if attr.Key == "value" {
+			if attr.Val == "1" {
+				result.DownloadImage = 1
+			}
+		}
+	}
+
+	// 文章类型
+	q = `//form[@class="ui write-article form"]//input[@name="type"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	checked := false
+	for _, node := range nodes {
 		for _, attr := range node.Attr {
+			if attr.Key == "checked" {
+				checked = true
+			}
 			if attr.Key == "value" {
-				category.ID = attr.Val
+				result.Type = ArticleType(attr.Val)
 			}
 		}
-		categories = append(categories, category)
+		if checked {
+			break
+		}
 	}
-	return categories, nil
+
+	// 文章专辑 Category
+	q = `//select[@id="catalogDropdown"]/option`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	for _, node := range nodes {
+		for _, attr := range node.Attr {
+			if attr.Key == "selected" {
+				categoryName := node.LastChild.Data
+				category, err := c.GetCategoryByName(categoryName)
+				if err != nil {
+					return nil, errors.Trace(err)
+				}
+				if category != nil {
+					result.Category = category.ID
+				}
+			}
+		}
+	}
+	return result, nil
 }
 
-// AddCategory add a new category
-func (c *Client) AddCategory(name string) error {
-	path := fmt.Sprintf("%s%s", c.BaseURL, "/blog/quick_add_blog_catalog")
-	payload := url.Values{
-		"space":     []string{c.SpaceID},
-		"user_code": []string{c.UserCode},
-		"name":      []string{name},
+func (c *Client) PublishDraft(id string) (articleID string, err error) {
+	var params *ContentParams
+	params, err = c.GetDraftDetail(id)
+	if err != nil {
+		err = errors.Trace(err)
+		return
 	}
-	body := strings.NewReader(payload.Encode())
-	_, err := c.Post(path, body, DefaultHandler)
-	return err
+	articleID, err = c.SaveArticle(params)
+	err = errors.Trace(err)
+	return
 }

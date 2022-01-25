@@ -105,6 +105,9 @@ fmt:
 .PHONY: test
 test:
 	go test ./pkg/platform/juejin -v -count=1 -coverprofile coverage.out
+	# oschina
+	go test ./pkg/platform/oschina -v -count=1 -run TestListAllCategories
+	go test ./pkg/platform/oschina -v -count=1 -run TestListAllTechnicalFields
 
 .PHONY: test-release
 test-release:

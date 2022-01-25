@@ -1,12 +1,14 @@
 package oschina
 
 import (
+	"fmt"
 	"github.com/juju/errors"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/tidwall/gjson"
@@ -25,7 +27,10 @@ func NewClient(cookie string) (*Client, error) {
 		Cookie: cookie,
 	}
 	err := parseUser(client)
-	return client, errors.Trace(err)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	return client, nil
 }
 
 // parseUser parse user data from html
@@ -80,8 +85,8 @@ func parseUser(c *Client) error {
 }
 
 // Get request with GET method and support response handler
-func (c *Client) Get(path string, params *url.Values, handler func(r *http.Response) (string, error)) (string, error) {
-	req, err := http.NewRequest(http.MethodGet, path, nil)
+func (c *Client) Get(rawurl string, params *url.Values, handler func(r *http.Response) (string, error)) (string, error) {
+	req, err := http.NewRequest(http.MethodGet, rawurl, nil)
 	if err != nil {
 		return "", errors.Trace(err)
 	}
@@ -98,17 +103,19 @@ func (c *Client) Get(path string, params *url.Values, handler func(r *http.Respo
 	if handler == nil {
 		defer res.Body.Close()
 		b, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return "", errors.Trace(err)
-		}
-		return string(b), nil
+		return string(b), errors.Trace(err)
 	}
 
 	result, err := handler(res)
 	return result, errors.Trace(err)
 }
 
-func (c *Client) Post(path string, body io.Reader, handler func(r *http.Response) (string, error)) (string, error) {
+func (c *Client) Post(path string, values url.Values, handler func(r *http.Response) (string, error)) (string, error) {
+	var body io.Reader
+	if values != nil {
+		values.Add("user_code", c.UserCode)
+		body = strings.NewReader(values.Encode())
+	}
 	req, err := http.NewRequest(http.MethodPost, path, body)
 	if err != nil {
 		return "", errors.Trace(err)
@@ -145,4 +152,11 @@ func DefaultHandler(r *http.Response) (string, error) {
 		return "", errors.New(raw)
 	}
 	return raw, nil
+}
+
+func (c *Client) BuildURL(path string) string {
+	if !strings.HasPrefix(path, "/") {
+		path = fmt.Sprintf("/%s", path)
+	}
+	return fmt.Sprintf("%s%s", c.BaseURL, path)
 }
