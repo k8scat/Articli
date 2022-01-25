@@ -92,7 +92,7 @@ jobs:
           NPM_PASS: ${{ secrets.NPM_PASS }}
           NPM_EMAIL: k8scat@gmail.com
         run: |
-          sed -i "s/\"version\": \"ci-version\"/\"version\": \"${{ steps.release.outputs.version }}\"/g" package.json
+          sed -i "s/\"version\": \".*\..*\..*\"/\"version\": \"${{ steps.release.outputs.version }}\"/g" package.json
           
           npm install
           npm install -g npm-cli-login
@@ -103,4 +103,4 @@ jobs:
           git config --global user.email "k8scat@gmail.com"
           git add package.json
           git commit -m "Release NPM @k8scat/articli ${{ steps.release.outputs.version }}"
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/k8scat/articli.git main
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/k8scat/articli.git HEAD:main
