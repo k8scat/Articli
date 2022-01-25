@@ -82,3 +82,23 @@ jobs:
             "VERSION=${{ steps.release.outputs.version }}"
             "COMMIT=${{ steps.release.outputs.commit }}"
             "BUILD_DATE=${{ steps.release.outputs.build_date }}"
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Publish NPM
+        env:
+          NPM_USER: k8scat
+          NPM_PASS: ${{ secrets.NPM_PASS }}
+          NPM_EMAIL: k8scat@gmail.com
+        run: |
+          sed -i "s/\"version\": \"ci-version\"/\"version\": \"${{ steps.release.outputs.version }}\"/g" package.json
+          
+          npm install
+          npm install -g npm-cli-login
+          npm-cli-login
+          npm publish --access public
+          
+          git add package.json
+          git commit -m "Release NPM @k8scat/articli ${{ steps.release.outputs.version }}"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/k8scat/articli.git main
