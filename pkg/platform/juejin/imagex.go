@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/k8scat/articli/pkg/utils"
 	"hash/crc32"
 	"io"
 	"io/ioutil"
@@ -364,7 +365,7 @@ func makeHMac(key []byte, data []byte) []byte {
 // Upload upload image to ByteDance Storage, support local file and web resource
 func (ix *ImageX) Upload(uploadURL, path, auth string) error {
 	var data []byte
-	if isValidURL(path) {
+	if utils.IsValidURL(path) {
 		resp, err := http.Get(path)
 		if err != nil {
 			return errors.Trace(err)
@@ -419,18 +420,4 @@ func hashFileCRC32(r io.Reader) (string, error) {
 		return "", errors.Trace(err)
 	}
 	return hex.EncodeToString(hash.Sum(nil)), nil
-}
-
-// https://golangcode.com/how-to-check-if-a-string-is-a-url/
-func isValidURL(s string) bool {
-	_, err := url.ParseRequestURI(s)
-	if err != nil {
-		return false
-	}
-
-	u, err := url.Parse(s)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return false
-	}
-	return true
 }

@@ -92,6 +92,8 @@ func (c *Client) DeleteArticle(id string) error {
 	return err
 }
 
+func (c *Client) ListArticles() {}
+
 func btoa(b bool) string {
 	if b {
 		return "1"

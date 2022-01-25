@@ -5,6 +5,7 @@ import (
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/pkg/markdown"
 	"gopkg.in/yaml.v2"
+	"strings"
 	"time"
 )
 
@@ -16,46 +17,55 @@ const (
 )
 
 // SaveDraftOrArticle syncToOrg is only used for saving article
-func SaveDraftOrArticle(client *Client, saveType SaveType, markdownFile string, syncToOrg bool) (string, error) {
+func SaveDraftOrArticle(client *Client, saveType SaveType, markdownFile string, syncToOrg bool) (string, string, error) {
 	mark, err := markdown.Parse(markdownFile)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
 	metaRaw := mark.Meta
 	meta, err := markdown.ConvertMapSlice(metaRaw)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
 	v, ok := markdown.GetValueFromMapSlice(mark.Meta, "juejin")
 	if !ok {
-		return "", errors.New("no juejin meta")
+		return "", "", errors.New("no juejin meta")
 	}
 	juejinMetaRaw, ok := v.(yaml.MapSlice)
 	if !ok {
-		return "", errors.Errorf("invalid juejin meta: %v", v)
+		return "", "", errors.Errorf("invalid juejin meta: %v", v)
 	}
 	juejinMeta, err := markdown.ConvertMapSlice(juejinMetaRaw)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
 	title, err := markdown.GetStringValue("title", juejinMeta, meta)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 	coverImage, err := markdown.GetStringValue("cover_image", juejinMeta, meta)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
+
+	content := string(mark.Content)
 
 	briefContent, _ := markdown.GetStringValue("brief_content", juejinMeta, meta)
 	if briefContent == "" {
 		briefContent = string(mark.Brief)
 	}
+	briefContentLen := len([]rune(briefContent))
+	if briefContentLen > 100 {
+		s := compressContent(briefContent)
+		briefContent = string([]rune(s)[:80])
+	} else if briefContentLen < 50 {
+		s := compressContent(content)
+		briefContent = string([]rune(s)[:80])
+	}
 
-	content := string(mark.Content)
 	prefixContent, _ := markdown.GetStringValue("prefix_content", juejinMeta, meta)
 	if prefixContent != "" {
 		content = fmt.Sprintf("%s\n\n%s", prefixContent, content)
@@ -67,39 +77,50 @@ func SaveDraftOrArticle(client *Client, saveType SaveType, markdownFile string, 
 
 	tags, err := markdown.GetStringArray(juejinMeta, "tags")
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 	tagIDs, err := ConvertTagNamesToIDs(client, tags)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
 	category, ok := juejinMeta["category"].(string)
 	if !ok {
-		return "", errors.New("no category")
+		return "", "", errors.New("no category")
 	}
 	categoryItem, err := GetCategoryByName(client, category)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
-	var id string
 	isCreate := false
-	id, _ = juejinMeta[fmt.Sprintf("%s_id", saveType)].(string)
-	if id == "" {
-		isCreate = true
+	var articleID, draftID string
+	switch saveType {
+	case SaveTypeArticle:
+		articleID, _ = juejinMeta["article_id"].(string)
+		if articleID == "" {
+			isCreate = true
+		}
+		draftID, _ = juejinMeta["draft_id"].(string)
+	case SaveTypeDraft:
+		draftID, _ = juejinMeta["draft_id"].(string)
+		if draftID == "" {
+			isCreate = true
+		}
+	default:
+		return "", "", errors.Errorf("invalid save type: %s", saveType)
 	}
 
 	switch saveType {
 	case SaveTypeArticle:
-		id, err = client.SaveArticle(id, title, briefContent, content, coverImage, categoryItem.ID, tagIDs, syncToOrg)
+		articleID, draftID, err = client.SaveArticle(articleID, draftID, title, briefContent, content, coverImage, categoryItem.ID, tagIDs, syncToOrg)
 	case SaveTypeDraft:
-		id, err = client.SaveDraft(id, title, briefContent, content, coverImage, categoryItem.ID, tagIDs)
+		draftID, err = client.SaveDraft(draftID, title, briefContent, content, coverImage, categoryItem.ID, tagIDs)
 	default:
-		return "", errors.Errorf("invalid save type: %s", saveType)
+		return "", "", errors.Errorf("invalid save type: %s", saveType)
 	}
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
 	}
 
 	now := time.Now().Format("2006-01-02 15:04:05")
@@ -108,10 +129,25 @@ func SaveDraftOrArticle(client *Client, saveType SaveType, markdownFile string, 
 	} else {
 		mark.Meta, err = markdown.UpdateMapSlice(mark.Meta, fmt.Sprintf("juejin.%s_update_time", saveType), now)
 	}
-	mark.Meta, err = markdown.UpdateMapSlice(mark.Meta, fmt.Sprintf("juejin.%s_id", saveType), id)
+
+	mark.Meta, err = markdown.UpdateMapSlice(mark.Meta, "juejin.draft_id", draftID)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", "", errors.Trace(err)
+	}
+	if articleID != "" {
+		mark.Meta, err = markdown.UpdateMapSlice(mark.Meta, "juejin.article_id", articleID)
+		if err != nil {
+			return "", "", errors.Trace(err)
+		}
 	}
 	err = mark.WriteFile(markdownFile)
-	return id, errors.Trace(err)
+	return articleID, draftID, errors.Trace(err)
+}
+
+func compressContent(s string) string {
+	s = strings.Replace(s, "\n", "", -1)
+	s = strings.Replace(s, "\r", "", -1)
+	s = strings.Replace(s, "\t", "", -1)
+	s = strings.Replace(s, " ", "", -1)
+	return s
 }

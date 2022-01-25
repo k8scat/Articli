@@ -28,7 +28,6 @@ var (
 	}
 )
 
-func newUploadCmd() *cobra.Command {
+func init() {
 	uploadImageCmd.Flags().StringVarP(&region, "region", "r", juejinsdk.RegionCNNorth, "region")
-	return uploadImageCmd
 }

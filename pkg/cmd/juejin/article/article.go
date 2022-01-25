@@ -1,9 +1,10 @@
 package article
 
 import (
-	"github.com/juju/errors"
+	"fmt"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -12,21 +13,24 @@ var (
 	articleCmd = &cobra.Command{
 		Use:   "article",
 		Short: "Manage articles",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if client == nil {
-				return errors.New("please login first")
+				fmt.Println("please login first")
+				os.Exit(1)
 			}
-			return nil
 		},
 	}
 )
 
+func init() {
+	articleCmd.AddCommand(listCmd)
+	articleCmd.AddCommand(createCmd)
+	articleCmd.AddCommand(viewCmd)
+	articleCmd.AddCommand(publishCmd)
+	articleCmd.AddCommand(deleteCmd)
+}
+
 func NewArticleCmd(c *juejinsdk.Client) *cobra.Command {
 	client = c
-	articleCmd.AddCommand(newListCmd())
-	articleCmd.AddCommand(newCreateCmd())
-	articleCmd.AddCommand(viewCmd)
-	articleCmd.AddCommand(newPublishCmd())
-	articleCmd.AddCommand(deleteCmd)
 	return articleCmd
 }

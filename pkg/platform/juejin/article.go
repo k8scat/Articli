@@ -106,32 +106,24 @@ type Tag struct {
 }
 
 // SaveArticle create an article if id is empty, otherwise update the article
-func (c *Client) SaveArticle(id, title, brief, content, coverImage, categoryID string, tagIDs []string, syncToOrg bool) (string, error) {
-	var draftID string
+func (c *Client) SaveArticle(articleID, draftID, title, brief, content, coverImage, categoryID string, tagIDs []string, syncToOrg bool) (string, string, error) {
 	var err error
-	if id == "" {
-		// Delete created draft if there is any error
-		defer func() {
-			if err != nil && draftID != "" {
-				c.DeleteDraft(draftID)
-			}
-		}()
-		draftID, err = c.SaveDraft(draftID, title, brief, content, coverImage, categoryID, tagIDs)
-		if err != nil {
-			return "", errors.Trace(err)
-		}
-	} else {
+	if articleID != "" && draftID == "" {
 		var article *Article
-		article, err = c.GetArticle(id)
+		article, err = c.GetArticle(articleID)
 		if err != nil {
-			return "", errors.Trace(err)
+			return "", "", errors.Trace(err)
 		}
 		draftID = article.Info.DraftID
 	}
 
-	var articleID string
+	draftID, err = c.SaveDraft(draftID, title, brief, content, coverImage, categoryID, tagIDs)
+	if err != nil {
+		return "", "", errors.Trace(err)
+	}
+
 	articleID, err = c.PublishArticle(draftID, syncToOrg)
-	return articleID, errors.Trace(err)
+	return articleID, draftID, errors.Trace(err)
 }
 
 // ListArticles list articles by keyword

@@ -14,7 +14,7 @@ import (
 var (
 	logoutCmd = &cobra.Command{
 		Use:   "logout",
-		Short: "Log out of juejin.cn",
+		Short: "Log out of github.com",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if client == nil {
 				fmt.Println("not logged in")
@@ -28,7 +28,7 @@ var (
 			s := bufio.NewScanner(os.Stdin)
 
 			for {
-				bo.Printf("? Are you sure you want to log out of juejin.cn account '%s'?", client.User.Name)
+				bo.Printf("? Are you sure you want to log out of github.com account '%s'?", client.User.Name)
 				wo.Print("(Y/n) ")
 
 				if !s.Scan() {
@@ -46,7 +46,7 @@ var (
 				break
 			}
 
-			cfg.Platforms.Juejin.Cookie = ""
+			cfg.Platforms.Github.Token = ""
 			err := config.SaveConfig(cfgFile, cfg)
 			if err != nil {
 				return errors.Trace(err)
@@ -54,7 +54,7 @@ var (
 
 			gr := color.New(color.FgGreen)
 			gr.Print("✓ ")
-			fmt.Printf("Logged out of juejin.cn account '%s'\n", client.User.Name)
+			fmt.Printf("Logged out of github.com account '%s'\n", client.User.Name)
 			return nil
 		},
 	}

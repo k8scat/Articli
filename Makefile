@@ -131,3 +131,7 @@ ifneq ($(TAG),)
 else
 	@echo "Usage: make delete-tag TAG=<tag>"
 endif
+
+.PHONY: npm-publish
+npm-publish:
+	npm publish --access public
