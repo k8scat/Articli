@@ -1,8 +1,8 @@
 # Articli
 
 [![Release](https://github.com/k8scat/Articli/actions/workflows/release.yaml/badge.svg)](https://github.com/k8scat/Articli/actions/workflows/release.yaml)
-![GitHub Repo stars](https://img.shields.io/github/stars/k8scat/articli?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/k8scat/articli?style=social)
+[![GitHub Repo stars](https://img.shields.io/github/stars/k8scat/articli?style=social)](https://github.com/k8scat/Articli/stargazers)
+[![GitHub watchers](https://img.shields.io/github/watchers/k8scat/articli?style=social)](https://github.com/k8scat/Articli/watchers)
 
 **Articli** is an Article CLI tool for managing content in multi platforms.
 
