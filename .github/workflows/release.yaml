@@ -99,6 +99,8 @@ jobs:
           npm-cli-login
           npm publish --access public
           
+          git config --global user.name "K8sCat"
+          git config --global user.email "k8scat@gmail.com"
           git add package.json
           git commit -m "Release NPM @k8scat/articli ${{ steps.release.outputs.version }}"
           git push https://${{ secrets.GITHUB_TOKEN }}@github.com/k8scat/articli.git main
