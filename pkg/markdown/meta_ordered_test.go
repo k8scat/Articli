@@ -21,12 +21,12 @@ e:
 `
 	var m Meta
 	err := yaml.Unmarshal([]byte(s), &m)
-	if err != nil {
-		t.Fatal(err)
+	assert.Nil(t, err)
+	if m != nil {
+		v := m.Get("b.c")
+		assert.NotNil(t, v)
+		assert.Equal(t, 2, v)
 	}
-	v := m.Get("b.c")
-	assert.NotNil(t, v)
-	assert.Equal(t, 2, v)
 }
 
 func TestGetStringArray(t *testing.T) {
@@ -44,12 +44,12 @@ e:
 `
 	var m Meta
 	err := yaml.Unmarshal([]byte(s), &m)
-	if err != nil {
-		t.Fatal(err)
+	assert.Nil(t, err)
+	if m != nil {
+		v := m.GetStringArray("e.f.h")
+		assert.NotNil(t, v)
+		assert.Equal(t, []string{"5", "6"}, v)
 	}
-	v := m.GetStringArray("e.f.h")
-	assert.NotNil(t, v)
-	assert.Equal(t, []string{"5", "6"}, v)
 }
 
 func TestSet(t *testing.T) {
@@ -67,14 +67,15 @@ e:
 `
 	var m Meta
 	err := yaml.Unmarshal([]byte(s), &m)
-	if err != nil {
-		t.Fatal(err)
+	assert.Nil(t, err)
+
+	if m != nil {
+		assert.Equal(t, 2, m.Get("b.c"))
+		m.Set("b.c", 4)
+		assert.Equal(t, 4, m.Get("b.c"))
+		m = m.Set("i", "7")
+		assert.Equal(t, "7", m.Get("i"))
+		m = m.Set("b.k", 8)
+		assert.Equal(t, 8, m.Get("b.k"))
 	}
-	assert.Equal(t, 2, m.Get("b.c"))
-	m.Set("b.c", 4)
-	assert.Equal(t, 4, m.Get("b.c"))
-	m = m.Set("i", "7")
-	assert.Equal(t, "7", m.Get("i"))
-	m = m.Set("b.k", 8)
-	assert.Equal(t, 8, m.Get("b.k"))
 }

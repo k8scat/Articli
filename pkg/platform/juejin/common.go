@@ -34,7 +34,10 @@ func SaveDraftOrArticle(client *Client, saveType SaveType, markdownFile string, 
 
 	title := meta.GetString("title")
 	if title == "" {
-		return "", "", errors.New("title not found")
+		title = mark.Meta.GetString("title")
+		if title == "" {
+			return "", "", errors.New("title is required")
+		}
 	}
 
 	coverImage := meta.GetString("cover_image")
@@ -123,6 +126,5 @@ func compressContent(s string) string {
 	s = strings.Replace(s, "\n", "", -1)
 	s = strings.Replace(s, "\r", "", -1)
 	s = strings.Replace(s, "\t", "", -1)
-	s = strings.Replace(s, " ", "", -1)
 	return s
 }

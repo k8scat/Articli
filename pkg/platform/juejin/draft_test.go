@@ -1,23 +1,19 @@
 package juejin
 
 import (
-	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListAllDrafts(t *testing.T) {
-	setupClient(t)
-	ids, err := client.ListAllDrafts()
-	assert.Nil(t, err)
-	for _, id := range ids {
-		fmt.Printf("id: %s\n", id)
+	client, err := NewClient(os.Getenv("ARTICLI_JUEJIN_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
 	}
-}
 
-func TestCreateDraft(t *testing.T) {
-	// req := &CreateDraftRequest{
-	// 	Title: "",
-	// }
+	_, err = client.ListAllDrafts()
+	assert.Nil(t, err)
 }

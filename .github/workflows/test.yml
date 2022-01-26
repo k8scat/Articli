@@ -13,7 +13,11 @@ jobs:
         with:
           go-version: 1.17
       - name: Run coverage
-        run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
+        env:
+          ARTICLI_GITHUB_TOKEN: ${{ secrets.ARTICLI_GITHUB_TOKEN }}
+          ARTICLI_OSCHINA_COOKIE: ${{ secrets.ARTICLI_OSCHINA_COOKIE }}
+          ARTICLI_JUEJIN_COOKIE: ${{ secrets.ARTICLI_JUEJIN_COOKIE }}
+        run: go test ./... -race -coverprofile=coverage.out -covermode=atomic || true
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
 

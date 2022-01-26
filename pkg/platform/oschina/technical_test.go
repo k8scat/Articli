@@ -1,19 +1,19 @@
 package oschina
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
 func TestListTechnicalFields(t *testing.T) {
-	setupClient(t)
-	fields, err := client.ListTechnicalFields()
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
 
-	for _, f := range fields {
-		fmt.Printf("name: %s, id: %s\n", f.Name, f.ID)
-	}
-	fmt.Println(len(fields))
+	fields, err := client.ListTechnicalFields()
+	assert.Nil(t, err)
+	assert.Greater(t, 0, len(fields))
 }

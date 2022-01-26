@@ -1,19 +1,18 @@
 package oschina
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
 func TestListCategories(t *testing.T) {
-	setupClient(t)
-	categories, err := client.ListCategories()
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
 
-	for _, c := range categories {
-		fmt.Printf("name: %s, id: %s\n", c.Name, c.ID)
-	}
-	fmt.Println(len(categories))
+	_, err = client.ListCategories()
+	assert.Nil(t, err)
 }

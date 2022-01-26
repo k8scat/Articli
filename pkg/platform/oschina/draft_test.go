@@ -1,18 +1,22 @@
 package oschina
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
 func TestSaveDraft(t *testing.T) {
-	setupClient(t)
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
+	}
 
 	bad := &ContentParams{
 		Content: "test",
 	}
-	_, err := client.SaveDraft(bad)
+	_, err = client.SaveDraft(bad)
 	assert.NotNil(t, err)
 
 	good := &ContentParams{
@@ -24,44 +28,49 @@ func TestSaveDraft(t *testing.T) {
 	}
 	id, err := client.SaveDraft(good)
 	assert.Nil(t, err)
-	fmt.Println(id)
+	assert.NotEqual(t, "", id)
 }
 
 func TestDeleteDraft(t *testing.T) {
-	setupClient(t)
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
+	}
 
-	err := client.DeleteDraft("2686724")
+	err = client.DeleteDraft("2686724")
 	assert.Nil(t, err)
 }
 
 func TestListDrafts(t *testing.T) {
-	setupClient(t)
-
-	drafts, _, err := client.ListDrafts(2)
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
-	for _, d := range drafts {
-		fmt.Printf("name: %s, id: %s\n", d.Title, d.ID)
-	}
+
+	_, _, err = client.ListDrafts(2)
+	assert.Nil(t, err)
 }
 
 func TestGetDraftDetail(t *testing.T) {
-	setupClient(t)
-
-	draft, err := client.GetDraftDetail("2686735")
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
-	fmt.Printf("%+v\n", draft)
+
+	_, err = client.GetDraftDetail("2686735")
+	assert.Nil(t, err)
 }
 
 func TestPublishDraft(t *testing.T) {
-	setupClient(t)
-
-	articleID, err := client.PublishDraft("2686735")
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
-	fmt.Println(client.BuildArticleURL(articleID))
+
+	_, err = client.PublishDraft("2686735")
+	assert.Nil(t, err)
 }

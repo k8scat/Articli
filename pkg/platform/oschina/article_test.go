@@ -1,14 +1,19 @@
 package oschina
 
 import (
-	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSaveArticle(t *testing.T) {
-	setupClient(t)
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
+	}
+
 	params := &ContentParams{
 		Title:          "test111",
 		Content:        "hello",
@@ -17,22 +22,21 @@ func TestSaveArticle(t *testing.T) {
 		Privacy:        1,
 	}
 	id, err := client.SaveArticle(params)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = client.DeleteArticle(id)
 	assert.Nil(t, err)
+
+	if id != "" {
+		err = client.DeleteArticle(id)
+		assert.Nil(t, err)
+	}
 }
 
 func TestListArticles(t *testing.T) {
-	setupClient(t)
-	articles, hasNext, err := client.ListArticles(1, "")
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fail()
+		return
 	}
-	assert.Equal(t, true, hasNext)
-	for _, a := range articles {
-		fmt.Printf("title: %s, id: %s\n", a.Title, a.ID)
-	}
+
+	_, _, err = client.ListArticles(1, "")
+	assert.Nil(t, err)
 }
