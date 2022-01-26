@@ -140,3 +140,7 @@ endif
 .PHONY: npm-publish
 npm-publish:
 	npm publish --access public
+
+.PHONY: docs
+docs:
+	docsify serve docs

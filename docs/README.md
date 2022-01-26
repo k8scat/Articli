@@ -1,101 +1,117 @@
 # Articli
 
-## Support
+[![Release](https://github.com/k8scat/Articli/actions/workflows/release.yaml/badge.svg)](https://github.com/k8scat/Articli/actions/workflows/release.yaml)
+[![GitHub Repo stars](https://img.shields.io/github/stars/k8scat/articli?style=social)](https://github.com/k8scat/Articli/stargazers)
+[![GitHub watchers](https://img.shields.io/github/watchers/k8scat/articli?style=social)](https://github.com/k8scat/Articli/watchers)
+[![star](https://gitee.com/k8scat/articli/badge/star.svg?theme=dark)](https://gitee.com/k8scat/articli/stargazers)
+[![codecov](https://codecov.io/gh/k8scat/Articli/branch/main/graph/badge.svg?token=045FCRVF27)](https://codecov.io/gh/k8scat/Articli)
 
-- [GitHub](https://github.com)
-  - [x] 认证
-    - [x] 登录
-    - [x] 登出
-    - [x] 查看状态
-  - [x] 仓库文件
-    - [x] 上传
-    - [x] 列取
-    - [x] 删除
+## 支持的平台
+
 - [掘金](https://juejin.cn)
-  - [x] 认证
-    - [x] 登录
-    - [x] 登出
-    - [x] 查看状态
-  - [x] 文章
-    - [x] 列取
-    - [x] 删除
-    - [x] 发布草稿
-    - [x] 新建
-    - [x] 更新
-    - [x] 查看
-  - [x] 图片
-    - [x] 上传
-  - [x] 草稿
-    - [x] 创建
-    - [x] 列取
-    - [x] 删除
-  - [x] 列取标签
-  - [x] 列取分类
-- [x] [开源中国](https://oschina.net)
+- [开源中国](https://oschina.net)
+- [GitHub](https://github.com)
 
 ## 文章模板
 
 我们将使用文件内容开头 `---` 之间的数据作为文章的配置信息（元数据），
 根据配置信息在不同平台上创建或更新文章，参考 [文章模板](./templates/article.md)。
 
+```markdown
+---
+# 通用配置，其他平台可以继承该配置
+title: 标题1
+brief_content: 内容概要
+cover_image: https://img.alicdn.com/tfs/TB1.jpg
+
+juejin:
+  title: 标题2 # 如果不填写，则使用通用配置中的 title
+  tags:
+  - Go
+  - 程序员
+  category: 后端
+  cover_image: https://img.alicdn.com/tfs/TB1.jpg
+  brief_content: 内容概要
+  prefix_content: "这是我参与xx活动..." # 前缀内容，主要用于掘金的活动
+  suffix_content: |
+    ## Powered by
+    
+    本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
+
+  # 自动生成部分
+  draft_id: "7xxx"
+  draft_create_time: "2022-01-23 11:48:02"
+  draft_update_time: "2022-01-24 11:48:02"
+  article_id: "8xxx"
+  article_create_time: "2022-01-25 11:48:02"
+  article_update_time: "2022-01-26 11:48:02"
+
+oschina:
+  title: 标题3
+  # 文章专辑
+  category: 日常记录
+  # 推广专区
+  technical_field: 大前端
+  # 仅自己可见
+  privacy: false
+  # 如果是转载文章，请填写原文链接
+  original_url: ""
+  # 禁止评论
+  deny_comment: false
+  # 下载外站图片到本地
+  download_image: false
+  # 置顶
+  top: false
+
+  # 自动生成部分
+  draft_id: "7xxx"
+  draft_create_time: "2022-01-23 11:48:02"
+  draft_update_time: "2022-01-24 11:48:02"
+  article_id: "8xxx"
+  article_create_time: "2022-01-25 11:48:02"
+  article_update_time: "2022-01-26 11:48:02"
+---
+
+内容概要
+
+<!-- more -->
+
+正文内容
+```
+
 ## 使用说明
 
 所有的命令都可以通过 `-h` 或 `--help` 参数查看帮助信息。
 
+```shell
+$ acli --help
+Manage content in multi platforms.
+
+Usage:
+  acli [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  github      Manage content in github.com
+  help        Help about any command
+  juejin      Manage content in juejin.cn
+  oschina     Manage content in oschina.net
+  version     Show version information
+
+Flags:
+  -c, --config string   An alternative config file
+  -h, --help            help for acli
+
+Use "acli [command] --help" for more information about a command.
+```
+
 ### 查看版本
 
 ```shell
-acli version
+$ acli version
 ```
 
-### GitHub
-
-#### 登录
-
-使用 GitHub Token 进行登录
-
-```shell
-# 交互式登录
-acli github auth login
-
-# 从标准输入获取 Token
-acli github auth login --with-token < token.txt
-```
-
-#### 上传文件
-
-```shell
-# 上传 README.md 文件到 testrepo 仓库
-acli github file upload --repo testrepo README.md
-
-# 使用网络资源
-# 使用 -p 指定在仓库中存储的路径
-acli github file upload --repo testrepo \
-  -p testdir/homebrew-social-card.png \
-  https://brew.sh/assets/img/homebrew-social-card.png
-```
-
-#### 列取文件
-
-```shell
-# 获取代码仓 testrepo 根目录的文件列表，包括文件和目录
-acli github file get --repo testrepo
-
-# 如果 testpath 是目录，则获取代码仓 testrepo 中 testpath 目录下的文件；
-# 如果 testpath 是文件，则只获取该文件
-acli github file get --repo testrepo --path testpath
-```
-
-![articli-github-file-upload.png](https://raw.githubusercontent.com/storimg/img/master/k8scat.com/articli-github-file-get.png)
-
-#### 删除文件
-
-```shell
-# 使用 -o 或 --owner 可以指定仓库的 owner
-acli github file delete --owner testowner --repo testrepo --path testdir/filename.txt
-```
-
-### 掘金 CLI
+### 掘金
 
 #### 登录
 
@@ -113,7 +129,7 @@ acli juejin auth login --with-cookie < cookie.txt
 
 ```shell
 # create 命令可以通过识别文章的配置信息，自动选择创建或者更新文章，同时发布到掘金
-acli juejin article create markdown-file.md
+acli juejin article create /path/to/article.md
 ```
 
 #### 查看文章列表
@@ -169,6 +185,73 @@ acli juejin image upload leetcode-go.png
 acli juejin image upload https://launchtoast.com/wp-content/uploads/2021/11/learn-rust-programming-language.png
 ```
 
+### 开源中国
+
+#### 登录
+
+```shell
+# 交互式登录
+$ acli oschina auth login
+
+# 从标准输入中读取 cookie
+acli oschina auth login --with-cookie < cookie.txt
+```
+
+#### 创建/更新文章
+
+```shell
+$ acli oschina article create /path/to/article.md
+```
+
+### GitHub
+
+
+
+#### 登录
+
+使用 GitHub Token 进行登录
+
+```shell
+# 交互式登录
+$ acli github auth login
+
+# 从标准输入获取 Token
+$ acli github auth login --with-token < token.txt
+```
+
+#### 上传文件
+
+```shell
+# 上传 README.md 文件到 testrepo 仓库
+$ acli github file upload --repo testrepo README.md
+
+# 使用网络资源
+# 使用 -p 指定在仓库中存储的路径
+acli github file upload --repo testrepo \
+  -p testdir/homebrew-social-card.png \
+  https://brew.sh/assets/img/homebrew-social-card.png
+```
+
+#### 列取文件
+
+```shell
+# 获取代码仓 testrepo 根目录的文件列表，包括文件和目录
+acli github file get --repo testrepo
+
+# 如果 testpath 是目录，则获取代码仓 testrepo 中 testpath 目录下的文件；
+# 如果 testpath 是文件，则只获取该文件
+acli github file get --repo testrepo --path testpath
+```
+
+![articli-github-file-upload.png](https://raw.githubusercontent.com/storimg/img/master/k8scat.com/articli-github-file-get.png)
+
+#### 删除文件
+
+```shell
+# 使用 -o 或 --owner 可以指定仓库的 owner
+acli github file delete --owner testowner --repo testrepo --path testdir/filename.txt
+```
+
 ### 简化命令
 
 使用 `alias` 别名进行简化命令
@@ -177,6 +260,7 @@ acli juejin image upload https://launchtoast.com/wp-content/uploads/2021/11/lear
 # 将 acli juejin 简化成 jcli
 cat >> ~/.bashrc << EOF
 alias jcli="acli juejin"
+alias ocli="acli oschina"
 alias gcli="acli github"
 EOF
 
