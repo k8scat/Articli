@@ -2,6 +2,8 @@ package oschina
 
 import (
 	"github.com/k8scat/articli/internal/config"
+	"github.com/k8scat/articli/pkg/cmd/oschina/article"
+	"github.com/k8scat/articli/pkg/cmd/oschina/auth"
 	"github.com/spf13/cobra"
 
 	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
@@ -22,9 +24,11 @@ var (
 func NewOSChinaCmd(cf string, c *config.Config) *cobra.Command {
 	cfgFile = cf
 	cfg = c
-	if cfg.Platforms.Juejin.Cookie != "" {
+	if cfg.Platforms.OSChina.Cookie != "" {
 		client, _ = oschinasdk.NewClient(c.Platforms.OSChina.Cookie)
 	}
 
+	oschinaCmd.AddCommand(article.NewArticleCmd(client))
+	oschinaCmd.AddCommand(auth.NewAuthCmd(cfgFile, cfg, client))
 	return oschinaCmd
 }

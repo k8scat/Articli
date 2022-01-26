@@ -1,34 +1,27 @@
 package article
 
 import (
+	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
 	"github.com/spf13/cobra"
-
-	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 )
 
 var (
-	client      *juejinsdk.Client
-	cookie      string
-	articleFile string
+	client *oschinasdk.Client
 
 	articleCmd = &cobra.Command{
 		Use:   "article",
-		Short: "Manage articles in juejin.cn",
+		Short: "Manage articles in oschina.net",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			var err error
-			client, err = juejinsdk.NewClient(cookie)
-			return err
+			return nil
 		},
 	}
 )
 
 func init() {
-	// articleCmd.AddCommand(createCmd)
-	// articleCmd.AddCommand(categoryCmd)
-	// articleCmd.AddCommand(tagCmd)
+	articleCmd.AddCommand(createCmd)
 }
 
-func NewArticleCmd(c string) *cobra.Command {
-	cookie = c
+func NewArticleCmd(c *oschinasdk.Client) *cobra.Command {
+	client = c
 	return articleCmd
 }

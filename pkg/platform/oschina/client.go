@@ -20,6 +20,7 @@ type Client struct {
 	UserCode string
 	UserID   string
 	SpaceID  string
+	UserName string
 }
 
 func NewClient(cookie string) (*Client, error) {
@@ -46,6 +47,13 @@ func parseUser(c *Client) error {
 		return errors.Errorf("user url not found: %v", r)
 	}
 	c.BaseURL = r[1]
+
+	// Parse user name
+	r = regexp.MustCompile(`g_user_name" data-value="([^"]+)`).FindStringSubmatch(raw)
+	if len(r) != 2 {
+		return errors.Errorf("user name not found: %v", r)
+	}
+	c.UserName = r[1]
 
 	// Parse space id
 	ch := make(chan error, 1)

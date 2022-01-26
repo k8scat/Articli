@@ -60,13 +60,10 @@ func (p *ContentParams) Validate() error {
 	if p.Content == "" {
 		return errors.New("content is required")
 	}
-	switch p.Type {
-	case ArticleTypeReship:
-		if p.OriginalURL == "" {
-			return errors.New("origin_url is required when type is reship")
-		}
-	default:
+	if p.OriginalURL == "" {
 		p.Type = ArticleTypeOriginal
+	} else {
+		p.Type = ArticleTypeReship
 	}
 	p.ContentType = ContentTypeMarkdown
 	return nil

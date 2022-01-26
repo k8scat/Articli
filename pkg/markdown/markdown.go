@@ -16,7 +16,7 @@ var (
 )
 
 type Mark struct {
-	Meta    yaml.MapSlice
+	Meta    Meta
 	Raw     []byte
 	Content []byte
 	Brief   []byte
@@ -97,7 +97,7 @@ func Parse(filepath string) (result *Mark, err error) {
 			}
 		}
 	}
-	var meta yaml.MapSlice
+	var meta Meta
 	err = yaml.Unmarshal(metaBytes, &meta)
 	err = errors.Trace(err)
 	result.Meta = meta
@@ -197,19 +197,6 @@ func GetStringArray(m map[string]interface{}, key string) ([]string, error) {
 			return nil, errors.Errorf("invalid value type '%T' for key '%s'", v, key)
 		}
 		result[i] = s
-	}
-	return result, nil
-}
-
-// ConvertMap convert map[interface{}]interface{} into map[string]interface{}
-func ConvertMap(m map[interface{}]interface{}) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
-	for k, v := range m {
-		kStr, ok := k.(string)
-		if !ok {
-			return nil, errors.Errorf("invalid type '%T' of key '%s'", k, k)
-		}
-		result[kStr] = v
 	}
 	return result, nil
 }
