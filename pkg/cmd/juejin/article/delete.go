@@ -8,7 +8,7 @@ import (
 var (
 	deleteCmd = &cobra.Command{
 		Use:   "delete <articleIDs>",
-		Short: "Delete articles by ID",
+		Short: "Delete articles",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

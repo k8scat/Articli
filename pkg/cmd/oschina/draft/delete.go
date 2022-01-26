@@ -1,4 +1,4 @@
-package article
+package draft
 
 import (
 	"github.com/k8scat/articli/pkg/table"
@@ -7,8 +7,8 @@ import (
 
 var (
 	deleteCmd = &cobra.Command{
-		Use:   "delete <markdownFile>",
-		Short: "Delete articles",
+		Use:   "delete <draftID>",
+		Short: "Delete specified draft",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -16,7 +16,7 @@ var (
 
 			failedList := make([][]string, 0)
 			for _, id := range args {
-				if err := client.DeleteArticle(id); err != nil {
+				if err := client.DeleteDraft(id); err != nil {
 					failedList = append(failedList, []string{id, err.Error()})
 				}
 			}

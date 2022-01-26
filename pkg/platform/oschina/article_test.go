@@ -1,22 +1,42 @@
 package oschina
 
 import (
-	"log"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSaveArticle(t *testing.T) {
-	setupClient(t)
-	id, err := client.SaveArticle("5007899", "Shell art 234", "shell", "7255439", "28", "",
-		true, false, false, true, false)
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
+	}
+
+	params := &ContentParams{
+		Title:          "test111",
+		Content:        "hello",
+		TechnicalField: "13", // DevOps,
+		Category:       "6047936",
+		Privacy:        1,
+	}
+	id, err := client.SaveArticle(params)
 	assert.Nil(t, err)
-	log.Printf(ArticleURLFormat, client.UserID, id)
+
+	if id != "" {
+		err = client.DeleteArticle(id)
+		assert.Nil(t, err)
+	}
 }
 
-func TestDeleteArticle(t *testing.T) {
-	setupClient(t)
-	err := client.DeleteArticle("5007899")
+func TestListArticles(t *testing.T) {
+	client, err := NewClient(os.Getenv("ARTICLI_OSCHINA_COOKIE"))
+	if err != nil {
+		t.Fail()
+		return
+	}
+
+	_, _, err = client.ListArticles(1, "")
 	assert.Nil(t, err)
 }

@@ -1,15 +1,27 @@
 package oschina
 
 import (
-	"errors"
 	"fmt"
-	"net/url"
-	"strings"
-
+	"github.com/antchfx/htmlquery"
+	"github.com/google/go-querystring/query"
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
+	"net/url"
+	"path/filepath"
+	"strings"
 )
 
 const ArticleURLFormat = "https://my.oschina.net/%s/blog/%s"
+
+type ArticleType string
+
+const (
+	ArticleTypeOriginal ArticleType = "1" // 原创
+	ArticleTypeReship   ArticleType = "4" // 转载
+
+	ContentTypeMarkdown = "3"
+	ContentTypeHTML     = "4"
+)
 
 type MarkdownOptions struct {
 	Publish       bool   `yaml:"publish"`
@@ -24,79 +36,143 @@ type MarkdownOptions struct {
 	DenyComment   bool   `yaml:"deny_comment"`
 }
 
-// SaveArticle publish new article if id is empty
-// or update existed article.
-//
-// About params:
-// id: 只有在更新文章时，设置文章 ID
-// title: 文章标题
-// content: 文章内容
-// category: 文章分类
-// field: 技术领域
-// originURL: 原文链接
-// isOriginal: 原创
-// privacy: 仅自己可见
-// denyComment: 禁止评论
-// top: 置顶
-// downloadImage: 下载外站图片到本地
-func (c *Client) SaveArticle(id, title, content, category, field, originURL string,
-	isOriginal, privacy, denyComment, top, downloadImage bool) (string, error) {
-	var path string
-	if id == "" {
-		path = fmt.Sprintf("%s%s", c.BaseURL, "/blog/save")
+type ContentParams struct {
+	ID             string      `url:"id"`           // 文章 ID
+	DraftID        string      `url:"draft"`        // 草稿 ID
+	Title          string      `url:"title"`        // 文章标题
+	Content        string      `url:"content"`      // 文章内容
+	Category       string      `url:"catalog"`      // 文章分类
+	TechnicalField string      `url:"groups"`       // 技术领域，草稿无法设置
+	OriginalURL    string      `url:"origin_url"`   // 原文链接
+	Privacy        int         `url:"privacy"`      // 仅自己可见
+	DenyComment    int         `url:"deny_comment"` // 禁止评论
+	Top            int         `url:"as_top"`       // 置顶
+	DownloadImage  int         `url:"downloadImg"`  // 下载外站图片
+	Type           ArticleType `url:"type"`         // 原创、转载
+	ContentType    string      `url:"content_type"`
+	PublishAsBlog  int         `url:"publish_as_blog"`
+}
+
+func (p *ContentParams) Validate() error {
+	if p.Title == "" {
+		return errors.New("title is required")
+	}
+	if p.Content == "" {
+		return errors.New("content is required")
+	}
+	if p.OriginalURL == "" {
+		p.Type = ArticleTypeOriginal
 	} else {
-		path = fmt.Sprintf("%s%s", c.BaseURL, "/blog/edit")
+		p.Type = ArticleTypeReship
 	}
-	payload := url.Values{
-		"id":           []string{id},
-		"user_code":    []string{c.UserCode},
-		"title":        []string{title},
-		"content":      []string{content},
-		"catalog":      []string{category},
-		"groups":       []string{field},
-		"origin_url":   []string{originURL},
-		"privacy":      []string{btoa(privacy)},
-		"deny_comment": []string{btoa(denyComment)},
-		"as_top":       []string{btoa(top)},
-		"downloadImg":  []string{btoa(downloadImage)},
-		"content_type": []string{ContentTypeMarkdown},
+	p.ContentType = ContentTypeMarkdown
+	return nil
+}
+
+// SaveArticle create an article if id is empty, otherwise update existed article.
+func (c *Client) SaveArticle(params *ContentParams) (string, error) {
+	if err := params.Validate(); err != nil {
+		return "", errors.Trace(err)
 	}
-	if isOriginal {
-		payload.Set("type", TypeOriginal)
+
+	var rawurl string
+	if params.ID == "" {
+		if params.DraftID == "" {
+			draftID, err := c.SaveDraft(params)
+			if err != nil {
+				return "", errors.Trace(err)
+			}
+			params.DraftID = draftID
+		}
+		params.PublishAsBlog = 1
+		rawurl = c.BuildURL("/blog/save")
 	} else {
-		payload.Set("type", TypeNotOriginal)
+		rawurl = c.BuildURL("/blog/edit")
 	}
-	body := strings.NewReader(payload.Encode())
-	raw, err := c.Post(path, body, DefaultHandler)
+
+	values, err := query.Values(params)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
-	if id == "" {
-		id = gjson.Get(raw, "result.id").String()
+	raw, err := c.Post(rawurl, values, DefaultHandler)
+	if err != nil {
+		return "", errors.Trace(err)
 	}
-	return id, nil
+	if params.ID != "" {
+		return params.ID, nil
+	}
+	return gjson.Get(raw, "result.id").String(), nil
 }
 
 func (c *Client) DeleteArticle(id string) error {
 	if id == "" {
-		return errors.New("article id is empty")
+		return errors.New("article id is required")
 	}
-
-	path := fmt.Sprintf("%s%s", c.BaseURL, "/blog/delete")
-	payload := url.Values{
+	rawurl := c.BuildURL("/blog/delete")
+	values := url.Values{
 		"user_code": []string{c.UserCode},
 		"id":        []string{id},
 	}
-	body := strings.NewReader(payload.Encode())
-	_, err := c.Post(path, body, DefaultHandler)
+	_, err := c.Post(rawurl, values, DefaultHandler)
 	return err
 }
 
-func (c *Client) ListArticles() {}
+type Article struct {
+	ID    string
+	Title string
+	URL   string
+}
 
-func btoa(b bool) string {
-	if b {
-		return "1"
+func (c *Client) ListArticles(page int, keyword string) (articles []*Article, hasNext bool, err error) {
+	if page < 1 {
+		page = 1
 	}
-	return "0"
+	path := fmt.Sprintf("%s%s", c.BaseURL,
+		fmt.Sprintf("/widgets/_space_index_newest_blog?catalogId=0&q=%s&sortType=time&type=ajax&p=%d", keyword, page))
+	raw, err := c.Get(path, nil, nil)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	doc, err := htmlquery.Parse(strings.NewReader(raw))
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	q := `//div[@class="ui relaxed divided items list-container space-list-container"]//a[@class="header"]`
+	nodes, err := htmlquery.QueryAll(doc, q)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+
+	if len(nodes) == 0 {
+		return
+	}
+
+	for _, node := range nodes {
+		article := &Article{
+			Title: strings.TrimSpace(node.LastChild.Data),
+		}
+		for _, attr := range node.Attr {
+			if attr.Key == "href" {
+				article.URL = attr.Val
+				article.ID = filepath.Base(attr.Val)
+			}
+		}
+		articles = append(articles, article)
+	}
+
+	q = `//p[@class="pagination"]/a[@class="pagination__next"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	hasNext = len(nodes) > 0
+	return
+}
+
+func (c *Client) BuildArticleURL(id string) string {
+	return fmt.Sprintf("%s/blog/%s", c.BaseURL, id)
 }

@@ -83,7 +83,7 @@ func filterTags(tags []*juejinsdk.TagItem, keyword string) []*juejinsdk.TagItem 
 	filtered := make([]*juejinsdk.TagItem, 0)
 	for _, item := range tags {
 		s := strings.ToLower(item.Tag.Name)
-		if strings.Index(s, keyword) != -1 {
+		if strings.Contains(s, keyword) {
 			filtered = append(filtered, item)
 		}
 	}

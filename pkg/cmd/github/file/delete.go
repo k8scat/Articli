@@ -33,10 +33,8 @@ var (
 					switch f.Type {
 					case githubsdk.ContentTypeFile:
 						sha = f.SHA
-						break
 					case githubsdk.ContentTypeDir:
 						isDir = true
-						break
 					default:
 						color.Yellow("! unknown file type '%s'!", f.Type)
 					}

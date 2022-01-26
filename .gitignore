@@ -6,3 +6,4 @@ acli
 *.tar.gz
 node_modules/
 .npmrc
+*.out

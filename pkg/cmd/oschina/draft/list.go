@@ -1,28 +1,27 @@
-package article
+package draft
 
 import (
-	"github.com/juju/errors"
 	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
 	"github.com/k8scat/articli/pkg/table"
 	"github.com/spf13/cobra"
 )
 
 var (
-	limit   int
 	keyword string
+	limit   int
 
 	listCmd = &cobra.Command{
 		Use:   "list",
-		Short: "List articles",
+		Short: "List drafts",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result := make([]*oschinasdk.Article, 0, limit)
+			result := make([]*oschinasdk.Draft, 0, limit)
 			page := 1
 			for {
-				articles, hasNext, err := client.ListArticles(page, keyword)
+				drafts, hasNext, err := client.ListDrafts(page)
 				if err != nil {
-					return errors.Trace(err)
+					return err
 				}
-				result = append(result, articles...)
+				result = append(result, drafts...)
 				if !hasNext || len(result) >= limit {
 					break
 				}
@@ -32,12 +31,12 @@ var (
 				result = result[:limit]
 			}
 
-			header := []string{"标题", "链接"}
+			header := []string{"ID", "标题"}
 			data := make([][]string, 0, len(result))
-			for _, a := range result {
+			for _, draft := range result {
 				data = append(data, []string{
-					a.Title,
-					a.URL,
+					draft.ID,
+					draft.Title,
 				})
 			}
 			table.Print(header, data)
@@ -47,6 +46,6 @@ var (
 )
 
 func init() {
-	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of articles to list")
-	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Filter Keyword")
+	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Keyword")
+	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of drafts to list")
 }

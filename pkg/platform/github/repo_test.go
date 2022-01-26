@@ -5,12 +5,17 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestUploadFile(t *testing.T) {
-	setupClient(t)
+	client, err := NewClient(os.Getenv("ARTICLI_GITHUB_TOKEN"))
+	if err != nil {
+		t.Fail()
+		return
+	}
 
 	cases := []struct {
 		owner string
@@ -24,7 +29,7 @@ func TestUploadFile(t *testing.T) {
 			path:  fmt.Sprintf("testdir/%d.png", time.Now().Unix()),
 			req: &UploadFileRequest{
 				Message: fmt.Sprintf("new file uploaded at %s", time.Now().Format("2006-01-02 15:04:05")),
-				Path:    "/Users/hsowan/workspace/articli/images/go.png",
+				Path:    "./images/go.png",
 			},
 		},
 		{
@@ -33,23 +38,23 @@ func TestUploadFile(t *testing.T) {
 			path:  fmt.Sprintf("testdir/%d.md", time.Now().Unix()),
 			req: &UploadFileRequest{
 				Message: fmt.Sprintf("update file1 at %s", time.Now().Format("2006-01-02 15:04:05")),
-				Path:    "/Users/hsowan/workspace/articli/README.md",
+				Path:    "./images/go.png",
 			},
 		},
 	}
 
 	for _, c := range cases {
-		fmt.Printf("path: %s\n", c.path)
-		result, err := client.UploadFile(c.owner, c.repo, c.path, c.req)
-		if err != nil {
-			t.Fatal(err)
-		}
-		fmt.Println(result.Content)
+		_, err := client.UploadFile(c.owner, c.repo, c.path, c.req)
+		assert.Nil(t, err)
 	}
 }
 
 func TestUpdateFile(t *testing.T) {
-	setupClient(t)
+	client, err := NewClient(os.Getenv("ARTICLI_GITHUB_TOKEN"))
+	if err != nil {
+		t.Fail()
+		return
+	}
 
 	cases := []struct {
 		owner string
@@ -64,10 +69,10 @@ func TestUpdateFile(t *testing.T) {
 			req: &UploadFileRequest{
 				Message: fmt.Sprintf("new file uploaded at %s", time.Now().Format("2006-01-02 15:04:05")),
 				Content: func() string {
-					filename := "/Users/hsowan/workspace/articli/images/go.png"
+					filename := "./images/go.png"
 					b, err := ioutil.ReadFile(filename)
 					if err != nil {
-						t.Fatal(err)
+						return ""
 					}
 					return base64.StdEncoding.EncodeToString(b)
 				}(),
@@ -80,10 +85,10 @@ func TestUpdateFile(t *testing.T) {
 			req: &UploadFileRequest{
 				Message: fmt.Sprintf("update file at %s", time.Now().Format("2006-01-02 15:04:05")),
 				Content: func() string {
-					filename := "/Users/hsowan/workspace/articli/README.md"
+					filename := "./images/go.png"
 					b, err := ioutil.ReadFile(filename)
 					if err != nil {
-						t.Fatal(err)
+						return ""
 					}
 					return base64.StdEncoding.EncodeToString(b)
 				}(),
@@ -96,18 +101,15 @@ func TestUpdateFile(t *testing.T) {
 			c.req.SHA = func() string {
 				fileInfos, err := client.GetContent(c.owner, c.repo, c.path)
 				if err != nil {
-					t.Fatal(err)
+					return ""
 				}
 				if len(fileInfos) == 0 {
-					t.Fatal("file not found")
+					return ""
 				}
 				return fileInfos[0].SHA
 			}()
 		}
-		result, err := client.UploadFile(c.owner, c.repo, c.path, c.req)
+		_, err := client.UploadFile(c.owner, c.repo, c.path, c.req)
 		assert.Nil(t, err)
-		fmt.Println(result.Content)
-
-		time.Sleep(time.Minute)
 	}
 }

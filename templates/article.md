@@ -28,9 +28,28 @@ juejin:
 
 oschina:
   title: 标题3
+  # 文章专辑
+  category: 日常记录
+  # 推广专区
+  technical_field: 大前端
+  # 仅自己可见
+  privacy: false
+  # 如果是转载文章，请填写原文链接
+  original_url: ""
+  # 禁止评论
+  deny_comment: false
+  # 下载外站图片到本地
+  download_image: false
+  # 置顶
+  top: false
 
-csdn:
-  title: 标题4
+  # 自动生成部分
+  draft_id: "7xxx"
+  draft_create_time: "2022-01-23 11:48:02"
+  draft_update_time: "2022-01-24 11:48:02"
+  article_id: "8xxx"
+  article_create_time: "2022-01-25 11:48:02"
+  article_update_time: "2022-01-26 11:48:02"
 ---
 
 内容概要
