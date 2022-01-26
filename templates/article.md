@@ -50,9 +50,6 @@ oschina:
   article_id: "8xxx"
   article_create_time: "2022-01-25 11:48:02"
   article_update_time: "2022-01-26 11:48:02"
-
-csdn:
-  title: 标题4
 ---
 
 内容概要

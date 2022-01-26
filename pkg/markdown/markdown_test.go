@@ -1,16 +1,18 @@
 package markdown
 
 import (
-	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParse(t *testing.T) {
-	mark, err := Parse("/Users/hsowan/workspace/articli/configs/article.md")
-	assert.Nil(t, err)
-	fmt.Println(mark)
-	fmt.Println(string(mark.Raw))
-	fmt.Println(string(mark.Content))
+	filepath.Abs(".")
+	mark, err := Parse("./templates/article.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, "标题1", mark.Meta.Get("title"))
+	assert.Equal(t, 2, len(mark.Meta.GetStringArray("juejin.tags")))
 }

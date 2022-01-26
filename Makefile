@@ -74,7 +74,8 @@ get-golint:
 .PHONY: tools
 tools: get-golint
 	brew install goreleaser/tap/goreleaser
-	brew install --build-from-source upx
+	#brew install --build-from-source upx
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: verify
 verify: dep tools lint
@@ -82,12 +83,15 @@ verify: dep tools lint
 .PHONY: pre-build
 pre-build: fmt vet
 	export GO111MODULE=on
-	# export GOPROXY=https://goproxy.io,direct
 	go mod tidy
 
 .PHONY: vet
 vet:
 	go vet ./...
+
+.PHONY: staticcheck
+staticcheck:
+	staticcheck ./...
 
 .PHONY: lint
 lint: vet
@@ -102,12 +106,10 @@ fmt:
 	go fmt ./pkg/...
 	gofmt -s -w .
 
+# https://about.codecov.io/blog/getting-started-with-code-coverage-for-golang/
 .PHONY: test
 test:
-	go test ./pkg/platform/juejin -v -count=1 -coverprofile coverage.out
-	# oschina
-	go test ./pkg/platform/oschina -v -count=1 -run TestListAllCategories
-	go test ./pkg/platform/oschina -v -count=1 -run TestListAllTechnicalFields
+	go test ./... -race -covermode=atomic -coverprofile=coverage.out -v -count=1
 
 .PHONY: test-release
 test-release:

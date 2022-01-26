@@ -70,11 +70,14 @@ func parseUser(c *Client) error {
 		c.SpaceID = r[1]
 		ch <- nil
 	}(c)
-	select {
-	case err := <-ch:
-		if err != nil {
-			return errors.Trace(err)
-		}
+	//select {
+	//case err := <-ch:
+	//	if err != nil {
+	//		return errors.Trace(err)
+	//	}
+	//}
+	if err = <-ch; err != nil {
+		return errors.Trace(err)
 	}
 
 	// Parse user code

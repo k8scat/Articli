@@ -2,9 +2,11 @@ package markdown
 
 import (
 	"bufio"
+	"bytes"
 	"github.com/juju/errors"
 	"gopkg.in/yaml.v2"
 	"io"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -18,8 +20,8 @@ var (
 type Mark struct {
 	Meta    Meta
 	Raw     []byte
-	Content []byte
-	Brief   []byte
+	Content string
+	Brief   string
 }
 
 func (m *Mark) WriteFile(filename string) error {
@@ -30,31 +32,32 @@ func (m *Mark) WriteFile(filename string) error {
 	defer f.Close()
 
 	f.Write([]byte("---\n"))
+
 	b, err := yaml.Marshal(m.Meta)
 	if err != nil {
 		return errors.Trace(err)
 	}
 	f.Write(b)
+
 	f.Write([]byte("---\n"))
-	f.Write(m.Content)
+	f.Write([]byte(m.Content))
 	return nil
 }
 
 func Parse(filepath string) (result *Mark, err error) {
-	f, err := os.Open(filepath)
+	result = new(Mark)
+	result.Raw, err = ioutil.ReadFile(filepath)
 	if err != nil {
 		err = errors.Trace(err)
 		return
 	}
-	defer f.Close()
 
-	br := bufio.NewReader(f)
-	var metaBytes []byte
+	br := bufio.NewReader(bytes.NewReader(result.Raw))
+	var meta, brief, content []byte
 	metaSeparatorCount := 0
 	moreSeparatorCount := 0
 	afterMeta := false
 	afterMore := false
-	result = new(Mark)
 	for {
 		if metaSeparatorCount == 2 {
 			afterMeta = true
@@ -79,137 +82,34 @@ func Parse(filepath string) (result *Mark, err error) {
 			moreSeparatorCount += 1
 		}
 		if metaSeparatorCount == 1 {
-			metaBytes = append(metaBytes, line...)
+			meta = append(meta, line...)
 			if !isPrefix {
-				metaBytes = append(metaBytes, '\n')
+				meta = append(meta, '\n')
 			}
 		}
 		if afterMeta && !afterMore {
-			result.Brief = append(result.Brief, line...)
+			brief = append(brief, line...)
 			if !isPrefix {
-				result.Brief = append(result.Brief, '\n')
+				brief = append(brief, '\n')
 			}
 		}
 		if afterMeta {
-			result.Content = append(result.Content, line...)
+			content = append(content, line...)
 			if !isPrefix {
-				result.Content = append(result.Content, '\n')
+				content = append(content, '\n')
 			}
 		}
 	}
-	var meta Meta
-	err = yaml.Unmarshal(metaBytes, &meta)
-	err = errors.Trace(err)
-	result.Meta = meta
+
+	var m Meta
+	err = yaml.Unmarshal(meta, &m)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+
+	result.Brief = strings.TrimSpace(string(brief))
+	result.Content = string(content)
+	result.Meta = m
 	return
-}
-
-func UpdateMapSlice(ms yaml.MapSlice, path string, value interface{}) (yaml.MapSlice, error) {
-	paths := strings.Split(path, ".")
-	slices := []yaml.MapSlice{ms}
-	indexes := make([]int, 0)
-	found := false
-	for i, p := range paths {
-		for j, item := range ms {
-			if item.Key.(string) == p {
-				if i == len(paths)-1 {
-					item.Value = value
-					ms[j] = item
-					found = true
-					break
-				} else {
-					v, ok := item.Value.(yaml.MapSlice)
-					if !ok {
-						return nil, errors.Errorf("wrong path '%s'", path)
-					}
-					indexes = append(indexes, j)
-					ms = v
-					slices = append(slices, ms)
-					break
-				}
-			}
-		}
-	}
-	if !found {
-		slices[len(slices)-1] = append(slices[len(slices)-1], yaml.MapItem{
-			Key:   paths[len(paths)-1],
-			Value: value,
-		})
-	}
-
-	var result yaml.MapSlice
-	for i := len(indexes) - 1; i >= 0; i-- {
-		index := indexes[i]
-		result = slices[i]
-		result[index].Value = slices[i+1]
-	}
-	return result, nil
-}
-
-func GetValue(name string, m1, m2 map[string]interface{}) (interface{}, bool) {
-	v, ok := m1[name]
-	if ok {
-		return v, true
-	}
-	v, ok = m2[name]
-	return v, ok
-}
-
-func GetStringValue(name string, m1, m2 map[string]interface{}) (string, error) {
-	v, ok := GetValue(name, m1, m2)
-	if !ok {
-		return "", errors.NotFoundf("key '%s'", name)
-	}
-	s, ok := v.(string)
-	if !ok {
-		return "", errors.Errorf("invalid value '%v'", v)
-	}
-	return s, nil
-}
-
-func GetValueFromMapSlice(ms yaml.MapSlice, key string) (interface{}, bool) {
-	for _, m := range ms {
-		k, ok := m.Key.(string)
-		if !ok {
-			continue
-		}
-		if k == key {
-			return m.Value, true
-		}
-	}
-	return nil, false
-}
-
-func GetStringArray(m map[string]interface{}, key string) ([]string, error) {
-	v, ok := m[key]
-	if !ok {
-		return nil, errors.NotFoundf("key '%v'", key)
-	}
-	arr, ok := v.([]interface{})
-	if !ok {
-		return nil, errors.Errorf("invalid value type '%T' for key '%s'", v, key)
-	}
-
-	result := make([]string, len(arr))
-	for i, v := range arr {
-		s, ok := v.(string)
-		if !ok {
-			return nil, errors.Errorf("invalid value type '%T' for key '%s'", v, key)
-		}
-		result[i] = s
-	}
-	return result, nil
-}
-
-// ConvertMapSlice convert yaml.MapSlice into map[string]interface{}
-func ConvertMapSlice(ms yaml.MapSlice) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
-	for _, m := range ms {
-		k, ok := m.Key.(string)
-		if !ok {
-			return nil, errors.Errorf("invalid type '%T' of key '%s'", k, k)
-		}
-		result[k] = m.Value
-	}
-	return result, nil
 }

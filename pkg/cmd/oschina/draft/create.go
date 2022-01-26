@@ -1,4 +1,4 @@
-package article
+package draft
 
 import (
 	"fmt"
@@ -10,18 +10,18 @@ import (
 var (
 	createCmd = &cobra.Command{
 		Use:   "create <markdownFile>",
-		Short: "Create or update an article",
+		Short: "Create or update a draft from a markdown file",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 
 			markdownFile := args[0]
-			articleID, err := oschinasdk.CreateArticleOrDraft(client, oschinasdk.ActionTypeCreateArticle, markdownFile)
+			draftID, err := oschinasdk.CreateArticleOrDraft(client, oschinasdk.ActionTypeCreateDraft, markdownFile)
 			if err != nil {
 				return errors.Trace(err)
 			}
-			fmt.Println(client.BuildArticleURL(articleID))
+			fmt.Println(draftID)
 			return nil
 		},
 	}

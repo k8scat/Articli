@@ -123,26 +123,33 @@ type Article struct {
 	URL   string
 }
 
-func (c *Client) ListArticles(page int) ([]*Article, error) {
+func (c *Client) ListArticles(page int, keyword string) (articles []*Article, hasNext bool, err error) {
 	if page < 1 {
 		page = 1
 	}
 	path := fmt.Sprintf("%s%s", c.BaseURL,
-		fmt.Sprintf("/widgets/_space_index_newest_blog?catalogId=0&q=&sortType=time&type=ajax&p=%d", page))
+		fmt.Sprintf("/widgets/_space_index_newest_blog?catalogId=0&q=%s&sortType=time&type=ajax&p=%d", keyword, page))
 	raw, err := c.Get(path, nil, nil)
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
 	doc, err := htmlquery.Parse(strings.NewReader(raw))
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
 	q := `//div[@class="ui relaxed divided items list-container space-list-container"]//a[@class="header"]`
 	nodes, err := htmlquery.QueryAll(doc, q)
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
-	articles := make([]*Article, 0)
+
+	if len(nodes) == 0 {
+		return
+	}
+
 	for _, node := range nodes {
 		article := &Article{
 			Title: strings.TrimSpace(node.LastChild.Data),
@@ -155,7 +162,15 @@ func (c *Client) ListArticles(page int) ([]*Article, error) {
 		}
 		articles = append(articles, article)
 	}
-	return articles, nil
+
+	q = `//p[@class="pagination"]/a[@class="pagination__next"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	hasNext = len(nodes) > 0
+	return
 }
 
 func (c *Client) BuildArticleURL(id string) string {

@@ -19,6 +19,9 @@ var (
 
 func init() {
 	articleCmd.AddCommand(createCmd)
+	articleCmd.AddCommand(deleteCmd)
+	articleCmd.AddCommand(listCmd)
+	articleCmd.AddCommand(publishCmd)
 }
 
 func NewArticleCmd(c *oschinasdk.Client) *cobra.Command {

@@ -47,25 +47,32 @@ type Draft struct {
 	URL   string
 }
 
-func (c *Client) ListDrafts(page int) ([]*Draft, error) {
+func (c *Client) ListDrafts(page int) (drafts []*Draft, hasNext bool, err error) {
 	if page < 1 {
 		page = 1
 	}
 	path := fmt.Sprintf("%s%s", c.BaseURL, fmt.Sprintf("/admin/drafts?p=%d", page))
 	raw, err := c.Get(path, nil, nil)
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
 	doc, err := htmlquery.Parse(strings.NewReader(raw))
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
 	q := `//div[@class="ui relaxed divided items list-container"]//a[@class="header"]`
 	nodes, err := htmlquery.QueryAll(doc, q)
 	if err != nil {
-		return nil, errors.Trace(err)
+		err = errors.Trace(err)
+		return
 	}
-	drafts := make([]*Draft, 0)
+
+	if len(nodes) == 0 {
+		return
+	}
+
 	for _, node := range nodes {
 		draft := &Draft{
 			Title: node.FirstChild.Data,
@@ -78,7 +85,15 @@ func (c *Client) ListDrafts(page int) ([]*Draft, error) {
 		}
 		drafts = append(drafts, draft)
 	}
-	return drafts, nil
+
+	q = `//div[@class="ui pagination menu "]/a[@class="item next-item"]`
+	nodes, err = htmlquery.QueryAll(doc, q)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	hasNext = len(nodes) > 0
+	return
 }
 
 func (c *Client) GetDraftDetail(id string) (*ContentParams, error) {

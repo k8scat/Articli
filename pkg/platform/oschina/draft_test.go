@@ -37,7 +37,7 @@ func TestDeleteDraft(t *testing.T) {
 func TestListDrafts(t *testing.T) {
 	setupClient(t)
 
-	drafts, err := client.ListDrafts(2)
+	drafts, _, err := client.ListDrafts(2)
 	if err != nil {
 		t.Fatal(err)
 	}
