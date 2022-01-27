@@ -262,6 +262,8 @@ github.com/juju/loggo v0.0.0-20170605014607-8232ab8918d9/go.mod h1:vgyd7OREkbtVE
 github.com/juju/testing v0.0.0-20180517134105-72703b1e95eb h1:oHBF98WnC1lqCv/W7I7gxnLjD6xJieJ8yt/3IrnMthY=
 github.com/juju/testing v0.0.0-20180517134105-72703b1e95eb/go.mod h1:63prj8cnj0tU0S9OHjGJn+b1h0ZghCndfnbQolrYTwA=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
+github.com/k8scat/aliyun-api-gateway-sign-golang v0.1.2 h1:L4vhg4HLXw8f5OSvd5CuEx6t0MZTHFoNTQhSN2Ivz4w=
+github.com/k8scat/aliyun-api-gateway-sign-golang v0.1.2/go.mod h1:WjkkuQKH5vQO0aSiQlCASslI1KnCIhx5pldY0B1Fpy8=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=

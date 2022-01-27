@@ -18,6 +18,7 @@ type Platforms struct {
 	Juejin  Juejin  `yaml:"juejin,omitempty"`
 	OSChina OSChina `yaml:"oschina,omitempty"`
 	Github  Github  `yaml:"github,omitempty"`
+	CSDN    CSDN    `yaml:"csdn,omitempty"`
 }
 
 type Juejin struct {
@@ -30,6 +31,12 @@ type OSChina struct {
 
 type Github struct {
 	Token string `yaml:"token,omitempty"`
+}
+
+type CSDN struct {
+	Cookie    string `yaml:"cookie,omitempty"`
+	APIKey    string `yaml:"api_key,omitempty"`
+	APISecret string `yaml:"api_secret,omitempty"`
 }
 
 func ParseConfig(cfgFile string) (*Config, error) {
