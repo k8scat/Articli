@@ -104,10 +104,13 @@ func (m Meta) Set(path string, value interface{}) Meta {
 
 			root := m
 			t := m
-			for _, s := range strings.Split(subpath, ".") {
+			parts := strings.Split(subpath, ".")
+			for j, s := range parts {
 				n := Meta{}
 				t = append(t, yaml.MapItem{Key: s, Value: n})
-				t = n
+				if j < len(parts)-1 {
+					t = n
+				}
 			}
 			return root
 		}
