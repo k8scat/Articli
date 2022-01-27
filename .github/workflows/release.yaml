@@ -92,7 +92,7 @@ jobs:
           NPM_PASS: ${{ secrets.NPM_PASS }}
           NPM_EMAIL: k8scat@gmail.com
         run: |
-          sed -i "s/\"version\": \".*\..*\..*\"/\"version\": \"${{ steps.release.outputs.version }}\"/g" package.json
+          sed -i "s/\"version\": \"ci-version\"/\"version\": \"${{ steps.release.outputs.version }}\"/g" package.json
           
           npm install
           npm install -g npm-cli-login

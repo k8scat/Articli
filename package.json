@@ -1,6 +1,6 @@
 {
   "name": "@k8scat/articli",
-  "version": "ci-auto",
+  "version": "ci-version",
   "description": "Manage content in multi platforms.",
   "main": "index.js",
   "goBinary": {
