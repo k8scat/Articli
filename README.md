@@ -16,7 +16,7 @@
 这样做的好处有：
 
 - 数据安全，既发布到了第三方平台，又可以通过 **Git 代码仓**管理，避免因平台问题导致数据丢失
-- 可以实现自动化，比如文章自动在多个平台发布、更新
+- 可以实现自动化，比如文章推送到自动在多个平台发布、更新
 - 面向程序员的 CLI 工具，可以实现更多个性化的操作
 
 为本项目点赞将鼓励作者继续完善下去，欢迎提出建议、Bug、PR。
@@ -26,57 +26,6 @@
 - [掘金](https://juejin.cn)
 - [开源中国](https://oschina.net)
 - [GitHub](https://github.com)
-
-## 安装
-
-### NPM
-
-```shell
-npm install -g @k8scat/articli
-```
-
-### Homebrew
-
-```shell
-# 添加 tap
-brew tap k8scat/tap
-# 安装
-brew install acli
-
-# 一条命令直接安装
-brew install k8scat/tap/acli
-
-# 后续升级
-brew update
-brew upgrade k8scat/tap/acli
-```
-
-### Docker
-
-```shell
-# 将配置文件的目录挂载到容器内
-docker run \
-  -it \
-  --rm \
-  -v $HOME/.config/articli:/root/.config/articli \
-  k8scat/articli:latest \
-  juejin auth login
-
-# 升级
-docker pull k8scat/articli:latest
-```
-
-### 二进制
-
-Please download from the [releases page](https://github.com/k8scat/Articli/releases).
-
-### 源码编译
-
-```shell
-git clone https://github.com/k8scat/articli.git
-cd articli
-make
-```
 
 ## 文档
 
