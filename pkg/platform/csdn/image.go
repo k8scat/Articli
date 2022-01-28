@@ -1,17 +1,12 @@
 package csdn
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/juju/errors"
-	"io"
 	"io/ioutil"
-	"mime/multipart"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -27,14 +22,15 @@ type UploadData struct {
 	Signature   string `json:"signature"`
 }
 
-type GetUploadDataResponse struct {
+type RequestUploadResponse struct {
 	Data *UploadData `json:"data"`
 	BaseResponse
 }
 
-func (c *Client) GetUploadData(imageSuffix string) (*UploadData, error) {
-	if strings.HasPrefix(imageSuffix, ".") {
-		imageSuffix = strings.TrimLeft(imageSuffix, ".")
+func (c *Client) requestUpload(filename string) (*UploadData, error) {
+	ext := strings.TrimLeft(filepath.Ext(filename), ".")
+	if err := validateExt(ext); err != nil {
+		return nil, errors.Trace(err)
 	}
 
 	rawurl := "https://imgservice.csdn.net/direct/v1.0/image/upload"
@@ -51,9 +47,8 @@ func (c *Client) GetUploadData(imageSuffix string) (*UploadData, error) {
 
 	req.Header.Set("Cookie", c.Cookie)
 	req.Header.Set("x-image-app", "direct_blog")
-	req.Header.Set("x-image-suffix", imageSuffix)
+	req.Header.Set("x-image-suffix", ext)
 	req.Header.Set("x-image-dir", "direct")
-	req.Header.Set("authority", "imgservice.csdn.net")
 
 	resp, err := c.Request(req)
 	if err != nil {
@@ -66,7 +61,7 @@ func (c *Client) GetUploadData(imageSuffix string) (*UploadData, error) {
 		return nil, errors.Trace(err)
 	}
 
-	var result *GetUploadDataResponse
+	var result *RequestUploadResponse
 	if err = json.Unmarshal(b, &result); err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -83,71 +78,33 @@ type UploadResponse struct {
 	BaseResponse
 }
 
+// UploadImage uploads image to Aliyun OSS.
+// 仅对文件名的后缀进行验证，不对真正的文件内容格式进行验证，所以可以将一个格式不支持的文件进行重命名即可上传
 func (c *Client) UploadImage(path string) (string, error) {
-	ext := filepath.Ext(path)
-	if err := validateExt(ext); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	uploadData, err := c.GetUploadData(ext)
+	uploadData, err := c.requestUpload(path)
 	if err != nil {
 		return "", errors.Trace(err)
 	}
 
-	buf := new(bytes.Buffer)
-	w := multipart.NewWriter(buf)
-
-	fw, err := w.CreateFormField("key")
-	if _, err := fw.Write([]byte(uploadData.FilePath)); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormField("policy")
-	if _, err := fw.Write([]byte(uploadData.Policy)); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormField("OSSAccessKeyId")
-	if _, err := fw.Write([]byte(uploadData.AccessID)); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormField("success_action_status")
-	if _, err := fw.Write([]byte("200")); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormField("signature")
-	if _, err := fw.Write([]byte(uploadData.Signature)); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormField("callback")
-	if _, err := fw.Write([]byte(uploadData.CallbackURL)); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fw, err = w.CreateFormFile("file", uploadData.FilePath)
+	form := NewForm()
+	form.SetString("key", uploadData.FilePath)
+	form.SetString("policy", uploadData.Policy)
+	form.SetString("OSSAccessKeyId", uploadData.AccessID)
+	form.SetString("success_action_status", "200")
+	form.SetString("signature", uploadData.Signature)
+	form.SetString("callback", uploadData.CallbackURL)
+	form.SetFile("file", path)
+	buf, contentType, err := form.Encode()
 	if err != nil {
 		return "", errors.Trace(err)
 	}
-	f, err := os.Open(path)
-	if err != nil {
-		return "", errors.Trace(err)
-	}
-	defer f.Close()
-	if _, err = io.Copy(fw, f); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	fmt.Println(buf.String())
 
 	rawurl := uploadData.Host
 	req, err := http.NewRequest(http.MethodPost, rawurl, buf)
 	if err != nil {
 		return "", errors.Trace(err)
 	}
-	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", browser.Computer())
 
 	resp, err := http.DefaultClient.Do(req)
@@ -160,7 +117,6 @@ func (c *Client) UploadImage(path string) (string, error) {
 	if err != nil {
 		return "", errors.Trace(err)
 	}
-	fmt.Println(string(b))
 	var result *UploadResponse
 	if err = json.Unmarshal(b, &result); err != nil {
 		return "", errors.Trace(err)
@@ -172,8 +128,8 @@ func (c *Client) UploadImage(path string) (string, error) {
 }
 
 func validateExt(ext string) error {
-	switch ext {
-	case ".jpg", ".jpeg", ".png", ".gif":
+	switch strings.ToLower(ext) {
+	case "jpg", "jpeg", "png", "gif":
 		return nil
 	default:
 		return errors.New("invalid image suffix, only support jpg, jpeg, png, gif")

@@ -41,10 +41,10 @@ func (f *Form) Get(key string) io.Reader {
 	return f.data[key]
 }
 
-func (f *Form) IntoMultipartForm() (buf *bytes.Buffer, contentType string, err error) {
+// Encode encodes the form into a multipart/form-data body.
+func (f *Form) Encode() (buf *bytes.Buffer, contentType string, err error) {
 	buf = new(bytes.Buffer)
 	w := multipart.NewWriter(buf)
-	w.SetBoundary("----WebKitFormBoundarymeG7ie4ptkgFNk2b")
 	for _, k := range f.orderedKeys {
 		r := f.data[k]
 		var fw io.Writer
@@ -67,6 +67,8 @@ func (f *Form) IntoMultipartForm() (buf *bytes.Buffer, contentType string, err e
 			x.Close()
 		}
 	}
+	// 显式关闭
+	w.Close()
 	contentType = w.FormDataContentType()
 	return
 }
