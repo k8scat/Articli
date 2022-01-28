@@ -14,6 +14,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.3.0
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
+	github.com/k8scat/aliyun-api-gateway-sign-golang v0.1.2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
