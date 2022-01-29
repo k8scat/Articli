@@ -27,57 +27,6 @@
 - [开源中国](https://oschina.net)
 - [GitHub](https://github.com)
 
-## 安装
-
-### NPM
-
-```shell
-npm install -g @k8scat/articli
-```
-
-### Homebrew
-
-```shell
-# 添加 tap
-brew tap k8scat/tap
-# 安装
-brew install acli
-
-# 一条命令直接安装
-brew install k8scat/tap/acli
-
-# 后续升级
-brew update
-brew upgrade k8scat/tap/acli
-```
-
-### Docker
-
-```shell
-# 将配置文件的目录挂载到容器内
-docker run \
-  -it \
-  --rm \
-  -v $HOME/.config/articli:/root/.config/articli \
-  k8scat/articli:latest \
-  juejin auth login
-
-# 升级
-docker pull k8scat/articli:latest
-```
-
-### 二进制
-
-Please download from the [releases page](https://github.com/k8scat/Articli/releases).
-
-### 源码编译
-
-```shell
-git clone https://github.com/k8scat/articli.git
-cd articli
-make
-```
-
 ## 文章模板
 
 我们将使用文件内容开头 `---` 之间的数据作为文章的配置信息（元数据），
@@ -143,6 +92,57 @@ oschina:
 <!-- more -->
 
 正文内容
+```
+
+## 安装
+
+### NPM
+
+```shell
+npm install -g @k8scat/articli
+```
+
+### Homebrew
+
+```shell
+# 添加 tap
+brew tap k8scat/tap
+# 安装
+brew install acli
+
+# 一条命令直接安装
+brew install k8scat/tap/acli
+
+# 后续升级
+brew update
+brew upgrade k8scat/tap/acli
+```
+
+### Docker
+
+```shell
+# 将配置文件的目录挂载到容器内
+docker run \
+  -it \
+  --rm \
+  -v $HOME/.config/articli:/root/.config/articli \
+  k8scat/articli:latest \
+  juejin auth login
+
+# 升级
+docker pull k8scat/articli:latest
+```
+
+### 二进制
+
+Please download from the [releases page](https://github.com/k8scat/Articli/releases).
+
+### 源码编译
+
+```shell
+git clone https://github.com/k8scat/articli.git
+cd articli
+make
 ```
 
 ## 使用说明

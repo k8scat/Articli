@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/k8scat/articli#readme",
   "dependencies": {
-    "go-npm": "^0.1.9"
+    "@k8scat/go-npm": "^0.1.1"
   }
 }
