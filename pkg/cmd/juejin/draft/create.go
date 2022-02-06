@@ -39,7 +39,7 @@ var (
 			if err := juejinsdk.WriteBack(juejinsdk.SaveTypeDraft, mark, params, isCreate); err != nil {
 				return errors.Trace(err)
 			}
-			fmt.Printf(juejinsdk.BuildDraftEditorURL(params.DraftID))
+			fmt.Println(juejinsdk.BuildDraftEditorURL(params.DraftID))
 			return nil
 		},
 	}
