@@ -149,27 +149,26 @@ func (req *ListArticlesRequest) IntoQuery() url.Values {
 	return query
 }
 
-type SaveArticleRequest struct {
-	Content         string            `json:"content"`
-	CoverImages     []string          `json:"cover_images"`
-	CoverType       int               `json:"cover_type"`
-	IsNew           string            `json:"is_new"`
-	MarkdownContent string            `json:"markdowncontent"`
-	NotAutoSave     string            `json:"not_auto_saved"`
-	PubStatus       PublishStatus     `json:"pubStatus"`
-	ReadType        ReadType          `json:"readType"`
-	Source          SaveArticleSource `json:"source"`
-	Status          int               `json:"status"`
-	Title           string            `json:"title"`
-	VoteID          string            `json:"vote_id"`
-
-	Categories       string          `json:"categories,omitempty"`
-	Tags             string          `json:"tags,omitempty"`
-	ID               string          `json:"id,omitempty"`
-	Type             SaveArticleType `json:"type,omitempty"`
-	AuthorizedStatus bool            `json:"authorized_status,omitempty"` // 原文允许转载或者本次转载已经获得原文作者授权
-	OriginalURL      string          `json:"original_url,omitempty"`
-	Description      string          `json:"Description,omitempty"`
+type SaveArticleParams struct {
+	Content          string            `json:"content"`
+	CoverImages      []string          `json:"cover_images"`
+	CoverType        int               `json:"cover_type"`
+	IsNew            string            `json:"is_new"`
+	MarkdownContent  string            `json:"markdowncontent"`
+	NotAutoSave      string            `json:"not_auto_saved"`
+	PubStatus        PublishStatus     `json:"pubStatus"`
+	ReadType         ReadType          `json:"readType"`
+	Source           SaveArticleSource `json:"source"`
+	Status           int               `json:"status"`
+	Title            string            `json:"title"`
+	VoteID           string            `json:"vote_id"`
+	Categories       string            `json:"categories,omitempty"`
+	Tags             string            `json:"tags,omitempty"`
+	ID               string            `json:"id,omitempty"`
+	Type             SaveArticleType   `json:"type,omitempty"`
+	AuthorizedStatus bool              `json:"authorized_status,omitempty"` // 原文允许转载或者本次转载已经获得原文作者授权
+	OriginalURL      string            `json:"original_url,omitempty"`
+	Description      string            `json:"Description,omitempty"`
 }
 
 type SaveArticleResponse struct {
@@ -183,12 +182,12 @@ type SaveArticleResponse struct {
 	BaseResponse
 }
 
-func (req *SaveArticleRequest) SetTags(tags []string) {
-	req.Tags = strings.Join(tags, ",")
+func (p *SaveArticleParams) SetTags(tags []string) {
+	p.Tags = strings.Join(tags, ",")
 }
 
-func (req *SaveArticleRequest) SetCategories(categories []string) {
-	req.Categories = strings.Join(categories, ",")
+func (p *SaveArticleParams) SetCategories(categories []string) {
+	p.Categories = strings.Join(categories, ",")
 }
 
 type CoverType int

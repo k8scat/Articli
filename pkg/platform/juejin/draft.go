@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/juju/errors"
-
 	"github.com/tidwall/gjson"
 )
 
@@ -37,37 +36,40 @@ type Draft struct {
 }
 
 // SaveDraft create a draft if id is empty, otherwise update the draft
-func (c *Client) SaveDraft(id, title, brief, content, coverImage, categoryID string, tagIDs []string) (string, error) {
+func (c *Client) SaveDraft(params *SaveArticleParams) error {
 	var endpoint string
-	if id == "" {
+	if params.DraftID == "" {
 		endpoint = "/content_api/v1/article_draft/create"
 	} else {
 		endpoint = "/content_api/v1/article_draft/update"
 	}
 	payload := map[string]interface{}{
-		"title":         title,
-		"mark_content":  content,
-		"cover_image":   coverImage,
-		"tag_ids":       tagIDs,
+		"title":         params.Title,
+		"mark_content":  params.Content,
+		"cover_image":   params.CoverImage,
+		"tag_ids":       params.TagIDs,
 		"edit_type":     DefaultEditorType,
-		"brief_content": brief,
+		"brief_content": params.Brief,
 		"html_content":  DefaultHTMLContent,
 	}
-	if id != "" {
-		payload["id"] = id
+	if params.DraftID != "" {
+		payload["id"] = params.DraftID
 	}
-	if categoryID != "" {
-		payload["category_id"] = categoryID
+	if params.CategoryID != "" {
+		payload["category_id"] = params.CategoryID
 	}
 	data, err := c.Post(endpoint, payload)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
-	id = gjson.Get(data, "data.id").String()
-	if id == "" {
-		return "", errors.Errorf("invalid response: %s", data)
+
+	if params.DraftID == "" {
+		params.DraftID = gjson.Get(data, "data.id").String()
+		if params.DraftID == "" {
+			return errors.Errorf("invalid response: %s", data)
+		}
 	}
-	return id, nil
+	return nil
 }
 
 type ListDraftsResponse struct {

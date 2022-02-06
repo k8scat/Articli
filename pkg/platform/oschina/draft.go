@@ -12,24 +12,27 @@ import (
 )
 
 // SaveDraft create a new draft if id is empty, otherwise update draft
-func (c *Client) SaveDraft(params *ContentParams) (string, error) {
+func (c *Client) SaveDraft(params *ContentParams) error {
 	if err := params.Validate(); err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	rawurl := c.BuildURL("/blog/save_draft")
 	values, err := query.Values(params)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 	raw, err := c.Post(rawurl, values, DefaultHandler)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
-	if params.DraftID != "" {
-		return params.DraftID, nil
+	if params.DraftID == "" {
+		params.DraftID = gjson.Get(raw, "result.draft").String()
+		if params.DraftID == "" {
+			return errors.New("failed to get draft id")
+		}
 	}
-	return gjson.Get(raw, "result.draft").String(), nil
+	return nil
 }
 
 func (c *Client) DeleteDraft(id string) error {
@@ -276,7 +279,7 @@ func (c *Client) PublishDraft(id string) (articleID string, err error) {
 		err = errors.Trace(err)
 		return
 	}
-	articleID, err = c.SaveArticle(params)
+	err = c.SaveArticle(params)
 	err = errors.Trace(err)
 	return
 }

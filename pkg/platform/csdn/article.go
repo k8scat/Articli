@@ -57,9 +57,9 @@ func (c *Client) ListArticles(req *ListArticlesRequest) (articles []Article, cou
 	return
 }
 
-func (c *Client) SaveArticle(req *SaveArticleRequest) (string, error) {
+func (c *Client) SaveArticle(params *SaveArticleParams) (string, error) {
 	rawurl := BuildBizAPIURL("/blog-console-api/v3/mdeditor/saveArticle")
-	b, err := json.Marshal(req)
+	b, err := json.Marshal(params)
 	if err != nil {
 		return "", errors.Trace(err)
 	}

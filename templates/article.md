@@ -22,6 +22,8 @@ juejin:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
+  draft: false
+  sync_to_org: false # 是否同步到组织，个人账号不支持
 
   # 自动生成部分
   draft_id: "7xxx"
@@ -52,6 +54,7 @@ oschina:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
+  draft: false
 
   # 自动生成部分
   draft_id: "7xxx"
@@ -88,6 +91,7 @@ csdn:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
+  draft: false
 
   # 自动生成部分
   article_id: "8xxx"

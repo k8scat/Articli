@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/juju/errors"
@@ -16,8 +17,7 @@ import (
 
 const (
 	DefaultBaseAPI = "https://api.juejin.cn"
-
-	MaxPageSize = 20
+	MaxPageSize    = 20
 )
 
 type Client struct {
@@ -58,7 +58,10 @@ func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
 		req.URL.RawQuery = query.Encode()
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	client := &http.Client{
+		Timeout: time.Minute,
+	}
+	res, err := client.Do(req)
 	if err != nil {
 		return "", errors.Trace(err)
 	}

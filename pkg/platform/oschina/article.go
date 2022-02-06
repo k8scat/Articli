@@ -70,19 +70,17 @@ func (p *ContentParams) Validate() error {
 }
 
 // SaveArticle create an article if id is empty, otherwise update existed article.
-func (c *Client) SaveArticle(params *ContentParams) (string, error) {
+func (c *Client) SaveArticle(params *ContentParams) error {
 	if err := params.Validate(); err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	var rawurl string
 	if params.ID == "" {
 		if params.DraftID == "" {
-			draftID, err := c.SaveDraft(params)
-			if err != nil {
-				return "", errors.Trace(err)
+			if err := c.SaveDraft(params); err != nil {
+				return errors.Trace(err)
 			}
-			params.DraftID = draftID
 		}
 		params.PublishAsBlog = 1
 		rawurl = c.BuildURL("/blog/save")
@@ -92,16 +90,20 @@ func (c *Client) SaveArticle(params *ContentParams) (string, error) {
 
 	values, err := query.Values(params)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 	raw, err := c.Post(rawurl, values, DefaultHandler)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
-	if params.ID != "" {
-		return params.ID, nil
+
+	if params.ID == "" {
+		params.ID = gjson.Get(raw, "result.id").String()
+		if params.ID == "" {
+			return errors.New("failed to get article id")
+		}
 	}
-	return gjson.Get(raw, "result.id").String(), nil
+	return nil
 }
 
 func (c *Client) DeleteArticle(id string) error {
@@ -175,4 +177,8 @@ func (c *Client) ListArticles(page int, keyword string) (articles []*Article, ha
 
 func (c *Client) BuildArticleURL(id string) string {
 	return fmt.Sprintf("%s/blog/%s", c.BaseURL, id)
+}
+
+func (c *Client) BuildDraftEditorURL(id string) string {
+	return fmt.Sprintf("%s/blog/write/draft/%s", c.BaseURL, id)
 }

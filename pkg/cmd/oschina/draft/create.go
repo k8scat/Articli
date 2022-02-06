@@ -3,6 +3,7 @@ package draft
 import (
 	"fmt"
 	"github.com/juju/errors"
+	"github.com/k8scat/articli/pkg/markdown"
 	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
 	"github.com/spf13/cobra"
 )
@@ -17,11 +18,28 @@ var (
 			}
 
 			markdownFile := args[0]
-			draftID, err := oschinasdk.CreateArticleOrDraft(client, oschinasdk.ActionTypeCreateDraft, markdownFile)
+			mark, err := markdown.Parse(markdownFile)
 			if err != nil {
 				return errors.Trace(err)
 			}
-			fmt.Println(draftID)
+
+			params, err := client.ParseMark(mark)
+			if err != nil {
+				return errors.Trace(err)
+			}
+			isCreate := false
+			if params.DraftID == "" {
+				isCreate = true
+			}
+
+			if err := client.SaveDraft(params); err != nil {
+				return errors.Trace(err)
+			}
+
+			if err := oschinasdk.WriteBack(oschinasdk.SaveTypeDraft, mark, params, isCreate); err != nil {
+				return errors.Trace(err)
+			}
+			fmt.Println(client.BuildDraftEditorURL(params.DraftID))
 			return nil
 		},
 	}

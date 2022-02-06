@@ -59,9 +59,10 @@ release: build-all
 		shasum -a 256 $(NAME)-windows-386.tar.gz > $(NAME)-windows-386.txt
 
 .PHONY: clean
-clean: ## Clean the generated articlifacts
+clean:
 	rm -rf bin release
 	rm -rf coverage.out
+	rm -f $(NAME)
 
 .PHONY: copy
 copy: build

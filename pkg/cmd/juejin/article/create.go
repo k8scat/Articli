@@ -3,6 +3,7 @@ package article
 import (
 	"fmt"
 	"github.com/juju/errors"
+	"github.com/k8scat/articli/pkg/markdown"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/spf13/cobra"
 )
@@ -17,11 +18,28 @@ var (
 			}
 
 			markdownFile := args[0]
-			articleID, _, err := juejinsdk.SaveDraftOrArticle(client, juejinsdk.SaveTypeArticle, markdownFile, syncToOrg)
+			mark, err := markdown.Parse(markdownFile)
 			if err != nil {
 				return errors.Trace(err)
 			}
-			fmt.Println(juejinsdk.BuildArticleURL(articleID))
+
+			params, err := client.ParseMark(mark)
+			if err != nil {
+				return errors.Trace(err)
+			}
+			isCreate := false
+			if params.ArticleID == "" {
+				isCreate = true
+			}
+
+			if err := client.SaveArticle(params); err != nil {
+				return errors.Trace(err)
+			}
+
+			if err := juejinsdk.WriteBack(juejinsdk.SaveTypeArticle, mark, params, isCreate); err != nil {
+				return errors.Trace(err)
+			}
+			fmt.Println(juejinsdk.BuildArticleURL(params.ArticleID))
 			return nil
 		},
 	}

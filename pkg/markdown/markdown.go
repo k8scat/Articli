@@ -22,6 +22,7 @@ type Mark struct {
 	Raw     []byte
 	Content string
 	Brief   string
+	File    string
 }
 
 func (m *Mark) WriteFile(filename string) error {
@@ -45,7 +46,9 @@ func (m *Mark) WriteFile(filename string) error {
 }
 
 func Parse(filepath string) (result *Mark, err error) {
-	result = new(Mark)
+	result = &Mark{
+		File: filepath,
+	}
 	result.Raw, err = ioutil.ReadFile(filepath)
 	if err != nil {
 		err = errors.Trace(err)

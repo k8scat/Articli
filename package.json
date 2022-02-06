@@ -3,6 +3,14 @@
   "version": "ci-version",
   "description": "Manage content in multi platforms.",
   "main": "index.js",
+  "keywords": [
+    "article",
+    "cli",
+    "juejin.cn",
+    "github",
+    "oschina.net",
+    "csdn.net"
+  ],
   "goBinary": {
     "name": "acli",
     "path": "./bin",
