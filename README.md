@@ -25,6 +25,7 @@
 
 - [掘金](https://juejin.cn)
 - [开源中国](https://oschina.net)
+- [CSDN](https://csdn.net)
 - [GitHub](https://github.com)
 
 ## 文档

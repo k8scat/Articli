@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/k8scat/articli/pkg/cmd/csdn"
 	"github.com/k8scat/articli/pkg/cmd/github"
 	"github.com/k8scat/articli/pkg/cmd/oschina"
 	"log"
@@ -86,6 +87,7 @@ func main() {
 	rootCmd.AddCommand(juejin.NewJuejinCmd(cfgFile, cfg))
 	rootCmd.AddCommand(github.NewGithubCmd(cfgFile, cfg))
 	rootCmd.AddCommand(oschina.NewOSChinaCmd(cfgFile, cfg))
+	rootCmd.AddCommand(csdn.NewCSDNCmd(cfgFile, cfg))
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("execute command failed: %+v", errors.Trace(err))

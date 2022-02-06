@@ -37,7 +37,6 @@ const (
 )
 
 type Client struct {
-	Name     string
 	Cookie   string
 	AuthInfo *AuthInfo
 }

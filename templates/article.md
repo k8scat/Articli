@@ -22,7 +22,6 @@ juejin:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
-  draft: false
   sync_to_org: false # 是否同步到组织，个人账号不支持
 
   # 自动生成部分
@@ -54,7 +53,6 @@ oschina:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
-  draft: false
 
   # 自动生成部分
   draft_id: "7xxx"
@@ -67,20 +65,22 @@ oschina:
 csdn:
   title: 标题3
   brief_content: 内容概要
-  category:
+  categories:
   - Golang
   - 后端
   tags:
   - cli
   - csdn
   # 可选值: public, private, read_need_vip, read_need_fans
-  publish_type: public
+  read_type: public
+  # 可选值: 发布 publish, 草稿 draft
+  publish_status: publish
   # 可选值: 原创 original, 转载 repost, 翻译 translated
   article_type: original
   # 转载时必须填写
   original_url: ""
   # 原文允许转载或者本次转载已经获得原文作者授权
-  authorized: false
+  authorized_status: false
   # 支持单图、三图、无图
   cover_images:
   - https://img.alicdn.com/tfs/TB1.jpg
@@ -91,7 +91,6 @@ csdn:
     ## Powered by
 
     本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
-  draft: false
 
   # 自动生成部分
   article_id: "8xxx"

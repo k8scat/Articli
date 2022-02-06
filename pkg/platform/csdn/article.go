@@ -57,42 +57,43 @@ func (c *Client) ListArticles(req *ListArticlesRequest) (articles []Article, cou
 	return
 }
 
-func (c *Client) SaveArticle(params *SaveArticleParams) (string, error) {
+func (c *Client) SaveArticle(params *SaveArticleParams) error {
 	rawurl := BuildBizAPIURL("/blog-console-api/v3/mdeditor/saveArticle")
 	b, err := json.Marshal(params)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	if ResourceGateway == nil {
 		if err = InitResourceGateway(); err != nil {
-			return "", errors.Trace(err)
+			return errors.Trace(err)
 		}
 	}
 
 	body := bytes.NewReader(b)
 	resp, err := c.Post(rawurl, nil, body, ResourceGateway)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	defer resp.Body.Close()
 	b, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.Errorf("request failed %d: %s", resp.StatusCode, b)
+		return errors.Errorf("request failed %d: %s", resp.StatusCode, b)
 	}
 
 	var result *SaveArticleResponse
 	if err = json.Unmarshal(b, &result); err != nil {
-		return "", errors.Trace(err)
+		return errors.Trace(err)
 	}
 	if result.Code != 200 {
-		return "", errors.New(result.Message)
+		return errors.New(result.Message)
 	}
 
-	articleID := strconv.FormatInt(result.Data.ID, 10)
-	return articleID, nil
+	params.ID = strconv.FormatInt(result.Data.ID, 10)
+	params.URL = result.Data.URL
+	return nil
 }

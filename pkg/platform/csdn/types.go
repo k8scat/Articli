@@ -48,6 +48,13 @@ type SaveArticleSource string
 
 const SaveArticleSourcePCMarkdownEditor = "pc_mdeditor"
 
+type ArticleStatus int
+
+const (
+	ArticleStatusPublish ArticleStatus = 0
+	ArticleStatusDraft   ArticleStatus = 2
+)
+
 type Article struct {
 	ID             string   `json:"ArticleId"`
 	CommentAuth    string   `json:"CommentAuth"`
@@ -152,14 +159,14 @@ func (req *ListArticlesRequest) IntoQuery() url.Values {
 type SaveArticleParams struct {
 	Content          string            `json:"content"`
 	CoverImages      []string          `json:"cover_images"`
-	CoverType        int               `json:"cover_type"`
-	IsNew            string            `json:"is_new"`
+	CoverType        CoverType         `json:"cover_type"`
+	IsNew            int               `json:"is_new"`
 	MarkdownContent  string            `json:"markdowncontent"`
 	NotAutoSave      string            `json:"not_auto_saved"`
 	PubStatus        PublishStatus     `json:"pubStatus"`
 	ReadType         ReadType          `json:"readType"`
 	Source           SaveArticleSource `json:"source"`
-	Status           int               `json:"status"`
+	Status           ArticleStatus     `json:"status"`
 	Title            string            `json:"title"`
 	VoteID           string            `json:"vote_id"`
 	Categories       string            `json:"categories,omitempty"`
@@ -169,6 +176,14 @@ type SaveArticleParams struct {
 	AuthorizedStatus bool              `json:"authorized_status,omitempty"` // 原文允许转载或者本次转载已经获得原文作者授权
 	OriginalURL      string            `json:"original_url,omitempty"`
 	Description      string            `json:"Description,omitempty"`
+	URL              string            `json:"-"`
+}
+
+func NewSaveArticleParams() *SaveArticleParams {
+	return &SaveArticleParams{
+		Source: SaveArticleSourcePCMarkdownEditor,
+		IsNew:  1,
+	}
 }
 
 type SaveArticleResponse struct {
@@ -193,9 +208,9 @@ func (p *SaveArticleParams) SetCategories(categories []string) {
 type CoverType int
 
 const (
-	CoverTypeSingleImage CoverType = 1 // 单图
-	CoverTypeThree       CoverType = 3 // 三图
-	CoverTypeNone        CoverType = 0 // 无封面
+	CoverTypeSingle CoverType = 1 // 单图
+	CoverTypeThree  CoverType = 3 // 三图
+	CoverTypeNone   CoverType = 0 // 无封面
 )
 
 type GetAuthInfoResponse struct {

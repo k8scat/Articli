@@ -64,7 +64,7 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err 
 		params.Content = fmt.Sprintf("%s\n\n%s", params.Content, suffixContent)
 	}
 
-	tags := meta.GetStringArray("tags")
+	tags := meta.GetStringSlice("tags")
 	params.TagIDs, err = ConvertTagNamesToIDs(c, tags)
 	if err != nil {
 		err = errors.Trace(err)

@@ -46,7 +46,7 @@ e:
 	err := yaml.Unmarshal([]byte(s), &m)
 	assert.Nil(t, err)
 	if m != nil {
-		v := m.GetStringArray("e.f.h")
+		v := m.GetStringSlice("e.f.h")
 		assert.NotNil(t, v)
 		assert.Equal(t, []string{"5", "6"}, v)
 	}

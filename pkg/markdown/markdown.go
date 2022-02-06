@@ -3,6 +3,7 @@ package markdown
 import (
 	"bufio"
 	"bytes"
+	"github.com/gomarkdown/markdown"
 	"github.com/juju/errors"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -115,4 +116,9 @@ func Parse(filepath string) (result *Mark, err error) {
 	result.Content = string(content)
 	result.Meta = m
 	return
+}
+
+func ConvertToHTML(s string) string {
+	html := markdown.ToHTML([]byte(s), nil, nil)
+	return string(html)
 }

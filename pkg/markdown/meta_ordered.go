@@ -60,7 +60,7 @@ func (m Meta) GetString(path string) string {
 	return s
 }
 
-func (m Meta) GetStringArray(path string) []string {
+func (m Meta) GetStringSlice(path string) []string {
 	v := m.Get(path)
 	if v == nil {
 		return nil

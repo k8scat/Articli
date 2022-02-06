@@ -12,6 +12,6 @@ func TestParse(t *testing.T) {
 	assert.NotNil(t, mark)
 	if mark != nil {
 		assert.Equal(t, "标题1", mark.Meta.Get("title"))
-		assert.Equal(t, 2, len(mark.Meta.GetStringArray("juejin.tags")))
+		assert.Equal(t, 2, len(mark.Meta.GetStringSlice("juejin.tags")))
 	}
 }
