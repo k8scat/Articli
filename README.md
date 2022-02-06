@@ -30,7 +30,7 @@
 
 ## 文档
 
-[Docs](https://k8scat.github.io/Articli)
+[Docs](https://k8scat.github.io/Articli) | [国内地址](https://k8scat.gitee.io/articli)
 
 ## LICENSE
 
