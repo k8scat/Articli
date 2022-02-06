@@ -6,10 +6,10 @@
   "keywords": [
     "article",
     "cli",
-    "juejin.cn",
+    "juejin",
     "github",
-    "oschina.net",
-    "csdn.net"
+    "oschina",
+    "csdn"
   ],
   "goBinary": {
     "name": "acli",
