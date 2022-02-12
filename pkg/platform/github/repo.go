@@ -4,15 +4,17 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"path/filepath"
+	"strings"
+
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/pkg/utils"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"path/filepath"
 )
 
 const (
@@ -246,4 +248,22 @@ func (c *Client) GetContent(owner, repo, path string, refs ...string) ([]*FileIn
 		return nil, errors.Trace(err)
 	}
 	return []*FileInfo{fileInfo}, nil
+}
+
+func (c *Client) GetFile(owner, repo, path string, refs ...string) (f *FileInfo, isDir bool, err error) {
+	files, err := c.GetContent(owner, repo, path)
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	for _, f = range files {
+		if strings.HasPrefix(f.Path, fmt.Sprintf("%s/", path)) {
+			isDir = true
+			return
+		}
+		if f.Path == path {
+			return
+		}
+	}
+	return
 }

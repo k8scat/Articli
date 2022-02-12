@@ -2,9 +2,10 @@ package oschina
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/pkg/markdown"
-	"time"
 )
 
 type SaveType string
@@ -86,12 +87,24 @@ func (c *Client) ParseMark(mark *markdown.Mark) (*ContentParams, error) {
 		return nil, errors.New("oschina title is required")
 	}
 
+	coverImage := meta.GetString("cover_image")
+	if coverImage == "" {
+		coverImages := mark.Meta.GetStringSlice("cover_images")
+		if len(coverImages) > 0 {
+			coverImage = coverImages[0]
+		}
+	}
+	content := mark.Content
+	if coverImage != "" {
+		content = fmt.Sprintf("![cover_image](%s)\n\n%s", coverImage, content)
+	}
+
 	params := &ContentParams{
 		ID:             articleID,
 		DraftID:        draftID,
 		Title:          title,
 		Category:       category.ID,
-		Content:        mark.Content,
+		Content:        content,
 		TechnicalField: technicalFieldID,
 		DenyComment:    denyComment,
 		Top:            top,

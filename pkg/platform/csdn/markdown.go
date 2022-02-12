@@ -1,10 +1,11 @@
 package csdn
 
 import (
-	"github.com/juju/errors"
-	"github.com/k8scat/articli/pkg/markdown"
 	"strings"
 	"time"
+
+	"github.com/juju/errors"
+	"github.com/k8scat/articli/pkg/markdown"
 )
 
 type SaveType string
@@ -81,6 +82,9 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err 
 	params.Tags = strings.Join(tags, ",")
 
 	params.CoverImages = meta.GetStringSlice("cover_images")
+	if len(params.CoverImages) == 0 {
+		params.CoverImages = mark.Meta.GetStringSlice("cover_images")
+	}
 	if len(params.CoverImages) > MaxCoverImageCount {
 		params.CoverImages = params.CoverImages[:MaxCoverImageCount]
 	}

@@ -1,6 +1,9 @@
 package article
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/juju/errors"
 	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
 	"github.com/k8scat/articli/pkg/table"
@@ -15,6 +18,12 @@ var (
 		Use:   "list",
 		Short: "List articles",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				fmt.Println("limit must be greater than 0")
+				os.Exit(1)
+				return nil
+			}
+
 			result := make([]*oschinasdk.Article, 0, limit)
 			page := 1
 			for {

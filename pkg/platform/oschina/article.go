@@ -2,13 +2,14 @@ package oschina
 
 import (
 	"fmt"
+	"net/url"
+	"path/filepath"
+	"strings"
+
 	"github.com/antchfx/htmlquery"
 	"github.com/google/go-querystring/query"
 	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
-	"net/url"
-	"path/filepath"
-	"strings"
 )
 
 const ArticleURLFormat = "https://my.oschina.net/%s/blog/%s"

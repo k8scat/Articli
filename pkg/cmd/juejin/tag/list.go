@@ -2,12 +2,15 @@ package tag
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/juju/errors"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/k8scat/articli/pkg/table"
-	"io/ioutil"
-	"strconv"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -21,13 +24,19 @@ var (
 		Use:   "list",
 		Short: "List tags",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				fmt.Println("limit must be greater than 0")
+				os.Exit(1)
+				return nil
+			}
+
 			cacheFile, err := getCacheFile()
 			if err != nil {
 				return errors.Trace(err)
 			}
 
 			keyword = strings.TrimSpace(keyword)
-			result := make([]*juejinsdk.TagItem, 0)
+			result := make([]*juejinsdk.TagItem, 0, limit)
 
 			if useCache {
 				b, err := ioutil.ReadFile(cacheFile)
@@ -42,7 +51,6 @@ var (
 				cursor := juejinsdk.StartCursor
 				for {
 					var tags []*juejinsdk.TagItem
-					var err error
 					tags, cursor, err = client.ListTags(keyword, cursor)
 					if err != nil {
 						return errors.Errorf("list tags failed: %+v", errors.Trace(err))

@@ -2,9 +2,10 @@ package file
 
 import (
 	"fmt"
+	"os"
+
 	githubsdk "github.com/k8scat/articli/pkg/platform/github"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -14,7 +15,6 @@ var (
 
 	owner string
 	repo  string
-	path  string
 
 	fileCmd = &cobra.Command{
 		Use:   "file",
@@ -44,7 +44,6 @@ var (
 func init() {
 	fileCmd.PersistentFlags().StringVarP(&owner, "owner", "o", "", "Owner of the repository to upload to, defaults to the logged in user")
 	fileCmd.PersistentFlags().StringVarP(&repo, "repo", "r", "", "Name of the repository to upload to")
-	fileCmd.PersistentFlags().StringVarP(&path, "path", "p", "", "Path in the repository to upload the file")
 	fileCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "GitHub token to use for authentication")
 
 	fileCmd.AddCommand(uploadCmd)

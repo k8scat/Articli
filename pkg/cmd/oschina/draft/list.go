@@ -1,6 +1,9 @@
 package draft
 
 import (
+	"fmt"
+	"os"
+
 	oschinasdk "github.com/k8scat/articli/pkg/platform/oschina"
 	"github.com/k8scat/articli/pkg/table"
 	"github.com/spf13/cobra"
@@ -14,6 +17,12 @@ var (
 		Use:   "list",
 		Short: "List drafts",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				fmt.Println("limit must be greater than 0")
+				os.Exit(1)
+				return nil
+			}
+
 			result := make([]*oschinasdk.Draft, 0, limit)
 			page := 1
 			for {

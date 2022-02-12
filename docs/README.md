@@ -89,7 +89,8 @@ make
 # 通用配置，其他平台可以继承该配置
 title: 标题1
 brief_content: 内容概要
-cover_image: https://img.alicdn.com/tfs/TB1.jpg
+cover_image:
+- https://img.alicdn.com/tfs/TB1.jpg
 prefix_content: "这是我参与xx活动..." # 前缀内容，主要用于掘金的活动
 suffix_content: |
   ## Powered by
@@ -339,7 +340,7 @@ acli csdn article create /path/to/article.md
 
 #### 登录
 
-使用 GitHub Token 进行登录
+使用 [Personal Access Token](https://github.com/settings/tokens) 进行登录
 
 ```shell
 # 交互式登录
@@ -352,32 +353,27 @@ acli github auth login --with-token < token.txt
 #### 上传文件
 
 ```shell
-# 上传 README.md 文件到 testrepo 仓库
-acli github file upload --repo testrepo README.md
+# 上传本地文件
+acli github file upload -o <owner> -r <repo> [-p <store path>] <local path>
 
-# 使用网络资源
-# 使用 -p 指定在仓库中存储的路径
-acli github file upload --repo testrepo \
-  -p testdir/homebrew-social-card.png \
-  https://brew.sh/assets/img/homebrew-social-card.png
+# 上传网络资源
+acli github file upload -o <owner> -r <repo> [-p <store path>] <resource url>
 ```
 
 #### 列取文件
 
 ```shell
-# 获取代码仓 testrepo 根目录的文件列表，包括文件和目录
-acli github file get --repo testrepo
+# 获取代码仓根目录的文件列表，包括文件和目录
+acli github file get -o <owner> -r <repo>
 
-# 如果 testpath 是目录，则获取代码仓 testrepo 中 testpath 目录下的文件；
-# 如果 testpath 是文件，则只获取该文件
-acli github file get --repo testrepo --path testpath
+# 指定 path
+acli github file get -o <owner> -r <repo> -p <path>
 ```
 
 #### 删除文件
 
 ```shell
-# 使用 -o 或 --owner 可以指定仓库的 owner
-acli github file delete --owner testowner --repo testrepo --path testdir/filename.txt
+acli github file delete -o <owner> -r <repo> <path ...>
 ```
 
 ### 简化命令

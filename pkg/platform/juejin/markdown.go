@@ -2,10 +2,11 @@ package juejin
 
 import (
 	"fmt"
-	"github.com/juju/errors"
-	"github.com/k8scat/articli/pkg/markdown"
 	"strings"
 	"time"
+
+	"github.com/juju/errors"
+	"github.com/k8scat/articli/pkg/markdown"
 )
 
 type SaveType string
@@ -41,6 +42,13 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err 
 	params.SyncToOrg = meta.GetBool("sync_to_org")
 
 	params.CoverImage = meta.GetString("cover_image")
+	if params.CoverImage == "" {
+		coverImages := mark.Meta.GetStringSlice("cover_images")
+		if len(coverImages) > 0 {
+			params.CoverImage = coverImages[0]
+		}
+	}
+
 	params.Content = mark.Content
 	params.Brief = meta.GetString("brief_content")
 	if params.Brief == "" {

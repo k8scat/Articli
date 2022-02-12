@@ -2,16 +2,23 @@ package file
 
 import (
 	"fmt"
-	githubsdk "github.com/k8scat/articli/pkg/platform/github"
-	"github.com/spf13/cobra"
+	"net/url"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/juju/errors"
+	githubsdk "github.com/k8scat/articli/pkg/platform/github"
+	"github.com/k8scat/articli/pkg/utils"
+	"github.com/spf13/cobra"
 )
 
 var (
 	message string
-	sha     string
 	branch  string
+	dir     string
+	force   bool
+	path    string
 
 	uploadCmd = &cobra.Command{
 		Use:   "upload <filepath>",
@@ -24,8 +31,35 @@ var (
 			if message == "" {
 				message = fmt.Sprintf("Uploaded by Articli at %s", time.Now().Format("2006-01-02 15:04:05"))
 			}
+
+			fp := args[0]
+			if path == "" && dir != "" {
+				var filename string
+				if utils.IsValidURL(fp) {
+					u, err := url.Parse(fp)
+					if err != nil {
+						return errors.Trace(err)
+					}
+					filename = filepath.Base(u.Path)
+				} else {
+					filename = filepath.Base(fp)
+				}
+				path = filepath.Join(dir, filename)
+			}
+
+			var sha string
+			if force {
+				file, _, err := client.GetFile(owner, repo, path)
+				if err != nil {
+					return errors.Trace(err)
+				}
+				if file != nil {
+					sha = file.SHA
+				}
+			}
+
 			req := &githubsdk.UploadFileRequest{
-				Path:    args[0],
+				Path:    fp,
 				Message: message,
 				SHA:     sha,
 			}
@@ -43,6 +77,8 @@ var (
 
 func init() {
 	uploadCmd.Flags().StringVarP(&message, "message", "m", "", "Commit message, if not provided a default message will be used")
-	uploadCmd.Flags().StringVarP(&sha, "sha", "s", "", "SHA of the file to update")
 	uploadCmd.Flags().StringVarP(&branch, "branch", "b", "master", "Branch to upload the file to. Default: the repository’s default branch (usually master)")
+	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "Directory to upload the file to")
+	uploadCmd.Flags().BoolVarP(&force, "force", "f", false, "Force upload the file, this will overwrite the file if it exists")
+	uploadCmd.Flags().StringVarP(&path, "path", "p", "", "Path in the repository to upload the file")
 }

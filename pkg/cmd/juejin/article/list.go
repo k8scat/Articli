@@ -1,11 +1,14 @@
 package article
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/juju/errors"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/k8scat/articli/pkg/table"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 var (
@@ -17,6 +20,12 @@ var (
 		Use:   "list",
 		Short: "List articles",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				fmt.Println("limit must be greater than 0")
+				os.Exit(1)
+				return nil
+			}
+
 			result := make([]*juejinsdk.Article, 0, limit)
 			page := 1
 			for {

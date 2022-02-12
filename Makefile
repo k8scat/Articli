@@ -17,13 +17,15 @@ MAIN_SRC_FILE = cmd/articli/main.go
 build: pre-build
 	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=$(BUILD_GOOS) GOARCH=amd64 $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/$(BUILD_GOOS)/$(NAME) $(MAIN_SRC_FILE)
 	chmod +x bin/$(BUILD_GOOS)/$(NAME)
-	rm -rf $(NAME) && ln -s bin/$(BUILD_GOOS)/$(NAME) $(NAME)
+	rm -rf $(NAME)
+	ln -s bin/$(BUILD_GOOS)/$(NAME) $(NAME)
 
 .PHONY: darwin
 darwin: pre-build
 	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/darwin/$(NAME) $(MAIN_SRC_FILE)
 	chmod +x bin/darwin/$(NAME)
-	rm -rf $(NAME) && ln -s bin/darwin/$(NAME) $(NAME)
+	rm -rf $(NAME)
+	ln -s bin/darwin/$(NAME) $(NAME)
 
 .PHONY: linux
 linux: pre-build
