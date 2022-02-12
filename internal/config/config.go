@@ -1,10 +1,12 @@
 package config
 
 import (
-	"github.com/mitchellh/go-homedir"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/juju/errors"
 	"gopkg.in/yaml.v3"
@@ -58,15 +60,17 @@ func SaveConfig(cfgFile string, cfg *Config) error {
 	return errors.Trace(err)
 }
 
-func GetConfigDir() (string, error) {
+func GetConfigDir() string {
 	homeDir, err := homedir.Dir()
 	if err != nil {
-		return "", errors.Trace(err)
+		fmt.Printf("warning: get home dir failed: %s\n", err)
+		return ""
 	}
 
 	cfgDir := filepath.Join(homeDir, ".config", "articli")
 	if err = os.MkdirAll(cfgDir, os.ModePerm); err != nil {
-		return "", errors.Trace(err)
+		fmt.Printf("warning: create config dir failed: %s\n", err)
+		return ""
 	}
-	return cfgDir, nil
+	return cfgDir
 }

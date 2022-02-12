@@ -4,7 +4,6 @@ BUILD_GOOS = $(shell go env GOOS)
 GO := go
 BUILD_TARGET = build
 COMMIT := $(shell git rev-parse --short HEAD)
-BIN_PATH := $(shell rm -f acli && which acli || echo "/usr/local/bin/acli")
 VERSION := dev-$(shell git describe --tags $(shell git rev-list --tags --max-count=1) || echo "1.0.0")
 BUILD_DATE := $(shell date +'%Y-%m-%d')
 BUILD_FLAGS = -ldflags "-X main.version=$(VERSION) \
@@ -65,10 +64,6 @@ clean:
 	rm -rf bin release
 	rm -rf coverage.out
 	rm -f $(NAME)
-
-.PHONY: copy
-copy: build
-	sudo cp bin/$(BUILD_GOOS)/$(NAME) $(BIN_PATH)
 
 .PHONY: get-golint
 get-golint:

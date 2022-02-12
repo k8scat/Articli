@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"path/filepath"
+	"runtime/debug"
+
 	"github.com/k8scat/articli/pkg/cmd/csdn"
 	"github.com/k8scat/articli/pkg/cmd/github"
 	"github.com/k8scat/articli/pkg/cmd/oschina"
-	"log"
-	"os"
-	"path/filepath"
-	"runtime/debug"
 
 	"github.com/juju/errors"
 	"github.com/k8scat/articli/internal/config"
@@ -46,31 +46,13 @@ func init() {
 
 func initConfig() {
 	if cfgFile == "" {
-		cfgDir, err := config.GetConfigDir()
-		if err != nil {
-			log.Fatalf("get config dir failed: %+v", errors.Trace(err))
-		}
-
-		cfgFile = filepath.Join(cfgDir, "config.yml")
-		f, err := os.Stat(cfgFile)
-		// Init default config if default config file not exists
-		if err != nil || f.IsDir() {
-			f, err := os.Create(cfgFile)
-			if err != nil {
-				log.Fatalf("create config file failed: %+v", errors.Trace(err))
-			}
-			defer f.Close()
-			cfg = new(config.Config)
-			if err = config.SaveConfig(cfgFile, cfg); err != nil {
-				log.Fatalf("write config file failed: %+v", errors.Trace(err))
-			}
-		}
+		cfgFile = filepath.Join(config.GetConfigDir(), "config.yml")
 	}
 
 	var err error
 	cfg, err = config.ParseConfig(cfgFile)
 	if err != nil {
-		log.Fatalf("parse config file failed: %+v", errors.Trace(err))
+		cfg = new(config.Config)
 	}
 }
 

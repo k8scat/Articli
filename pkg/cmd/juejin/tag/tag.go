@@ -2,9 +2,10 @@ package tag
 
 import (
 	"fmt"
+	"os"
+
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -24,7 +25,6 @@ var (
 
 func init() {
 	tagCmd.AddCommand(listCmd)
-	tagCmd.AddCommand(cacheCmd)
 }
 
 func NewTagCmd(c *juejinsdk.Client) *cobra.Command {

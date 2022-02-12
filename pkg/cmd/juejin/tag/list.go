@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/juju/errors"
+	"github.com/k8scat/articli/internal/config"
 	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
 	"github.com/k8scat/articli/pkg/table"
 
@@ -16,9 +18,9 @@ import (
 )
 
 var (
-	keyword  string
-	limit    int
-	useCache bool
+	keyword     string
+	limit       int
+	notUseCache bool
 
 	listCmd = &cobra.Command{
 		Use:   "list",
@@ -30,7 +32,7 @@ var (
 				return nil
 			}
 
-			cacheFile, err := getCacheFile()
+			cacheFile, exists, err := getCacheFile()
 			if err != nil {
 				return errors.Trace(err)
 			}
@@ -38,16 +40,7 @@ var (
 			keyword = strings.TrimSpace(keyword)
 			result := make([]*juejinsdk.TagItem, 0, limit)
 
-			if useCache {
-				b, err := ioutil.ReadFile(cacheFile)
-				if err != nil {
-					return errors.Trace(err)
-				}
-				if err = json.Unmarshal(b, &result); err != nil {
-					return errors.Errorf("invalid cache data: %s", string(b))
-				}
-				result = filterTags(result, keyword)
-			} else {
+			if notUseCache || !exists {
 				cursor := juejinsdk.StartCursor
 				for {
 					var tags []*juejinsdk.TagItem
@@ -60,6 +53,24 @@ var (
 						break
 					}
 				}
+
+				b, err := json.Marshal(result)
+				if err != nil {
+					return errors.Trace(err)
+				}
+				err = ioutil.WriteFile(cacheFile, b, 0644)
+				if err != nil {
+					return errors.Trace(err)
+				}
+			} else {
+				b, err := ioutil.ReadFile(cacheFile)
+				if err != nil {
+					return errors.Trace(err)
+				}
+				if err = json.Unmarshal(b, &result); err != nil {
+					return errors.Errorf("invalid cache data: %s", string(b))
+				}
+				result = filterTags(result, keyword)
 			}
 			if len(result) > limit {
 				result = result[:limit]
@@ -83,7 +94,7 @@ var (
 func init() {
 	listCmd.Flags().StringVarP(&keyword, "keyword", "k", "", "Filter keyword")
 	listCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Maximum number of tags to list")
-	listCmd.Flags().BoolVar(&useCache, "use-cache", false, "Use cache data")
+	listCmd.Flags().BoolVar(&notUseCache, "no-cache", false, "Not use cache data")
 }
 
 func filterTags(tags []*juejinsdk.TagItem, keyword string) []*juejinsdk.TagItem {
@@ -96,4 +107,20 @@ func filterTags(tags []*juejinsdk.TagItem, keyword string) []*juejinsdk.TagItem 
 		}
 	}
 	return filtered
+}
+
+func getCacheFile() (cacheFile string, exists bool, err error) {
+	cfgDir := config.GetConfigDir()
+	if err != nil {
+		err = errors.Trace(err)
+		return
+	}
+	cacheFile = filepath.Join(cfgDir, "tags.json")
+	var f os.FileInfo
+	f, err = os.Stat(cacheFile)
+	if err != nil || f.IsDir() {
+		exists = false
+		return
+	}
+	return
 }
