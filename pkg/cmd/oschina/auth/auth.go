@@ -14,6 +14,9 @@ var (
 	authCmd = &cobra.Command{
 		Use:   "auth",
 		Short: "Manage authentication state of oschina.net",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			client, _ = oschinasdk.NewClient(cfg.Platforms.OSChina.Cookie)
+		},
 	}
 )
 
@@ -23,9 +26,8 @@ func init() {
 	authCmd.AddCommand(statusCmd)
 }
 
-func NewAuthCmd(cf string, c *config.Config, cl *oschinasdk.Client) *cobra.Command {
+func NewAuthCmd(cf string, c *config.Config) *cobra.Command {
 	cfgFile = cf
 	cfg = c
-	client = cl
 	return authCmd
 }

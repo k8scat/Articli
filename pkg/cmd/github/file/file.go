@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/k8scat/articli/internal/config"
 	githubsdk "github.com/k8scat/articli/pkg/platform/github"
 	"github.com/spf13/cobra"
 )
 
 var (
 	client *githubsdk.Client
+	cfg    *config.Config
 
 	token string
 
@@ -20,20 +22,14 @@ var (
 		Use:   "file",
 		Short: "Manage files in a repository",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if client == nil {
-				if token == "" {
-					fmt.Println("please login first or provide a token via --token flag")
-					os.Exit(1)
-				}
-
-				var err error
-				client, err = githubsdk.NewClient(token)
-				if err != nil {
-					fmt.Printf("invalid github token: %s\n", err)
-					os.Exit(1)
-				}
+			if token == "" {
+				token = cfg.Platforms.Github.Token
 			}
-
+			client, _ = githubsdk.NewClient(token)
+			if client == nil {
+				fmt.Println("please login first")
+				os.Exit(1)
+			}
 			if owner == "" {
 				owner = client.User.GetUsername()
 			}
@@ -51,7 +47,7 @@ func init() {
 	fileCmd.AddCommand(getCmd)
 }
 
-func NewFileCmd(c *githubsdk.Client) *cobra.Command {
-	client = c
+func NewFileCmd(c *config.Config) *cobra.Command {
+	cfg = c
 	return fileCmd
 }

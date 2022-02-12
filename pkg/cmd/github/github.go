@@ -4,13 +4,10 @@ import (
 	"github.com/k8scat/articli/internal/config"
 	"github.com/k8scat/articli/pkg/cmd/github/auth"
 	"github.com/k8scat/articli/pkg/cmd/github/file"
-	githubsdk "github.com/k8scat/articli/pkg/platform/github"
 	"github.com/spf13/cobra"
 )
 
 var (
-	client *githubsdk.Client
-
 	cfgFile string
 	cfg     *config.Config
 
@@ -23,11 +20,8 @@ var (
 func NewGithubCmd(cf string, c *config.Config) *cobra.Command {
 	cfgFile = cf
 	cfg = c
-	if cfg.Platforms.Github.Token != "" {
-		client, _ = githubsdk.NewClient(cfg.Platforms.Github.Token)
-	}
 
-	githubCmd.AddCommand(auth.NewAuthCmd(cfgFile, cfg, client))
-	githubCmd.AddCommand(file.NewFileCmd(client))
+	githubCmd.AddCommand(auth.NewAuthCmd(cfgFile, cfg))
+	githubCmd.AddCommand(file.NewFileCmd(cfg))
 	return githubCmd
 }
