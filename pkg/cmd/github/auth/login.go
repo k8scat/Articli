@@ -92,5 +92,5 @@ var (
 )
 
 func init() {
-	loginCmd.Flags().BoolVar(&tokenStdin, "with-token", false, "Read cookie from standard input")
+	loginCmd.Flags().BoolVar(&tokenStdin, "with-token", false, "Read token from standard input")
 }
