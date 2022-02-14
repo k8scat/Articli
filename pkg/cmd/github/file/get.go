@@ -1,13 +1,12 @@
 package file
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/juju/errors"
-	"github.com/k8scat/articli/pkg/table"
 	"github.com/spf13/cobra"
+
+	"github.com/k8scat/articli/pkg/table"
 )
 
 var (
@@ -20,8 +19,6 @@ var (
 		Short: "Get the contents of a file or directory in a repository",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if limit <= 0 {
-				fmt.Println("limit must be greater than 0")
-				os.Exit(1)
 				return nil
 			}
 

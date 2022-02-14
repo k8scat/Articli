@@ -23,10 +23,16 @@
 
 ## 支持的平台
 
+### 平台文章管理
+
 - [掘金](https://juejin.cn)
 - [开源中国](https://oschina.net)
 - [CSDN](https://csdn.net)
+
+### Git 代码仓文件管理
+
 - [GitHub](https://github.com)
+- [极狐 GitLab](https://jihulab.com)
 
 ## 安装
 
@@ -373,6 +379,54 @@ acli github file get -o <owner> -r <repo> -p <path>
 #### 删除文件
 
 ```shell
+# 支持同时删除多个文件
+acli github file delete -o <owner> -r <repo> <path ...>
+```
+
+### 极狐 GitLab
+
+#### 登录
+
+使用 [Personal Access Token](https://jihulab.com/-/profile/personal_access_tokens) 进行登录
+
+```shell
+# 交互式登录，默认登录 https://jihulab.com
+acli gitlab auth login
+
+# 从标准输入获取 Token
+acli gitlab auth login --with-token < token.txt
+
+# 指定 GitLab 实例地址
+acli gitlab auth login --base-url https://gitlab.com
+```
+
+#### 上传文件
+
+```shell
+# 上传本地文件
+acli gitlab file upload -o <owner> -r <repo> [-p <store path>] <local path>
+
+# 上传网络资源
+acli gitlab file upload -o <owner> -r <repo> [-p <store path>] <resource url>
+
+# 使用 projectID 代替 owner/repo
+acli gitlab file upload --project-id <projectID> [-p <store path>] <local path>
+```
+
+#### 列取文件
+
+```shell
+# 获取代码仓根目录的文件列表，包括文件和目录
+acli gitlab file get -o <owner> -r <repo>
+
+# 指定 path
+acli gitlab file get -o <owner> -r <repo> -p <path>
+```
+
+#### 删除文件
+
+```shell
+# 支持同时删除多个文件
 acli github file delete -o <owner> -r <repo> <path ...>
 ```
 

@@ -21,6 +21,7 @@ type Platforms struct {
 	OSChina OSChina `yaml:"oschina,omitempty"`
 	Github  Github  `yaml:"github,omitempty"`
 	CSDN    CSDN    `yaml:"csdn,omitempty"`
+	Gitlab  Gitlab  `yaml:"gitlab,omitempty"`
 }
 
 type Juejin struct {
@@ -33,6 +34,11 @@ type OSChina struct {
 
 type Github struct {
 	Token string `yaml:"token,omitempty"`
+}
+
+type Gitlab struct {
+	BaseURL string `yaml:"base_url,omitempty"`
+	Token   string `yaml:"token,omitempty"`
 }
 
 type CSDN struct {

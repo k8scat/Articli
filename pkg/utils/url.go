@@ -1,6 +1,10 @@
 package utils
 
-import "net/url"
+import (
+	"net/url"
+	"path"
+	"strings"
+)
 
 // IsValidURL https://golangcode.com/how-to-check-if-a-string-is-a-url/
 func IsValidURL(s string) bool {
@@ -14,4 +18,15 @@ func IsValidURL(s string) bool {
 		return false
 	}
 	return true
+}
+
+func URLJoin(baseURL string, p ...string) string {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return ""
+	}
+	u.Path = path.Join(u.Path, path.Join(p...))
+	s := u.String()
+	s = strings.Replace(s, "%252F", "%2F", -1)
+	return s
 }

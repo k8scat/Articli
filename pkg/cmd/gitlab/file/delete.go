@@ -8,7 +8,7 @@ import (
 	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
-	githubsdk "github.com/k8scat/articli/pkg/platform/github"
+	gitlabsdk "github.com/k8scat/articli/pkg/platform/gitlab"
 )
 
 var (
@@ -38,24 +38,19 @@ func init() {
 func deleteFile(path string) error {
 	path = strings.Trim(path, "/")
 
-	file, isDir, err := client.GetFile(owner, repo, path)
-	if err != nil {
-		return errors.Trace(err)
-	}
-	if isDir {
-		return errors.Trace(err)
-	}
-	if file == nil {
-		return errors.Errorf("file '%s' does not exist", path)
-	}
-
 	if message == "" {
 		message = fmt.Sprintf("Deleted by [Articli](https://github.com/k8scat/Articli) at %s", time.Now().Format("2006-01-02 15:04:05"))
 	}
-	req := &githubsdk.DeleteFileRequest{
-		Message: message,
-		SHA:     file.SHA,
+	if branch == "" {
+		branch = project.DefaultBranch
 	}
-	err = client.DeleteFile(owner, repo, path, req)
+
+	data := &gitlabsdk.DeleteFileData{
+		ProjectID:     projectID,
+		Branch:        branch,
+		CommitMessage: message,
+		FilePath:      path,
+	}
+	err := client.DeleteFile(data)
 	return errors.Trace(err)
 }

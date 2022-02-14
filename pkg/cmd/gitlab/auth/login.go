@@ -7,22 +7,26 @@ import (
 	"os"
 	"strings"
 
-	githubsdk "github.com/k8scat/articli/pkg/platform/github"
-
 	"github.com/fatih/color"
 	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
+	gitlabsdk "github.com/k8scat/articli/pkg/platform/gitlab"
 )
 
 var (
 	tokenStdin bool
+	baseURL    string
 
 	loginCmd = &cobra.Command{
 		Use:   "login",
-		Short: "Authenticate with github.com",
+		Short: "Authenticate with gitlab",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if baseURL == "" {
+				return errors.New("baseURL is required")
+			}
+
 			bo := color.New(color.Bold)
 			wo := color.New(color.FgWhite)
 
@@ -57,7 +61,7 @@ var (
 				}
 
 				for {
-					bo.Print("? Paste github.com token: ")
+					bo.Printf("? Paste %s token: ", baseURL)
 					if !s.Scan() {
 						return nil
 					}
@@ -70,7 +74,7 @@ var (
 				}
 			}
 
-			client, err := githubsdk.NewClient(token)
+			client, err := gitlabsdk.NewClient(baseURL, token)
 			if err != nil {
 				fmt.Printf("error validating token: %s\n", err.Error())
 				os.Exit(1)
@@ -82,7 +86,8 @@ var (
 			fmt.Print("Logged in as ")
 			bo.Printf("%s\n", client.User.Name)
 
-			cfg.Platforms.Github.Token = token
+			cfg.Platforms.Gitlab.Token = token
+			cfg.Platforms.Gitlab.BaseURL = baseURL
 			if err = config.SaveConfig(cfgFile, cfg); err != nil {
 				return errors.Errorf("save config failed: %+v", errors.Trace(err))
 			}
@@ -92,5 +97,6 @@ var (
 )
 
 func init() {
+	loginCmd.Flags().StringVarP(&baseURL, "url", "u", "https://jihulab.com", "Base URL of GitLab instance")
 	loginCmd.Flags().BoolVar(&tokenStdin, "with-token", false, "Read cookie from standard input")
 }

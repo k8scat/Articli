@@ -1,7 +1,6 @@
 package github
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,8 +12,9 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
-	"github.com/k8scat/articli/pkg/utils"
 	"github.com/tidwall/gjson"
+
+	"github.com/k8scat/articli/pkg/utils"
 )
 
 const (
@@ -70,7 +70,7 @@ func (p *UploadFileRequest) fileEncoded() (string, error) {
 			return "", errors.Trace(err)
 		}
 	}
-	return base64.StdEncoding.EncodeToString(b), nil
+	return utils.Base64Encode(b), nil
 }
 
 type DeleteFileRequest struct {

@@ -8,12 +8,14 @@ import (
 
 	"github.com/k8scat/articli/pkg/cmd/csdn"
 	"github.com/k8scat/articli/pkg/cmd/github"
+	"github.com/k8scat/articli/pkg/cmd/gitlab"
 	"github.com/k8scat/articli/pkg/cmd/oschina"
 
 	"github.com/juju/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/k8scat/articli/internal/config"
 	"github.com/k8scat/articli/pkg/cmd/juejin"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -70,6 +72,7 @@ func main() {
 	rootCmd.AddCommand(github.NewGithubCmd(cfgFile, cfg))
 	rootCmd.AddCommand(oschina.NewOSChinaCmd(cfgFile, cfg))
 	rootCmd.AddCommand(csdn.NewCSDNCmd(cfgFile, cfg))
+	rootCmd.AddCommand(gitlab.NewGitlabCmd(cfgFile, cfg))
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("execute command failed: %+v", errors.Trace(err))
