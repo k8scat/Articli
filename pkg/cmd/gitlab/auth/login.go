@@ -97,6 +97,6 @@ var (
 )
 
 func init() {
-	loginCmd.Flags().StringVarP(&baseURL, "url", "u", "https://jihulab.com", "Base URL of GitLab instance")
+	loginCmd.Flags().StringVar(&baseURL, "base-url", gitlabsdk.BaseURLJihuLab, "Base URL of GitLab instance")
 	loginCmd.Flags().BoolVar(&tokenStdin, "with-token", false, "Read cookie from standard input")
 }
