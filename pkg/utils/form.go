@@ -1,12 +1,13 @@
-package csdn
+package utils
 
 import (
 	"bytes"
-	"github.com/juju/errors"
 	"io"
 	"mime/multipart"
 	"os"
 	"strings"
+
+	"github.com/juju/errors"
 )
 
 // https://stackoverflow.com/questions/20205796/post-data-using-the-content-type-multipart-form-data
