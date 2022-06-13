@@ -1,4 +1,4 @@
-package draft
+package note
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -27,7 +27,7 @@ var (
 func init() {
 	cmd.AddCommand(listCmd)
 	cmd.AddCommand(createCmd)
-	cmd.AddCommand(deleteCmd)
+	cmd.AddCommand(updateCmd)
 }
 
 func NewCmd(c *config.Config) *cobra.Command {

@@ -1,9 +1,7 @@
 package image
 
 import (
-	"fmt"
-	"os"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
@@ -20,8 +18,7 @@ var (
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			client, _ = sfsdk.NewClient(cfg.Platforms.SegmentFault.Token)
 			if client == nil {
-				fmt.Println("please login first")
-				os.Exit(1)
+				log.Fatal("please login first")
 			}
 		},
 	}

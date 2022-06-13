@@ -3,8 +3,6 @@ package segmentfault
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/k8scat/articli/pkg/cmd/segmentfault/category"
-
 	"github.com/k8scat/articli/internal/config"
 	"github.com/k8scat/articli/pkg/cmd/segmentfault/article"
 	"github.com/k8scat/articli/pkg/cmd/segmentfault/auth"
@@ -31,7 +29,6 @@ func NewCmd(cf string, c *config.Config) *cobra.Command {
 	cmd.AddCommand(article.NewArticleCmd(cfg))
 	cmd.AddCommand(image.NewCmd(cfg))
 	cmd.AddCommand(tag.NewCmd(cfg))
-	cmd.AddCommand(category.NewCategoryCmd(cfg))
 	cmd.AddCommand(draft.NewCmd(cfg))
 	return cmd
 }

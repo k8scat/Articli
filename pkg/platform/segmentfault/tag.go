@@ -41,6 +41,10 @@ type SearchTagRow struct {
 	ContentCount int    `json:"content_count"`
 }
 
+func (t *SearchTagRow) GetURL() string {
+	return DefaultSiteURL + t.URL
+}
+
 type SearchTagsResponse struct {
 	Rows []*SearchTagRow `json:"rows"`
 	Size int             `json:"size"`

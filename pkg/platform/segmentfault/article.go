@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/google/go-querystring/query"
 	"github.com/juju/errors"
 )
 
@@ -38,12 +39,28 @@ type ListArticlesResponse struct {
 	Rows []*ArticleRow `json:"rows"`
 }
 
-func (c *Client) ListArticles(opts *ListOptions) (resp *ListArticlesResponse, err error) {
-	endpoint := "/homepage/" + c.User.Slug + "/articles"
+type ListArticlesOptions struct {
+	Size int         `url:"size,omitempty"`
+	Page int         `url:"page,omitempty"`
+	Sort ArticleSort `url:"sort,omitempty"`
+}
+
+type ArticleSort string
+
+const (
+	ArticleSortNewest ArticleSort = "newest"
+	ArticleSortVotes  ArticleSort = "votes"
+)
+
+func (c *Client) ListArticles(opts *ListArticlesOptions) (resp *ListArticlesResponse, err error) {
 	var params url.Values
-	if opts != nil {
-		params = opts.IntoParams()
+	params, err = query.Values(opts)
+	if err != nil {
+		err = errors.Trace(err)
+		return
 	}
+
+	endpoint := "/homepage/" + c.User.Slug + "/articles"
 	err = c.Get(endpoint, params, &resp)
 	err = errors.Trace(err)
 	return
@@ -119,7 +136,7 @@ type CreateArticleResponse struct {
 
 func (c *Client) CreateArticle(d *Draft, opts *CreateArticleOptions) (resp *CreateArticleResponse, err error) {
 	endpoint := "/article"
-	req := d.IntoArticle(opts)
+	req := d.IntoCreateArticleRequest(opts)
 	err = c.Request(http.MethodPost, endpoint, nil, req, &resp)
 	err = errors.Trace(err)
 	return

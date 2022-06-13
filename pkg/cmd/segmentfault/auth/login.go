@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/juju/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
@@ -71,9 +72,7 @@ var (
 
 			client, err := sfsdk.NewClient(token)
 			if err != nil {
-				fmt.Printf("error validating cookie: %s\n", err.Error())
-				os.Exit(1)
-				return nil
+				log.Fatalf("error validating token: %v", err)
 			}
 
 			gr := color.New(color.FgGreen)
@@ -82,10 +81,8 @@ var (
 			bo.Printf("%s\n", client.User.Name)
 
 			cfg.Platforms.SegmentFault.Token = token
-			if err = config.SaveConfig(cfgFile, cfg); err != nil {
-				return errors.Errorf("save config failed: %+v", errors.Trace(err))
-			}
-			return nil
+			err = config.SaveConfig(cfgFile, cfg)
+			return errors.Trace(err)
 		},
 	}
 )

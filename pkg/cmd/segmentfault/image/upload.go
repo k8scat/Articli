@@ -8,8 +8,6 @@ import (
 )
 
 var (
-	region string
-
 	uploadImageCmd = &cobra.Command{
 		Use:   "upload <imagePath>",
 		Short: "Upload image on segmentfault.com",

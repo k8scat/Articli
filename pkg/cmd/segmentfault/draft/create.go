@@ -41,7 +41,7 @@ var (
 			}
 
 			if isCreate {
-				err = client.CreateDraft(draft)
+				err = client.createDraft(draft)
 			} else {
 				err = client.UpdateDraft(draft)
 			}

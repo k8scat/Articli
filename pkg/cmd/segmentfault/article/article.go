@@ -1,27 +1,24 @@
 package article
 
 import (
-	"fmt"
-	"os"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
-	juejinsdk "github.com/k8scat/articli/pkg/platform/juejin"
+	sfsdk "github.com/k8scat/articli/pkg/platform/segmentfault"
 )
 
 var (
-	client *juejinsdk.Client
+	client *sfsdk.Client
 	cfg    *config.Config
 
 	articleCmd = &cobra.Command{
 		Use:   "article",
 		Short: "Manage articles",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			client, _ = juejinsdk.NewClient(cfg.Platforms.Juejin.Cookie)
+			client, _ = sfsdk.NewClient(cfg.Platforms.Juejin.Cookie)
 			if client == nil {
-				fmt.Println("please login first")
-				os.Exit(1)
+				log.Fatal("please login first")
 			}
 		},
 	}

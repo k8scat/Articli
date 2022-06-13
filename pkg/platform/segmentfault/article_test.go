@@ -12,10 +12,10 @@ func TestListArticles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	opts := &ListOptions{
+	opts := &ListArticlesOptions{
 		Page: 1,
 		Size: 10,
-		Sort: SortTypeNewest,
+		Sort: ArticleSortNewest,
 	}
 	articles, err := client.ListArticles(opts)
 	if err != nil {

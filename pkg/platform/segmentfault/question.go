@@ -47,7 +47,7 @@ type CreateQuestionResponse struct {
 
 func (c *Client) CreateQuestion(d *Draft) (resp *CreateQuestionResponse, err error) {
 	endpoint := "/question"
-	req := d.IntoQuestion()
+	req := d.IntoCreateQuestionRequest()
 	err = c.Request(http.MethodPost, endpoint, nil, req, &resp)
 	err = errors.Trace(err)
 	return

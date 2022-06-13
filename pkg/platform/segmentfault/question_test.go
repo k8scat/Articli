@@ -19,7 +19,7 @@ func TestCreateQuestion(t *testing.T) {
 		Text:  "Rust async 用法",
 		Title: fmt.Sprintf("Rust async"),
 	}
-	err = client.CreateDraft(d)
+	err = client.createDraft(d)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/juju/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/k8scat/articli/pkg/utils"
 )
@@ -71,11 +72,15 @@ func (c *Client) NewRequest(method, endpoint string, params url.Values, body int
 	req.URL.RawQuery = params.Encode()
 	req.Header.Set("Token", c.Token)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:100.0) Gecko/20100101 Firefox/100.0")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	return req, nil
 }
 
 func (c *Client) Do(req *http.Request, obj interface{}) error {
+	log.WithFields(log.Fields{
+		"method": req.Method,
+		"url":    req.URL.String(),
+	}).Debugf("request info")
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -98,11 +103,19 @@ func (c *Client) Do(req *http.Request, obj interface{}) error {
 	if err != nil {
 		return errors.Trace(err)
 	}
-	if len(b) == 0 {
-		return &APIError{StatusCode: resp.StatusCode, Content: "Empty response"}
+	switch obj.(type) {
+	case string:
+		obj = string(b)
+	default:
+		if len(b) == 0 {
+			return &APIError{StatusCode: resp.StatusCode, Content: "Empty response"}
+		}
+		err = json.Unmarshal(b, &obj)
+		if err != nil {
+			return errors.Trace(err)
+		}
 	}
-	err = json.Unmarshal(b, &obj)
-	return errors.Trace(err)
+	return nil
 }
 
 func (c *Client) Request(method, endpoint string, params url.Values, body, obj interface{}) error {
@@ -116,4 +129,8 @@ func (c *Client) Request(method, endpoint string, params url.Values, body, obj i
 
 func BuildURL(path string) string {
 	return DefaultSiteURL + path
+}
+
+func init() {
+	utils.InitLogger()
 }

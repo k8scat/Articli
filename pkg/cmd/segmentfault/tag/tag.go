@@ -18,7 +18,7 @@ var (
 		Use:   "tag",
 		Short: "Manage tags",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			client, _ = sfsdk.NewClient(cfg.Platforms.Juejin.Cookie)
+			client, _ = sfsdk.NewClient(cfg.Platforms.SegmentFault.Token)
 			if client == nil {
 				fmt.Println("please login first")
 				os.Exit(1)

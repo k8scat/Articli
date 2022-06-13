@@ -13,7 +13,7 @@ func TestDeleteDraft(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = client.DeleteDraft("1220000041875865")
+	err = client.DeleteDraft(1220000041875865)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func TestCreateDraft(t *testing.T) {
 			Title: fmt.Sprintf("title-%d", i),
 			Type:  DraftTypeArticle,
 		}
-		err = client.CreateDraft(d)
+		err = client.createDraft(d)
 		if err != nil {
 			t.Fatal(err)
 		}
