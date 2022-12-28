@@ -24,18 +24,7 @@ builds:
     main: ./cmd/articli
 dist: release # The dist folder
 archives:
-  - name_template: "{{ .Binary }}-{{ .Os }}-{{ .Arch }}"
-    replacements:
-      darwin: darwin
-      linux: linux
-      windows: windows
-      amd64: amd64
-      arm64: arm64
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - README.md
+  - rlcp: true
 checksum:
   name_template: "checksums.txt"
 snapshot:

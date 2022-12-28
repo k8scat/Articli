@@ -13,6 +13,7 @@ import (
 var (
 	file string
 
+	// PublishCmd Publish article from a local file
 	PublishCmd = &cobra.Command{
 		Use:   "pub",
 		Short: "Publish article",

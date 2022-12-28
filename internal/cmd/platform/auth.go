@@ -13,6 +13,7 @@ import (
 var (
 	rawAuth string
 
+	// AuthCmd support auth with cookie or other raw auth data
 	AuthCmd = &cobra.Command{
 		Use:   "auth",
 		Short: "Authenticate",

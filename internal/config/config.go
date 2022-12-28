@@ -12,14 +12,18 @@ import (
 )
 
 var (
+	// CfgFile Global config file
 	CfgFile string
-	Cfg     *Config
+	// Cfg Global config instance
+	Cfg *Config
 )
 
+// Config CLI Config Data
 type Config struct {
 	Auth map[string]string `yaml:"auth"`
 }
 
+// SetAuth Set rawAuth data with platform name
 func (c *Config) SetAuth(name, rawAuth string) {
 	if c.Auth == nil {
 		c.Auth = make(map[string]string)
@@ -27,6 +31,7 @@ func (c *Config) SetAuth(name, rawAuth string) {
 	c.Auth[name] = rawAuth
 }
 
+// Parse simplify parse config data
 func Parse() error {
 	c, err := parse(CfgFile)
 	if err != nil {
@@ -36,6 +41,7 @@ func Parse() error {
 	return nil
 }
 
+// Save simplify save config data
 func Save() error {
 	return save(CfgFile, Cfg)
 }
@@ -59,6 +65,7 @@ func save(f string, cfg *Config) error {
 	return errors.Trace(err)
 }
 
+// GetConfigDir Get dir which store the config file
 func GetConfigDir() string {
 	homeDir, err := homedir.Dir()
 	if err != nil {
