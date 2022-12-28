@@ -14,7 +14,7 @@
   "goBinary": {
     "name": "acli",
     "path": "./bin",
-    "url": "https://github.com/k8scat/articli/releases/download/v{{version}}/acli_{{version}}_{{platform}}_{{arch}}.tar.gz"
+    "url": "https://github.com/k8scat/Articli/releases/download/v{{version}}/articli_{{version}}_{{platform}}_{{arch}}.tar.gz"
   },
   "scripts": {
     "postinstall": "go-npm install",
