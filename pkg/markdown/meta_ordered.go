@@ -8,13 +8,15 @@ import (
 type Meta yaml.MapSlice
 
 // Get returns the value by path
-// {
-//   "a": {
-//     "b": {
-//       "c": 1
-//     }
-//   }
-// }
+//
+//	{
+//	  "a": {
+//	    "b": {
+//	      "c": 1
+//	    }
+//	  }
+//	}
+//
 // e.g. Get("a.b.c") returns 1
 func (m Meta) Get(path string) interface{} {
 	var subpath string

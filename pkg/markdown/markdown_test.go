@@ -1,13 +1,15 @@
 package markdown
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParse(t *testing.T) {
-	mark, err := Parse("./templates/article.md")
+	f, err := os.Open("./templates/article.md")
+	mark, err := Parse(f)
 	assert.Nil(t, err)
 	assert.NotNil(t, mark)
 	if mark != nil {

@@ -3,19 +3,16 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime/debug"
-
-	"github.com/k8scat/articli/pkg/cmd/csdn"
-	"github.com/k8scat/articli/pkg/cmd/github"
-	"github.com/k8scat/articli/pkg/cmd/gitlab"
-	"github.com/k8scat/articli/pkg/cmd/oschina"
+	"strings"
 
 	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/k8scat/articli/internal/cmd/platform"
 	"github.com/k8scat/articli/internal/config"
-	"github.com/k8scat/articli/pkg/cmd/juejin"
 )
 
 var (
@@ -23,12 +20,18 @@ var (
 	commit  = "none"
 	date    = "unknown"
 
-	cfgFile string
-	cfg     *config.Config
-
 	rootCmd = &cobra.Command{
 		Use:   "acli",
-		Short: "Manage content in multi platforms.",
+		Short: "Publish article anywhere.",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if cmd.Use == "pub" || cmd.Use == "auth" {
+				platform.PfName = strings.TrimSpace(platform.PfName)
+				if platform.PfName == "" {
+					fmt.Println("Platform is required")
+					os.Exit(1)
+				}
+			}
+		},
 	}
 
 	versionCmd = &cobra.Command{
@@ -43,18 +46,16 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "An alternative config file")
+	rootCmd.PersistentFlags().StringVarP(&config.CfgFile, "config", "c", "", "Config file")
+	rootCmd.PersistentFlags().StringVarP(&platform.PfName, "platform", "p", "", "Platform name")
 }
 
 func initConfig() {
-	if cfgFile == "" {
-		cfgFile = filepath.Join(config.GetConfigDir(), "config.yml")
+	if config.CfgFile == "" {
+		config.CfgFile = filepath.Join(config.GetConfigDir(), "config.yml")
 	}
-
-	var err error
-	cfg, err = config.ParseConfig(cfgFile)
-	if err != nil {
-		cfg = new(config.Config)
+	if err := config.Parse(); err != nil {
+		config.Cfg = new(config.Config)
 	}
 }
 
@@ -68,11 +69,8 @@ func main() {
 	initConfig()
 
 	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(juejin.NewJuejinCmd(cfgFile, cfg))
-	rootCmd.AddCommand(github.NewGithubCmd(cfgFile, cfg))
-	rootCmd.AddCommand(oschina.NewOSChinaCmd(cfgFile, cfg))
-	rootCmd.AddCommand(csdn.NewCSDNCmd(cfgFile, cfg))
-	rootCmd.AddCommand(gitlab.NewGitlabCmd(cfgFile, cfg))
+	rootCmd.AddCommand(platform.PublishCmd)
+	rootCmd.AddCommand(platform.AuthCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("execute command failed: %+v", errors.Trace(err))

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -12,43 +11,37 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var (
+	CfgFile string
+	Cfg     *Config
+)
+
 type Config struct {
-	Platforms Platforms `yaml:"platforms,omitempty"`
+	Auth map[string]string `yaml:"auth"`
 }
 
-type Platforms struct {
-	Juejin  Juejin  `yaml:"juejin,omitempty"`
-	OSChina OSChina `yaml:"oschina,omitempty"`
-	Github  Github  `yaml:"github,omitempty"`
-	CSDN    CSDN    `yaml:"csdn,omitempty"`
-	Gitlab  Gitlab  `yaml:"gitlab,omitempty"`
+func (c *Config) SetAuth(name, rawAuth string) {
+	if c.Auth == nil {
+		c.Auth = make(map[string]string)
+	}
+	c.Auth[name] = rawAuth
 }
 
-type Juejin struct {
-	Cookie string `yaml:"cookie,omitempty"`
+func Parse() error {
+	c, err := parse(CfgFile)
+	if err != nil {
+		return err
+	}
+	Cfg = c
+	return nil
 }
 
-type OSChina struct {
-	Cookie string `yaml:"cookie,omitempty"`
+func Save() error {
+	return save(CfgFile, Cfg)
 }
 
-type Github struct {
-	Token string `yaml:"token,omitempty"`
-}
-
-type Gitlab struct {
-	BaseURL string `yaml:"base_url,omitempty"`
-	Token   string `yaml:"token,omitempty"`
-}
-
-type CSDN struct {
-	Cookie    string `yaml:"cookie,omitempty"`
-	APIKey    string `yaml:"api_key,omitempty"`
-	APISecret string `yaml:"api_secret,omitempty"`
-}
-
-func ParseConfig(cfgFile string) (*Config, error) {
-	b, err := ioutil.ReadFile(cfgFile)
+func parse(f string) (*Config, error) {
+	b, err := os.ReadFile(f)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -57,12 +50,12 @@ func ParseConfig(cfgFile string) (*Config, error) {
 	return cfg, errors.Trace(err)
 }
 
-func SaveConfig(cfgFile string, cfg *Config) error {
+func save(f string, cfg *Config) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Trace(err)
 	}
-	err = ioutil.WriteFile(cfgFile, b, 0644)
+	err = os.WriteFile(f, b, 0644)
 	return errors.Trace(err)
 }
 

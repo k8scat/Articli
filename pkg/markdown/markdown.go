@@ -2,15 +2,14 @@ package markdown
 
 import (
 	"bufio"
-	"bytes"
-	"github.com/gomarkdown/markdown"
-	"github.com/juju/errors"
-	"gopkg.in/yaml.v2"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/gomarkdown/markdown"
+	"github.com/juju/errors"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -23,7 +22,6 @@ type Mark struct {
 	Raw     []byte
 	Content string
 	Brief   string
-	File    string
 }
 
 func (m *Mark) WriteFile(filename string) error {
@@ -46,17 +44,9 @@ func (m *Mark) WriteFile(filename string) error {
 	return nil
 }
 
-func Parse(filepath string) (result *Mark, err error) {
-	result = &Mark{
-		File: filepath,
-	}
-	result.Raw, err = ioutil.ReadFile(filepath)
-	if err != nil {
-		err = errors.Trace(err)
-		return
-	}
-
-	br := bufio.NewReader(bytes.NewReader(result.Raw))
+func Parse(r io.Reader) (result *Mark, err error) {
+	result = new(Mark)
+	br := bufio.NewReader(r)
 	var meta, brief, content []byte
 	metaSeparatorCount := 0
 	moreSeparatorCount := 0
