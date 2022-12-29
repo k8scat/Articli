@@ -11,24 +11,25 @@ BUILD_FLAGS = -ldflags "-X main.version=$(VERSION) \
 	-X main.date=$(BUILD_DATE) -w -s" \
 	-trimpath
 MAIN_SRC_FILE = cmd/articli/main.go
+GOARCH = $(shell uname -m)
 
 .PHONY: build
 build: pre-build
-	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=$(BUILD_GOOS) GOARCH=amd64 $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/$(BUILD_GOOS)/$(NAME) $(MAIN_SRC_FILE)
+	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=$(BUILD_GOOS) GOARCH=$(GOARCH) $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/$(BUILD_GOOS)/$(NAME) $(MAIN_SRC_FILE)
 	chmod +x bin/$(BUILD_GOOS)/$(NAME)
 	rm -rf $(NAME)
 	ln -s bin/$(BUILD_GOOS)/$(NAME) $(NAME)
 
 .PHONY: darwin
 darwin: pre-build
-	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=amd64 $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/darwin/$(NAME) $(MAIN_SRC_FILE)
+	GO111MODULE=on CGO_ENABLED=$(CGO_ENABLED) GOOS=darwin GOARCH=$(GOARCH) $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/darwin/$(NAME) $(MAIN_SRC_FILE)
 	chmod +x bin/darwin/$(NAME)
 	rm -rf $(NAME)
 	ln -s bin/darwin/$(NAME) $(NAME)
 
 .PHONY: linux
 linux: pre-build
-	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/linux/$(NAME) $(MAIN_SRC_FILE)
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=$(GOARCH) $(GO) $(BUILD_TARGET) $(BUILD_FLAGS) -o bin/linux/$(NAME) $(MAIN_SRC_FILE)
 	chmod +x bin/linux/$(NAME)
 	rm -rf $(NAME)
 	ln -s bin/linux/$(NAME) $(NAME)

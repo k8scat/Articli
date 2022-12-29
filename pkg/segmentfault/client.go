@@ -1,6 +1,5 @@
 package segmentfault
 
-import "C"
 import (
 	"errors"
 	"io"
