@@ -7,6 +7,7 @@ import (
 	"github.com/k8scat/articli/pkg/csdn"
 	"github.com/k8scat/articli/pkg/juejin"
 	"github.com/k8scat/articli/pkg/oschina"
+	"github.com/k8scat/articli/pkg/segmentfault"
 )
 
 var (
@@ -18,15 +19,15 @@ func init() {
 	register(new(juejin.Client))
 	register(new(csdn.Client))
 	register(new(oschina.Client))
+	register(new(segmentfault.Client))
 }
 
-func register(p Platform) error {
+func register(p Platform) {
 	if _, reg := hub[p.Name()]; reg {
-		return fmt.Errorf("platform %s already registered", p.Name())
+		panic(fmt.Sprintf("platform %s already registered", p.Name()))
 	}
 	hub[p.Name()] = p
 	platformNames = append(platformNames, p.Name())
-	return nil
 }
 
 func GetByName(name string) (Platform, error) {

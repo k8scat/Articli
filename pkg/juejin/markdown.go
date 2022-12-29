@@ -18,7 +18,7 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = fmt.Errorf("invalid meta: %#v", v)
+		err = fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
 		return
 	}
 

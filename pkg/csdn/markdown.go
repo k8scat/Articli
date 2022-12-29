@@ -34,6 +34,10 @@ const (
 	CoverTypeSingle int = 1 // 单图
 	CoverTypeThree  int = 3 // 三图
 	CoverTypeNone   int = 0 // 无封面
+
+	ArticleLevel1 = 1
+	ArticleLevel2 = 2
+	ArticleLevel3 = 3
 )
 
 // ParseMark parse mark to article params
@@ -45,7 +49,7 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = fmt.Errorf("invalid meta: %#v", v)
+		err = fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
 		return
 	}
 
@@ -174,5 +178,13 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 	if articleType != SaveArticleTypeOriginal {
 		params["original_url"] = meta.GetString("original_url")
 	}
+
+	level := meta.GetInt("level")
+	switch level {
+	case ArticleLevel1, ArticleLevel2, ArticleLevel3:
+	default:
+		level = ArticleLevel1
+	}
+	params["level"] = level
 	return
 }

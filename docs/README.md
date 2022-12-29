@@ -1,18 +1,17 @@
 # Articli
 
-[![Release](https://github.com/k8scat/Articli/actions/workflows/release.yaml/badge.svg)](https://github.com/k8scat/Articli/actions/workflows/release.yaml)
 [![GitHub Repo stars](https://img.shields.io/github/stars/k8scat/articli?style=social)](https://github.com/k8scat/Articli/stargazers)
 [![GitHub watchers](https://img.shields.io/github/watchers/k8scat/articli?style=social)](https://github.com/k8scat/Articli/watchers)
 [![codecov](https://codecov.io/gh/k8scat/Articli/branch/main/graph/badge.svg?token=045FCRVF27)](https://codecov.io/gh/k8scat/Articli)
 
 **Articli** 通过解析 `Markdown` 文件内容以及调用不同平台的接口，实现内容快速在不同平台进行发布。
 
-## 支持的平台
-
-### 平台文章管理
+## 平台
 
 - [掘金](https://juejin.cn)
 - [CSDN](https://csdn.net)
+- [开源中国](https://oschina.net)
+- [SegmentFault](https://segmentfault.com)
 
 ## 安装
 
@@ -98,16 +97,18 @@ csdn:
     tags:
     - cli
     - csdn
-    # 可选值: public, private, read_need_vip, read_need_fans
+    # 发布形式，可选值：全部可见 public、仅我可见 private、VIP可见 read_need_vip、粉丝可见 read_need_fans，默认 public
     read_type: public
-    # 可选值: 发布 publish, 草稿 draft
+    # 发布状态，可选值：发布 publish、草稿 draft
     publish_status: publish
-    # 可选值: 原创 original, 转载 repost, 翻译 translated
+    # 文章类型，可选值：原创 original、转载 repost、翻译 translated
     article_type: original
-    # 转载文章时必须填写
+    # 原文链接，转载文章时必须填写
     original_url: ""
     # 原文允许转载或者本次转载已经获得原文作者授权
     authorized_status: false
+    # 内容等级，可选择：初级 1、中级 2、高级 3，默认 1
+    level: 1
 
 oschina:
     # 文章 id，不填写表示发布新文章
@@ -137,6 +138,28 @@ oschina:
     download_image: false
     # 仅自己可见
     privacy: false
+
+segmentfault:
+    # 文章 id，不填写表示发布新文章
+    article_id: ""
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    title: "标题"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    brief_content: 内容概要
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    prefix_content: "文章前缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    suffix_content: "文章后缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值，仅支持单图
+    cover_images:
+    - https://img.alicdn.com/tfs/TB1.jpg
+    # 标签名称
+    tags:
+    - "kubernetes"
+    # 注明版权
+    license: false
+    # 文章类型，可选值：原创 1、转载 2、翻译 3，默认 1
+    type: 1
 
 ---
 

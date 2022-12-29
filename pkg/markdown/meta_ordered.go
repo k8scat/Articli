@@ -1,8 +1,9 @@
 package markdown
 
 import (
-	"gopkg.in/yaml.v2"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Meta yaml.MapSlice
@@ -118,4 +119,13 @@ func (m Meta) Set(path string, value interface{}) Meta {
 		}
 	}
 	return append(m, yaml.MapItem{Key: path, Value: value})
+}
+
+func (m Meta) GetInt(path string) int {
+	v := m.Get(path)
+	if v == nil {
+		return 0
+	}
+	s, _ := v.(int)
+	return s
 }
