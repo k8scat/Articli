@@ -118,28 +118,6 @@ test-release:
 dep:
 	go mod download
 
-.PHONY: build-image
-build-image:
-	docker build -t k8scat/articli \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg COMMIT=$(COMMIT) \
-		--build-arg BUILD_DATE=$(BUILD_DATE) \
-		.
-
-TAG =
-.PHONY: delete-tag
-delete-tag:
-ifneq ($(TAG),)
-	git push --delete origin $(TAG)
-	git tag --delete $(TAG)
-else
-	@echo "Usage: make delete-tag TAG=<tag>"
-endif
-
-.PHONY: npm-publish
-npm-publish:
-	npm publish --access public
-
 .PHONY: docs
 docs:
 	docsify serve docs
