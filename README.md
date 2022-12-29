@@ -11,11 +11,37 @@
 - [掘金](https://juejin.cn)
 - [CSDN](https://csdn.net)
 - [开源中国](https://oschina.net)
-- [SegmentFault](https://segmentfault.com)
+- [思否](https://segmentfault.com)
 
 ## 文档
 
 https://k8scat.github.io/Articli
+
+## 开发
+
+如果您想添加其他平台，其实很简单，只需实现以下接口即可：
+
+```go
+type Platform interface {
+	// Name Platform name
+	Name() string
+	// Auth Authenticate with raw auth data, like cookie or user:pass
+	Auth(raw string) (username string, err error)
+	// Publish Post article
+	Publish(r io.Reader) (url string, err error)
+	// ParseMark Parse markdown meta data
+	ParseMark(mark *markdown.Mark) (params map[string]any, err error)
+}
+```
+
+然后将新的平台注册到全局 `pltformHub` 中：
+
+```go
+// pkg/platform/hub.go
+func init() {
+	register(new(another.Platform))
+}
+```
 
 ## LICENSE
 

@@ -11,7 +11,7 @@
 - [掘金](https://juejin.cn)
 - [CSDN](https://csdn.net)
 - [开源中国](https://oschina.net)
-- [SegmentFault](https://segmentfault.com)
+- [思否](https://segmentfault.com)
 
 ## 安装
 
@@ -152,20 +152,46 @@ Use "acli [command] --help" for more information about a command.
 
 ### 登录账号
 
-使用浏览器 cookie 进行登录：
+使用浏览器 `cookie` 进行登录：
 
 - 掘金
 - CSDN
 - 开源中国
 
-**思否请使用 token 进行登录（可以从浏览器请求头中获取）**
+**思否请使用 `token` 进行登录（可以从浏览器请求头中获取）**
 
 ```shell
-acli auth -p <platform> --raw <cookie>
+acli auth -p <platform> --raw <auth-data>
 ```
 
 ### 发布文章
 
 ```shell
 acli pub -p <platform> --file <article-file>
+```
+
+## 开发
+
+如果您想添加其他平台，其实很简单，只需实现以下接口即可：
+
+```go
+type Platform interface {
+	// Name Platform name
+	Name() string
+	// Auth Authenticate with raw auth data, like cookie or user:pass
+	Auth(raw string) (username string, err error)
+	// Publish Post article
+	Publish(r io.Reader) (url string, err error)
+	// ParseMark Parse markdown meta data
+	ParseMark(mark *markdown.Mark) (params map[string]any, err error)
+}
+```
+
+然后将新的平台注册到全局 `pltformHub` 中：
+
+```go
+// pkg/platform/hub.go
+func init() {
+	register(new(another.Platform))
+}
 ```
