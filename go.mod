@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/EDDYCJY/fake-useragent v0.2.0
+	github.com/antchfx/htmlquery v1.2.5
 	github.com/gomarkdown/markdown v0.0.0-20220114203417-14399d5448c4
 	github.com/k8scat/aliyun-api-gateway-sign-golang v0.1.2
 	github.com/mitchellh/go-homedir v1.1.0
@@ -17,7 +18,9 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.6.1 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
+	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
@@ -26,5 +29,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )

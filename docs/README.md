@@ -16,46 +16,9 @@
 
 ## 安装
 
-### NPM
-
-```shell
-npm install -g @k8scat/articli
-```
-
-### Homebrew
-
-```shell
-# 添加 tap
-brew tap k8scat/tap
-# 安装
-brew install acli
-
-# 一条命令直接安装
-brew install k8scat/tap/acli
-
-# 后续升级
-brew update
-brew upgrade k8scat/tap/acli
-```
-
-### Docker
-
-```shell
-# 将配置文件的目录挂载到容器内
-docker run \
-  -it \
-  --rm \
-  -v $HOME/.config/articli:/root/.config/articli \
-  k8scat/articli:latest \
-  juejin auth login
-
-# 升级
-docker pull k8scat/articli:latest
-```
-
 ### 二进制
 
-Please download from the [releases page](https://github.com/k8scat/Articli/releases).
+下载 [releases page](https://github.com/k8scat/Articli/releases).
 
 ### 源码编译
 
@@ -73,61 +36,108 @@ make
 ```markdown
 ---
 # 通用配置，其他平台可以继承该配置
-title: 标题1
-brief_content: 内容概要
-cover_image:
+# 标题
+title: "标题"
+# 文章概要
+brief_content: "文章概要"
+# 封面图片地址
+cover_images:
 - https://img.alicdn.com/tfs/TB1.jpg
-prefix_content: ""  # 前缀内容
-suffix_content: |
-  ## Powered by
+# 前缀内容
+prefix_content: "文章前缀内容"
+# 后缀内容
+suffix_content: "文章后缀内容"
 
-  本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
-
+# 掘金平台文章配置
 juejin:
-  article_id: ""  # 手动填写
-  title: 标题2 # 如果不填写，则使用通用配置中的 title
-  tag_ids:
-  - "6809640675944955918"
-  category_id: "6809637771511070734"
-  cover_image: https://img.alicdn.com/tfs/TB1.jpg
-  brief_content: 内容概要
-  prefix_content: "这是我参与xx活动..." # 前缀内容，主要用于掘金的活动
-  suffix_content: |
-    ## Powered by
-
-    本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
-  sync_to_org: false # 是否同步到组织，个人账号不支持
+    # 文章 id，不填写表示发布新文章
+    article_id: ""
+    # 草稿 id，不填则通过接口获取文章对应的草稿 id
+    draft_id: ""
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    title: "标题"
+    # 参考通用配置，如果不填写，则使用通用配置的值，仅支持单图
+    cover_images:
+    - https://img.alicdn.com/tfs/TB1.jpg
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    brief_content: "文章概要"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    prefix_content: "文章前缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    suffix_content: "文章后缀内容"
+    # 标签名称
+    tags:
+    - "Go"
+    - "Mac"
+    # 分类名称
+    category: "后端"
+    # 是否同步到组织，个人账号不支持
+    sync_to_org: false
 
 csdn:
-  article_id: ""  # 手动填写
-  title: 标题3
-  brief_content: 内容概要
-  categories:
-  - Golang
-  - 后端
-  tags:
-  - cli
-  - csdn
-  # 可选值: public, private, read_need_vip, read_need_fans
-  read_type: public
-  # 可选值: 发布 publish, 草稿 draft
-  publish_status: publish
-  # 可选值: 原创 original, 转载 repost, 翻译 translated
-  article_type: original
-  # 转载时必须填写
-  original_url: ""
-  # 原文允许转载或者本次转载已经获得原文作者授权
-  authorized_status: false
-  # 支持单图、三图、无图
-  cover_images:
-  - https://img.alicdn.com/tfs/TB1.jpg
-  - https://img.alicdn.com/tfs/TB2.jpg
-  - https://img.alicdn.com/tfs/TB3.jpg
-  prefix_content: "这是我参与xx活动..." # 前缀内容，主要用于掘金的活动
-  suffix_content: |
-    ## Powered by
+    # 文章 id，不填写表示发布新文章
+    article_id: ""
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    title: "标题"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    brief_content: 内容概要
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    prefix_content: "文章前缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    suffix_content: "文章后缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值，支持无图、单图、三图
+    cover_images:
+    - https://img.alicdn.com/tfs/TB1.jpg
+    - https://img.alicdn.com/tfs/TB2.jpg
+    - https://img.alicdn.com/tfs/TB3.jpg
+    # 分类名称
+    categories:
+    - Golang
+    - 后端
+    # 标签名称
+    tags:
+    - cli
+    - csdn
+    # 可选值: public, private, read_need_vip, read_need_fans
+    read_type: public
+    # 可选值: 发布 publish, 草稿 draft
+    publish_status: publish
+    # 可选值: 原创 original, 转载 repost, 翻译 translated
+    article_type: original
+    # 转载文章时必须填写
+    original_url: ""
+    # 原文允许转载或者本次转载已经获得原文作者授权
+    authorized_status: false
 
-    本文由 [Articli](https://github.com/k8scat/Articli.git) 工具自动发布。
+oschina:
+    # 文章 id，不填写表示发布新文章
+    article_id: ""
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    title: "标题"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    brief_content: 内容概要
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    prefix_content: "文章前缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值
+    suffix_content: "文章后缀内容"
+    # 参考通用配置，如果不填写，则使用通用配置的值，支持无图、单图、三图
+    cover_images:
+    - https://img.alicdn.com/tfs/TB1.jpg
+    - https://img.alicdn.com/tfs/TB2.jpg
+    - https://img.alicdn.com/tfs/TB3.jpg
+    # 分类名称
+    category: "Golang"
+    # 推广专区名称
+    technical_field_id: "程序人生"
+    # 禁止评论
+    deny_comment: false
+    # 置顶
+    top: false
+    # 下载外站图片到本地
+    download_image: false
+    # 仅自己可见
+    privacy: false
+
 ---
 
 内容概要

@@ -24,12 +24,24 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 
 	params = map[string]any{
 		"sync_to_org":  meta.GetBool("sync_to_org"),
-		"tag_ids":      meta.GetStringSlice("tag_ids"),
-		"category_id":  meta.GetString("category_id"),
 		"article_id":   meta.GetString("article_id"),
 		"draft_id":     meta.GetString("draft_id"),
 		"mark_content": markdownHelper.ParseMarkdownContent(mark, meta),
 	}
+
+	categoryName := meta.GetString("category")
+	categoryID, err := c.getCategoryID(categoryName)
+	if err != nil {
+		return nil, err
+	}
+	params["category_id"] = categoryID
+
+	tagNames := meta.GetStringSlice("tags")
+	tagIDs, err := c.convertTagNamesToIDs(tagNames)
+	if err != nil {
+		return nil, err
+	}
+	params["tag_ids"] = tagIDs
 
 	title := meta.GetString("title")
 	if title == "" {
@@ -41,14 +53,13 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 	}
 	params["title"] = title
 
-	coverImage := meta.GetString("cover_image")
-	if coverImage == "" {
-		coverImages := mark.Meta.GetStringSlice("cover_images")
-		if len(coverImages) > 0 {
-			coverImage = coverImages[0]
-		}
+	coverImages := meta.GetStringSlice("cover_images")
+	if len(coverImages) == 0 {
+		coverImages = mark.Meta.GetStringSlice("cover_images")
 	}
-	params["cover_image"] = coverImage
+	if len(coverImages) > 0 {
+		params["cover_image"] = coverImages[0]
+	}
 
 	briefContent := meta.GetString("brief_content")
 	if briefContent == "" {

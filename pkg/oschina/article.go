@@ -19,7 +19,6 @@ func parseValues(params map[string]any) (url.Values, error) {
 		default:
 			return nil, fmt.Errorf("invalue value for %s: %#v", k, v)
 		}
-		values.Set(k, fmt.Sprintf("%s", v))
 	}
 	return values, nil
 }

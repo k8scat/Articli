@@ -29,11 +29,23 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err erro
 	params = map[string]any{
 		"id":           meta.GetString("article_id"),
 		"draft":        meta.GetString("draft_id"),
-		"catelog":      meta.GetString("category_id"),
-		"groups":       meta.GetString("technical_field_id"),
 		"content_type": ContentTypeMarkdown,
 		"content":      markdownHelper.ParseMarkdownContent(mark, meta),
 	}
+
+	technicalFieldName := meta.GetString("technical_field")
+	technicalFieldID, err := c.getTechnicalFieldID(technicalFieldName)
+	if err != nil {
+		return nil, err
+	}
+	params["groups"] = technicalFieldID
+
+	categoryName := meta.GetString("category")
+	categoryID, err := c.getCategoryID(categoryName)
+	if err != nil {
+		return nil, err
+	}
+	params["catalog"] = categoryID
 
 	denyComment := 0
 	if meta.GetBool("deny_comment") {
