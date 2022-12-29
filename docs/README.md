@@ -62,6 +62,7 @@ juejin:
     # 是否同步到组织，个人账号不支持
     sync_to_org: false
 
+# CSDN平台文章配置
 csdn:
     # 文章 id，不填写表示发布新文章
     article_id: ""
@@ -86,6 +87,7 @@ csdn:
     # 内容等级，可选择：初级 1、中级 2、高级 3，默认 1
     level: 1
 
+# 开源中国平台文章配置
 oschina:
     # 文章 id，不填写表示发布新文章
     article_id: ""
@@ -102,6 +104,7 @@ oschina:
     # 仅自己可见
     privacy: false
 
+# 思否平台文章配置
 segmentfault:
     # 文章 id，不填写表示发布新文章
     article_id: ""
