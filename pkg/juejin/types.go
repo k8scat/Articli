@@ -7,12 +7,6 @@ type APIError struct {
 	ErrNo  int    `json:"err_no"`
 }
 
-type ListArticlesResponse struct {
-	Count    int        `json:"count"`
-	Articles []*Article `json:"data"`
-	APIError
-}
-
 type Article struct {
 	ID             string          `json:"article_id"`
 	Info           *ArticleInfo    `json:"article_info"`

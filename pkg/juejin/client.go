@@ -1,21 +1,44 @@
 package juejin
 
-import "github.com/juju/errors"
+import (
+	"io"
+
+	"github.com/k8scat/articli/pkg/markdown"
+)
 
 const (
 	DefaultBaseAPI = "https://api.juejin.cn"
-	MaxPageSize    = 20
 )
 
 type Client struct {
 	cookie string
 }
 
-func New(cookie string) (*Client, error) {
-	if cookie == "" {
-		return nil, errors.New("Invalid cookie")
+func (c *Client) Name() string {
+	return "juejin"
+}
+
+func (c *Client) Auth(cookie string) (string, error) {
+	c.cookie = cookie
+	user, err := c.GetUser()
+	if err != nil {
+		return "", err
 	}
-	return &Client{
-		cookie: cookie,
-	}, nil
+	return user.Name, nil
+}
+
+func (c *Client) Publish(r io.Reader) (string, error) {
+	mr, err := markdown.Parse(r)
+	if err != nil {
+		return "", err
+	}
+	params, err := c.ParseMark(mr)
+	if err != nil {
+		return "", err
+	}
+	url, err := c.SaveArticle(params)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }

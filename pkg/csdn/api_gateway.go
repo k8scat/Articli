@@ -1,7 +1,6 @@
 package csdn
 
 import (
-	"github.com/juju/errors"
 	sign "github.com/k8scat/aliyun-api-gateway-sign-golang"
 )
 
@@ -13,7 +12,7 @@ var (
 func InitResourceGateway() error {
 	gateway, err := sign.NewAPIGateway(ResourceAppKey, ResourceAppSecret)
 	if err != nil {
-		return errors.Trace(err)
+		return err
 	}
 	ResourceGateway = gateway
 	return nil
@@ -22,7 +21,7 @@ func InitResourceGateway() error {
 func InitUserGateway() error {
 	gateway, err := sign.NewAPIGateway(UserAppKey, UserAppSecret)
 	if err != nil {
-		return errors.Trace(err)
+		return err
 	}
 	UserGateway = gateway
 	return nil

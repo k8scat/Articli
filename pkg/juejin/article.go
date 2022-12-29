@@ -4,42 +4,34 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
-type SaveArticleParams struct {
-	ArticleID  string
-	DraftID    string
-	Title      string
-	Brief      string
-	Content    string
-	CoverImage string
-	CategoryID string
-	TagIDs     []string
-	SyncToOrg  bool
-}
-
 // SaveArticle create an article if id is empty, otherwise update the article
-func (c *Client) SaveArticle(params *SaveArticleParams) (string, error) {
-	if params.ArticleID != "" && params.DraftID == "" {
-		var article *Article
-		article, err := c.GetArticle(params.ArticleID)
+func (c *Client) SaveArticle(params map[string]any) (string, error) {
+	articleID, _ := params["article_id"].(string)
+	draftID, _ := params["draft_id"].(string)
+	if articleID != "" && draftID == "" {
+		article, err := c.GetArticle(articleID)
 		if err != nil {
-			return "", errors.Trace(err)
+			return "", err
 		}
-		params.DraftID = article.Info.DraftID
+		draftID = article.Info.DraftID
 	}
 
-	if err := c.SaveDraft(params); err != nil {
-		return "", errors.Trace(err)
-	}
-	var err error
-	params.ArticleID, err = c.PublishArticle(params.DraftID, params.SyncToOrg)
+	draftID, err := c.SaveDraft(params)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
-	return BuildArticleURL(params.ArticleID), nil
+	fmt.Printf("draft_id: %s\n", draftID)
+
+	syncToOrg, _ := params["sync_to_org"].(bool)
+	articleID, err = c.PublishArticle(draftID, syncToOrg)
+	if err != nil {
+		return "", err
+	}
+	fmt.Printf("article_id: %s\n", articleID)
+	return BuildArticleURL(articleID), nil
 }
 
 // GetArticle get article detail
@@ -50,28 +42,28 @@ func (c *Client) GetArticle(id string) (*Article, error) {
 	}
 	raw, err := c.Post(endpoint, payload)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, err
 	}
 	data := gjson.Get(raw, "data").String()
 	var article *Article
 	err = json.Unmarshal([]byte(data), &article)
-	return article, errors.Trace(err)
+	return article, err
 }
 
 // PublishArticle publish a draft
 func (c *Client) PublishArticle(draftID string, syncToOrg bool) (string, error) {
 	endpoint := buildArticleEndpoint("publish")
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"draft_id":    draftID,
 		"sync_to_org": syncToOrg,
 	}
 	raw, err := c.Post(endpoint, payload)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	articleID := gjson.Get(raw, "data.article_id").String()
 	if articleID == "" {
-		return "", errors.Errorf("publish article failed: %s", raw)
+		return "", fmt.Errorf("publish article failed: %s", raw)
 	}
 	return articleID, nil
 }

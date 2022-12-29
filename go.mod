@@ -5,14 +5,13 @@ go 1.18
 require (
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/gomarkdown/markdown v0.0.0-20220114203417-14399d5448c4
-	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
 	github.com/k8scat/aliyun-api-gateway-sign-golang v0.1.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.3.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.0
 	github.com/tidwall/gjson v1.13.0
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

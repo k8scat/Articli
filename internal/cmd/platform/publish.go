@@ -18,10 +18,9 @@ var (
 		Use:   "pub",
 		Short: "Publish article",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pf, ok := platform.GetByName(PfName)
-			if !ok {
-				fmt.Fprintf(os.Stderr, "Platform %s not supported\n", PfName)
-				os.Exit(1)
+			pf, err := platform.GetByName(PfName)
+			if err != nil {
+				return err
 			}
 			if _, err := pf.Auth(config.Cfg.Auth[pf.Name()]); err != nil {
 				return err
@@ -32,16 +31,16 @@ var (
 				return err
 			}
 
-			result, err := pf.Publish(f)
+			url, err := pf.Publish(f)
 			if err != nil {
 				return err
 			}
-			fmt.Println(result)
+			fmt.Printf("article url: %s\n", url)
 			return nil
 		},
 	}
 )
 
 func init() {
-	PublishCmd.Flags().StringVar(&file, "file", "", "Read content from file")
+	PublishCmd.Flags().StringVarP(&file, "file", "f", "", "Read content from file")
 }

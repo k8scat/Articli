@@ -2,7 +2,6 @@ package platform
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -18,10 +17,9 @@ var (
 		Use:   "auth",
 		Short: "Authenticate",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pf, ok := platform.GetByName(PfName)
-			if !ok {
-				fmt.Fprintf(os.Stderr, "Platform %s not supported\n", PfName)
-				os.Exit(1)
+			pf, err := platform.GetByName(PfName)
+			if err != nil {
+				return err
 			}
 
 			loggedIn, err := pf.Auth(rawAuth)

@@ -7,7 +7,6 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/juju/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -49,20 +48,20 @@ func Save() error {
 func parse(f string) (*Config, error) {
 	b, err := os.ReadFile(f)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, err
 	}
 	cfg := new(Config)
 	err = yaml.Unmarshal(b, &cfg)
-	return cfg, errors.Trace(err)
+	return cfg, err
 }
 
 func save(f string, cfg *Config) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
-		return errors.Trace(err)
+		return err
 	}
 	err = os.WriteFile(f, b, 0644)
-	return errors.Trace(err)
+	return err
 }
 
 // GetConfigDir Get dir which store the config file

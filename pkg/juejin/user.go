@@ -2,8 +2,8 @@ package juejin
 
 import (
 	"encoding/json"
+	"fmt"
 
-	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -68,13 +68,13 @@ func (c *Client) GetUser() (*User, error) {
 	endpoint := "/user_api/v1/user/get"
 	raw, err := c.Get(endpoint, nil)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, err
 	}
 	data := gjson.Get(raw, "data").String()
 	if data == "" {
-		return nil, errors.Errorf("invalid response: %s", raw)
+		return nil, fmt.Errorf("invalid response: %s", raw)
 	}
 	var user *User
 	err = json.Unmarshal([]byte(data), &user)
-	return user, errors.Trace(err)
+	return user, err
 }

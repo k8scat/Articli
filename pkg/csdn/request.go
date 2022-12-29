@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	browser "github.com/EDDYCJY/fake-useragent"
-	"github.com/juju/errors"
 	sign "github.com/k8scat/aliyun-api-gateway-sign-golang"
 )
 
@@ -18,38 +17,35 @@ func (c *Client) Request(req *http.Request, apiGateway ...*sign.APIGateway) (*ht
 
 	if len(apiGateway) > 0 {
 		if err := apiGateway[0].Sign(req); err != nil {
-			return nil, errors.Trace(err)
+			return nil, err
 		}
 	}
 
 	resp, err := http.DefaultClient.Do(req)
-	err = errors.Trace(err)
 	return resp, err
 }
 
 func (c *Client) Get(rawurl string, query url.Values, apiGateway ...*sign.APIGateway) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, rawurl, nil)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, err
 	}
 	if query != nil {
 		req.URL.RawQuery = query.Encode()
 	}
 	resp, err := c.Request(req, apiGateway...)
-	err = errors.Trace(err)
 	return resp, err
 }
 
 func (c *Client) Post(rawurl string, query url.Values, body io.Reader, apiGateway ...*sign.APIGateway) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodPost, rawurl, body)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, err
 	}
 	if query != nil {
 		req.URL.RawQuery = query.Encode()
 	}
 	resp, err := c.Request(req, apiGateway...)
-	err = errors.Trace(err)
 	return resp, err
 }
 

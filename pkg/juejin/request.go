@@ -3,6 +3,7 @@ package juejin
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	browser "github.com/EDDYCJY/fake-useragent"
-	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -22,7 +22,7 @@ func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
 	path := fmt.Sprintf("%s%s", DefaultBaseAPI, endpoint)
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	req.Header.Set("Cookie", c.cookie)
 	req.Header.Set("User-Agent", browser.Computer())
@@ -35,10 +35,10 @@ func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	raw, err := responseHandler(res)
-	return raw, errors.Trace(err)
+	return raw, err
 }
 
 // Post request and return raw body
@@ -51,7 +51,7 @@ func (c *Client) Post(endpoint string, body interface{}) (string, error) {
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return "", errors.Trace(err)
+			return "", err
 		}
 		r = bytes.NewReader(b)
 	}
@@ -59,7 +59,7 @@ func (c *Client) Post(endpoint string, body interface{}) (string, error) {
 	path := fmt.Sprintf("%s%s", DefaultBaseAPI, endpoint)
 	req, err := http.NewRequest(http.MethodPost, path, r)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	req.Header.Add("Cookie", c.cookie)
 	req.Header.Add("User-Agent", browser.Computer())
@@ -67,17 +67,17 @@ func (c *Client) Post(endpoint string, body interface{}) (string, error) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	raw, err := responseHandler(res)
-	return raw, errors.Trace(err)
+	return raw, err
 }
 
 func responseHandler(res *http.Response) (string, error) {
 	defer res.Body.Close()
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
-		return "", errors.Trace(err)
+		return "", err
 	}
 	raw := string(b)
 	if res.StatusCode != http.StatusOK {

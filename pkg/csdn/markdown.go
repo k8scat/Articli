@@ -1,69 +1,84 @@
 package csdn
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
-	"github.com/juju/errors"
-
+	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
 )
-
-type SaveType string
 
 const (
 	MaxCategoryCount   = 3
 	MaxTagCount        = 5
 	MaxCoverImageCount = 3
+
+	ReadTypeNeedVIP  string = "read_need_vip"
+	ReadTypeNeedFans string = "read_need_fans"
+	ReadTypePrivate  string = "private"
+	ReadTypePublic   string = "public"
+
+	SaveArticleTypeOriginal    string = "original"
+	SaveArticleTypeReship      string = "repost"
+	SaveArticleTypeTranslation string = "translated"
+
+	PublishStatusPublish string = "publish" // 发布
+	PublishStatusDraft   string = "draft"   // 草稿
+
+	SaveArticleSourcePCMarkdownEditor = "pc_mdeditor"
+
+	ArticleStatusPublish int = 0
+	ArticleStatusDraft   int = 2
+
+	CoverTypeSingle int = 1 // 单图
+	CoverTypeThree  int = 3 // 三图
+	CoverTypeNone   int = 0 // 无封面
 )
 
 // ParseMark parse mark to article params
-func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err error) {
-	v := mark.Meta.Get("csdn")
+func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err error) {
+	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		err = errors.New("csdn meta not found")
+		err = fmt.Errorf("meta not found for %s", c.Name())
 		return
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = errors.New("csdn meta not found")
+		err = fmt.Errorf("invalid meta: %#v", v)
 		return
 	}
 
-	params = NewSaveArticleParams()
+	params = map[string]any{
+		"source":            SaveArticleSourcePCMarkdownEditor,
+		"is_new":            1,
+		"id":                meta.GetString("article_id"),
+		"authorized_status": meta.GetBool("authorized_status"),
+	}
 
-	params.Title = meta.GetString("title")
-	if params.Title == "" {
-		params.Title = mark.Meta.GetString("title")
-		if params.Title == "" {
+	title := meta.GetString("title")
+	if title == "" {
+		title = mark.Meta.GetString("title")
+		if title == "" {
 			err = errors.New("title is required")
 			return
 		}
 	}
+	params["title"] = title
 
-	params.MarkdownContent = mark.Content
-	prefixContent := meta.GetString("prefix_content")
-	if prefixContent == "" {
-		prefixContent = mark.Meta.GetString("prefix_content")
-	}
-	if prefixContent != "" {
-		params.MarkdownContent = prefixContent + "\n\n" + params.MarkdownContent
-	}
-	suffixContent := meta.GetString("suffix_content")
-	if suffixContent == "" {
-		suffixContent = mark.Meta.GetString("suffix_content")
-	}
-	if suffixContent != "" {
-		params.MarkdownContent = params.MarkdownContent + "\n\n" + suffixContent
-	}
+	markdownContent := markdownHelper.ParseMarkdownContent(mark, meta)
+	params["markdowncontent"] = markdownContent
+	params["content"] = markdown.ConvertToHTML(markdownContent)
 
-	params.Content = markdown.ConvertToHTML(params.MarkdownContent)
-
-	params.Description = meta.GetString("brief_content")
-	if params.Description == "" {
-		params.Description = mark.Brief
+	description := meta.GetString("brief_content")
+	if description == "" {
+		description = mark.Brief
 	}
-	if len([]rune(params.Description)) > 256 {
-		params.Description = string([]rune(params.Description)[:256])
+	if len([]rune(description)) > 256 {
+		description = string([]rune(description)[:256])
+	}
+	if description != "" {
+		params["Description"] = description
 	}
 
 	categories := meta.GetStringSlice("categories")
@@ -73,7 +88,9 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err 
 	if len(categories) > MaxCategoryCount {
 		categories = categories[:MaxCategoryCount]
 	}
-	params.Categories = strings.Join(categories, ",")
+	if len(categories) > 0 {
+		params["categories"] = strings.Join(categories, ",")
+	}
 
 	tags := meta.GetStringSlice("tags")
 	if len(tags) == 0 {
@@ -82,78 +99,80 @@ func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err 
 	if len(tags) > MaxTagCount {
 		tags = tags[:MaxTagCount]
 	}
-	params.Tags = strings.Join(tags, ",")
+	if len(tags) > 0 {
+		params["tags"] = strings.Join(tags, ",")
+	}
 
-	params.CoverImages = meta.GetStringSlice("cover_images")
-	if len(params.CoverImages) == 0 {
-		params.CoverImages = mark.Meta.GetStringSlice("cover_images")
+	coverImages := meta.GetStringSlice("cover_images")
+	if len(coverImages) == 0 {
+		coverImages = mark.Meta.GetStringSlice("cover_images")
 	}
-	if len(params.CoverImages) > MaxCoverImageCount {
-		params.CoverImages = params.CoverImages[:MaxCoverImageCount]
+	if len(coverImages) > MaxCoverImageCount {
+		coverImages = coverImages[:MaxCoverImageCount]
 	}
-	if len(params.CoverImages) == 2 {
-		params.CoverImages = params.CoverImages[:1]
+	if len(coverImages) == 2 {
+		coverImages = coverImages[:1]
 	}
-	switch len(params.CoverImages) {
+	if len(coverImages) > 0 {
+		params["cover_images"] = coverImages
+	}
+
+	var coverType int
+	switch len(coverImages) {
 	case 0:
-		params.CoverType = CoverTypeNone
+		coverType = CoverTypeNone
 	case 1:
-		params.CoverType = CoverTypeSingle
+		coverType = CoverTypeSingle
 	case 3:
-		params.CoverType = CoverTypeThree
+		coverType = CoverTypeThree
 	}
+	params["cover_type"] = coverType
 
+	var articleStatus int
 	publishStatus := meta.GetString("publish_status")
 	if publishStatus == "" {
-		params.PubStatus = PublishStatusPublish
-		params.Status = ArticleStatusPublish
+		publishStatus = PublishStatusPublish
+		articleStatus = ArticleStatusPublish
 	} else {
-		params.PubStatus = PublishStatus(publishStatus)
-		switch params.PubStatus {
+		switch publishStatus {
 		case PublishStatusPublish:
-			params.PubStatus = PublishStatusPublish
-			params.Status = ArticleStatusPublish
+			articleStatus = ArticleStatusPublish
 		case PublishStatusDraft:
-			params.PubStatus = PublishStatusDraft
-			params.Status = ArticleStatusDraft
+			articleStatus = ArticleStatusDraft
 		default:
-			err = errors.New("publish_status is invalid")
+			err = fmt.Errorf("invalid publish_status: %s", publishStatus)
 			return
 		}
 	}
+	params["pubStatus"] = publishStatus
+	params["status"] = articleStatus
 
 	readType := meta.GetString("read_type")
 	if readType == "" {
-		params.ReadType = ReadTypePublic
-	} else {
-		params.ReadType = ReadType(readType)
-		if params.ReadType != ReadTypePublic &&
-			params.ReadType != ReadTypePrivate &&
-			params.ReadType != ReadTypeNeedVIP &&
-			params.ReadType != ReadTypeNeedFans {
-			err = errors.New("read_type is invalid")
-			return
-		}
+		readType = ReadTypePublic
 	}
+	switch readType {
+	case ReadTypePublic, ReadTypePrivate, ReadTypeNeedVIP, ReadTypeNeedFans:
+	default:
+		err = fmt.Errorf("invalid read_type: %s", readType)
+		return
+	}
+	params["readType"] = readType
 
 	articleType := meta.GetString("article_type")
 	if articleType == "" {
-		params.Type = SaveArticleTypeOriginal
-	} else {
-		params.Type = SaveArticleType(articleType)
-		if params.Type != SaveArticleTypeReship &&
-			params.Type != SaveArticleTypeOriginal &&
-			params.Type != SaveArticleTypeTranslation {
-			err = errors.New("article_type is invalid")
-			return
-		}
+		articleType = SaveArticleTypeOriginal
 	}
-
-	params.AuthorizedStatus = meta.GetBool("authorized_status")
-
-	if params.Type != SaveArticleTypeOriginal {
-		params.OriginalURL = meta.GetString("original_url")
+	switch articleType {
+	case SaveArticleTypeReship, SaveArticleTypeOriginal, SaveArticleTypeTranslation:
+	default:
+		err = fmt.Errorf("invalid article_type: %s", articleType)
+		return
 	}
-	params.ID = meta.GetString("article_id")
+	params["type"] = articleType
+
+	if articleType != SaveArticleTypeOriginal {
+		params["original_url"] = meta.GetString("original_url")
+	}
 	return
 }

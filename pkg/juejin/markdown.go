@@ -1,81 +1,68 @@
 package juejin
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/juju/errors"
-
+	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
 )
 
 // ParseMark parse mark to article params
-func (c *Client) ParseMark(mark *markdown.Mark) (params *SaveArticleParams, err error) {
-	v := mark.Meta.Get("juejin")
+func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err error) {
+	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		err = errors.New("juejin meta not found")
+		err = fmt.Errorf("meta not found for %s", c.Name())
 		return
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = errors.New("juejin meta not found")
+		err = fmt.Errorf("invalid meta: %#v", v)
 		return
 	}
 
-	params = new(SaveArticleParams)
-	params.Title = meta.GetString("title")
-	if params.Title == "" {
-		params.Title = mark.Meta.GetString("title")
-		if params.Title == "" {
+	params = map[string]any{
+		"sync_to_org":  meta.GetBool("sync_to_org"),
+		"tag_ids":      meta.GetStringSlice("tag_ids"),
+		"category_id":  meta.GetString("category_id"),
+		"article_id":   meta.GetString("article_id"),
+		"draft_id":     meta.GetString("draft_id"),
+		"mark_content": markdownHelper.ParseMarkdownContent(mark, meta),
+	}
+
+	title := meta.GetString("title")
+	if title == "" {
+		title = mark.Meta.GetString("title")
+		if title == "" {
 			err = errors.New("title is required")
 			return
 		}
 	}
+	params["title"] = title
 
-	params.SyncToOrg = meta.GetBool("sync_to_org")
-
-	params.CoverImage = meta.GetString("cover_image")
-	if params.CoverImage == "" {
+	coverImage := meta.GetString("cover_image")
+	if coverImage == "" {
 		coverImages := mark.Meta.GetStringSlice("cover_images")
 		if len(coverImages) > 0 {
-			params.CoverImage = coverImages[0]
+			coverImage = coverImages[0]
 		}
 	}
+	params["cover_image"] = coverImage
 
-	params.Content = mark.Content
-	params.Brief = meta.GetString("brief_content")
-	if params.Brief == "" {
-		params.Brief = mark.Brief
+	briefContent := meta.GetString("brief_content")
+	if briefContent == "" {
+		briefContent = mark.Brief
 	}
-	briefContentLen := len([]rune(params.Brief))
+	briefContentLen := len([]rune(briefContent))
 	if briefContentLen > 100 {
-		s := compressContent(params.Brief)
-		params.Brief = string([]rune(s)[:80])
+		s := compressContent(briefContent)
+		briefContent = string([]rune(s)[:80])
 	} else if briefContentLen < 50 {
-		s := compressContent(params.Content)
-		params.Brief = string([]rune(s)[:80])
+		s := compressContent(mark.Content)
+		briefContent = string([]rune(s)[:80])
 	}
-
-	prefixContent := meta.GetString("prefix_content")
-	if prefixContent != "" {
-		params.Content = fmt.Sprintf("%s\n\n%s", prefixContent, params.Content)
-	}
-	suffixContent := meta.GetString("suffix_content")
-	if suffixContent != "" {
-		params.Content = fmt.Sprintf("%s\n\n%s", params.Content, suffixContent)
-	}
-
-	params.TagIDs = meta.GetStringSlice("tag_ids")
-	if err != nil {
-		err = errors.Trace(err)
-		return
-	}
-
-	categoryID := meta.GetString("category_id")
-	params.CategoryID = categoryID
-
-	params.ArticleID = meta.GetString("article_id")
-	params.DraftID = meta.GetString("draft_id")
+	params["brief_content"] = briefContent
 	return
 }
 

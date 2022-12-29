@@ -1,14 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
 
-	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/cmd/platform"
@@ -23,14 +22,14 @@ var (
 	rootCmd = &cobra.Command{
 		Use:   "acli",
 		Short: "Publish article anywhere.",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Use == "pub" || cmd.Use == "auth" {
 				platform.PfName = strings.TrimSpace(platform.PfName)
 				if platform.PfName == "" {
-					fmt.Println("Platform is required")
-					os.Exit(1)
+					return errors.New("platform is required")
 				}
 			}
+			return nil
 		},
 	}
 
@@ -62,7 +61,7 @@ func initConfig() {
 func main() {
 	defer func() {
 		if p := recover(); p != nil {
-			log.Printf("panic: %+v\n%s", p, debug.Stack())
+			fmt.Fprintf(os.Stderr, "panic stack: %s", debug.Stack())
 		}
 	}()
 
@@ -73,6 +72,7 @@ func main() {
 	rootCmd.AddCommand(platform.AuthCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("execute command failed: %+v", errors.Trace(err))
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		os.Exit(1)
 	}
 }

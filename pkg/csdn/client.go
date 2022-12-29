@@ -1,6 +1,10 @@
 package csdn
 
-import "github.com/juju/errors"
+import (
+	"io"
+
+	"github.com/k8scat/articli/pkg/markdown"
+)
 
 // csdn图床
 // https://blog.51cto.com/144dotone/2952199
@@ -31,11 +35,32 @@ type Client struct {
 	cookie string
 }
 
-func New(cookie string) (*Client, error) {
-	if cookie == "" {
-		return nil, errors.New("Invalid cookie")
+func (c *Client) Name() string {
+	return "csdn"
+}
+
+func (c *Client) Auth(cookie string) (string, error) {
+	c.cookie = cookie
+	var err error
+	info, err := c.GetAuthInfo()
+	if err != nil {
+		return "", err
 	}
-	return &Client{
-		cookie: cookie,
-	}, nil
+	return info.Basic.Nickname, nil
+}
+
+func (c *Client) Publish(r io.Reader) (string, error) {
+	mark, err := markdown.Parse(r)
+	if err != nil {
+		return "", err
+	}
+	params, err := c.ParseMark(mark)
+	if err != nil {
+		return "", err
+	}
+	url, err := c.SaveArticle(params)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
