@@ -12,8 +12,6 @@ const (
 	ArticleTypeOriginal  int = 1 // 原创
 	ArticleTypeRepost    int = 2 // 转载
 	ArticleTypeTranslate int = 3 // 翻译
-
-	TimeFormat = "2006-01-02T15:04:05.000Z"
 )
 
 func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err error) {

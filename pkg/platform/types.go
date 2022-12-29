@@ -14,5 +14,5 @@ type Platform interface {
 	// Publish Post article
 	Publish(r io.Reader) (url string, err error)
 	// ParseMark Parse markdown meta data
-	ParseMark(mark *markdown.Mark) (params map[string]interface{}, err error)
+	ParseMark(mark *markdown.Mark) (params map[string]any, err error)
 }

@@ -27,7 +27,6 @@ var (
 				return err
 			}
 
-			// Todo: check before re-auth
 			config.Cfg.SetAuth(PfName, rawAuth)
 			err = config.Save()
 			if err != nil {

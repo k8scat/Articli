@@ -34,7 +34,7 @@ make
 
 ```markdown
 ---
-# 通用配置，其他平台可以继承该配置
+# 通用配置，其他平台可以选择继承该配置，或者为不同平台进行单独设置
 # 标题
 title: "标题"
 # 文章概要
@@ -53,17 +53,6 @@ juejin:
     article_id: ""
     # 草稿 id，不填则通过接口获取文章对应的草稿 id
     draft_id: ""
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    title: "标题"
-    # 参考通用配置，如果不填写，则使用通用配置的值，仅支持单图
-    cover_images:
-    - https://img.alicdn.com/tfs/TB1.jpg
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    brief_content: "文章概要"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    prefix_content: "文章前缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    suffix_content: "文章后缀内容"
     # 标签名称
     tags:
     - "Go"
@@ -76,19 +65,6 @@ juejin:
 csdn:
     # 文章 id，不填写表示发布新文章
     article_id: ""
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    title: "标题"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    brief_content: 内容概要
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    prefix_content: "文章前缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    suffix_content: "文章后缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值，支持无图、单图、三图
-    cover_images:
-    - https://img.alicdn.com/tfs/TB1.jpg
-    - https://img.alicdn.com/tfs/TB2.jpg
-    - https://img.alicdn.com/tfs/TB3.jpg
     # 分类名称
     categories:
     - Golang
@@ -99,9 +75,9 @@ csdn:
     - csdn
     # 发布形式，可选值：全部可见 public、仅我可见 private、VIP可见 read_need_vip、粉丝可见 read_need_fans，默认 public
     read_type: public
-    # 发布状态，可选值：发布 publish、草稿 draft
+    # 发布状态，可选值：发布 publish、草稿 draft，默认 publish
     publish_status: publish
-    # 文章类型，可选值：原创 original、转载 repost、翻译 translated
+    # 文章类型，可选值：原创 original、转载 repost、翻译 translated，默认 original
     article_type: original
     # 原文链接，转载文章时必须填写
     original_url: ""
@@ -113,19 +89,6 @@ csdn:
 oschina:
     # 文章 id，不填写表示发布新文章
     article_id: ""
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    title: "标题"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    brief_content: 内容概要
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    prefix_content: "文章前缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    suffix_content: "文章后缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值，支持无图、单图、三图
-    cover_images:
-    - https://img.alicdn.com/tfs/TB1.jpg
-    - https://img.alicdn.com/tfs/TB2.jpg
-    - https://img.alicdn.com/tfs/TB3.jpg
     # 分类名称
     category: "Golang"
     # 推广专区名称
@@ -142,17 +105,6 @@ oschina:
 segmentfault:
     # 文章 id，不填写表示发布新文章
     article_id: ""
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    title: "标题"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    brief_content: 内容概要
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    prefix_content: "文章前缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值
-    suffix_content: "文章后缀内容"
-    # 参考通用配置，如果不填写，则使用通用配置的值，仅支持单图
-    cover_images:
-    - https://img.alicdn.com/tfs/TB1.jpg
     # 标签名称
     tags:
     - "kubernetes"
@@ -160,10 +112,12 @@ segmentfault:
     license: false
     # 文章类型，可选值：原创 1、转载 2、翻译 3，默认 1
     type: 1
+    # 原文地址，如果是转载或翻译则必须填写
+    url: ""
 
 ---
 
-内容概要
+文章概要
 
 <!-- more -->
 
@@ -196,19 +150,17 @@ Flags:
 Use "acli [command] --help" for more information about a command.
 ```
 
-### 查看版本
-
-```shell
-acli version
-```
-
-
 ### 登录账号
 
-使用浏览器 Cookie 进行登录
+使用浏览器 cookie 进行登录：
+
+- 掘金
+- CSDN
+- 开源中国
+
+**思否请使用 token 进行登录（可以从浏览器请求头中获取）**
 
 ```shell
-# platform: juejin, csdn
 acli auth -p <platform> --raw <cookie>
 ```
 
