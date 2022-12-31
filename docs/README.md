@@ -38,14 +38,14 @@ make
 # 标题
 title: "标题"
 # 文章概要
-brief_content: "文章概要"
+brief_content: ""
 # 封面图片地址
 cover_images:
 - https://img.alicdn.com/tfs/TB1.jpg
-# 前缀内容
-prefix_content: "文章前缀内容"
-# 后缀内容
-suffix_content: "文章后缀内容"
+# 文章前缀内容
+prefix_content: ""
+# 文章后缀内容
+suffix_content: ""
 
 # 掘金平台文章配置
 juejin:
@@ -56,7 +56,6 @@ juejin:
     # 标签名称
     tags:
     - "Go"
-    - "Mac"
     # 分类名称
     category: "后端"
     # 是否同步到组织，个人账号不支持
@@ -68,12 +67,10 @@ csdn:
     article_id: ""
     # 分类名称
     categories:
-    - Golang
-    - 后端
+    - "Golang"
     # 标签名称
     tags:
-    - cli
-    - csdn
+    - "CLI"
     # 发布形式，可选值：全部可见 public、仅我可见 private、VIP可见 read_need_vip、粉丝可见 read_need_fans，默认 public
     read_type: public
     # 发布状态，可选值：发布 publish、草稿 draft，默认 publish
@@ -94,7 +91,7 @@ oschina:
     # 分类名称
     category: "Golang"
     # 推广专区名称
-    technical_field_id: "程序人生"
+    technical_field: "程序人生"
     # 禁止评论
     deny_comment: false
     # 置顶
@@ -110,7 +107,7 @@ segmentfault:
     article_id: ""
     # 标签名称
     tags:
-    - "kubernetes"
+    - "go"
     # 注明版权
     license: false
     # 文章类型，可选值：原创 1、转载 2、翻译 3，默认 1
@@ -179,14 +176,10 @@ acli pub -p <platform> --file <article-file>
 
 ```go
 type Platform interface {
-	// Name Platform name
-	Name() string
-	// Auth Authenticate with raw auth data, like cookie or user:pass
-	Auth(raw string) (username string, err error)
-	// Publish Post article
-	Publish(r io.Reader) (url string, err error)
-	// ParseMark Parse markdown meta data
-	ParseMark(mark *markdown.Mark) (params map[string]any, err error)
+    Name() string
+    Auth(raw string) (string, error)
+    NewArticle(r io.Reader) error
+    Publish() (string, error)
 }
 ```
 
@@ -195,6 +188,6 @@ type Platform interface {
 ```go
 // pkg/platform/hub.go
 func init() {
-	register(new(another.Platform))
+    register(new(another.Platform))
 }
 ```

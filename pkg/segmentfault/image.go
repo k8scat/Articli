@@ -21,14 +21,14 @@ func (c *Client) uploadImage(filepath string) (string, error) {
 	}
 
 	endpoint := "/image"
-	req, err := c.NewRequest(http.MethodPost, endpoint, nil, buf)
+	req, err := c.newRequest(http.MethodPost, endpoint, nil, buf)
 	if err != nil {
 		return "", err
 	}
 	req.Header.Set("Content-Type", contentType)
 
 	var resp *UploadResponse
-	if err = c.Do(req, &resp); err != nil {
+	if err = c.do(req, &resp); err != nil {
 		return "", err
 	}
 	return resp.URL, nil

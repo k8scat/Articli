@@ -6,14 +6,13 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// SaveDraft create a new draft if id is empty, otherwise update draft
-func (c *Client) SaveDraft(params map[string]any) (string, error) {
+func (c *Client) saveDraft(params map[string]any) (string, error) {
 	rawurl := c.buildRequestURL("/blog/save_draft")
 	values, err := parseValues(params)
 	if err != nil {
 		return "", err
 	}
-	raw, err := c.Post(rawurl, values, DefaultHandler)
+	raw, err := c.post(rawurl, values, defaultHandler)
 	if err != nil {
 		return "", err
 	}

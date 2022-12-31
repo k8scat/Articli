@@ -70,8 +70,8 @@ type AuthInfo struct {
 	} `json:"general"`
 }
 
-func (c *Client) GetAuthInfo() (info *AuthInfo, err error) {
-	rawurl := BuildBizAPIURL("/community-personal/v1/get-personal-info")
+func (c *Client) getAuthInfo() (info *AuthInfo, err error) {
+	rawurl := buildBizAPIURL("/community-personal/v1/get-personal-info")
 	var resp *http.Response
 	apiGateway := &sign.APIGateway{
 		Key:    UserAppKey,
@@ -79,12 +79,12 @@ func (c *Client) GetAuthInfo() (info *AuthInfo, err error) {
 	}
 
 	if UserGateway == nil {
-		if err = InitUserGateway(); err != nil {
+		if err = initUserGateway(); err != nil {
 			return nil, err
 		}
 	}
 
-	resp, err = c.Get(rawurl, nil, apiGateway, UserGateway)
+	resp, err = c.get(rawurl, nil, apiGateway, UserGateway)
 	if err != nil {
 		return
 	}

@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-func (c *Client) Get(endpoint string, params url.Values, obj interface{}) error {
-	return c.Request(http.MethodGet, endpoint, params, nil, obj)
+func (c *Client) get(endpoint string, params url.Values, obj interface{}) error {
+	return c.request(http.MethodGet, endpoint, params, nil, obj)
 }
 
-func (c *Client) NewRequest(method, endpoint string, params url.Values, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(method, endpoint string, params url.Values, body interface{}) (*http.Request, error) {
 	if !strings.HasPrefix(endpoint, "/") {
 		endpoint = "/" + endpoint
 	}
@@ -43,7 +43,7 @@ func (c *Client) NewRequest(method, endpoint string, params url.Values, body int
 	return req, nil
 }
 
-func (c *Client) Do(req *http.Request, obj interface{}) error {
+func (c *Client) do(req *http.Request, obj interface{}) error {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -67,15 +67,11 @@ func (c *Client) Do(req *http.Request, obj interface{}) error {
 	return nil
 }
 
-func (c *Client) Request(method, endpoint string, params url.Values, body, obj interface{}) error {
-	req, err := c.NewRequest(method, endpoint, params, body)
+func (c *Client) request(method, endpoint string, params url.Values, body, obj interface{}) error {
+	req, err := c.newRequest(method, endpoint, params, body)
 	if err != nil {
 		return err
 	}
-	err = c.Do(req, obj)
+	err = c.do(req, obj)
 	return err
-}
-
-func BuildURL(path string) string {
-	return DefaultSiteURL + path
 }

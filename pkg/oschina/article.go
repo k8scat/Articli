@@ -23,35 +23,34 @@ func parseValues(params map[string]any) (url.Values, error) {
 	return values, nil
 }
 
-// SaveArticle create an article if id is empty, otherwise update existed article.
-func (c *Client) SaveArticle(params map[string]any) (string, error) {
+func (c *Client) saveArticle() (string, error) {
 	var rawurl string
-	articleID, _ := params["id"].(string)
+	articleID, _ := c.params["id"].(string)
 	if articleID != "" {
 		rawurl = c.buildRequestURL("/blog/edit")
-		delete(params, "draft")
+		delete(c.params, "draft")
 	} else {
-		delete(params, "id")
+		delete(c.params, "id")
 
-		params["publish_as_blog"] = 1
+		c.params["publish_as_blog"] = 1
 		rawurl = c.buildRequestURL("/blog/save")
 
-		draftID, _ := params["draft"].(string)
+		draftID, _ := c.params["draft"].(string)
 		if draftID == "" {
-			draftID, err := c.SaveDraft(params)
+			draftID, err := c.saveDraft(c.params)
 			if err != nil {
 				return "", err
 			}
-			params["draft"] = draftID
+			c.params["draft"] = draftID
 			fmt.Printf("draft_id: %s\n", draftID)
 		}
 	}
 
-	values, err := parseValues(params)
+	values, err := parseValues(c.params)
 	if err != nil {
 		return "", err
 	}
-	raw, err := c.Post(rawurl, values, DefaultHandler)
+	raw, err := c.post(rawurl, values, defaultHandler)
 	if err != nil {
 		return "", err
 	}

@@ -16,13 +16,13 @@ type SearchTagsResponse struct {
 	Size int             `json:"size"`
 }
 
-func (c *Client) SearchTags(q string) (resp *SearchTagsResponse, err error) {
+func (c *Client) searchTags(q string) (resp *SearchTagsResponse, err error) {
 	endpoint := "/tags"
 	params := url.Values{
 		"query": {"search"},
 		"q":     {q},
 	}
-	err = c.Get(endpoint, params, &resp)
+	err = c.get(endpoint, params, &resp)
 	return
 }
 
@@ -33,7 +33,7 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]int64, error) {
 
 	result := make([]int64, 0, len(names))
 	for _, name := range names {
-		resp, err := c.SearchTags(name)
+		resp, err := c.searchTags(name)
 		if err != nil {
 			return nil, err
 		}

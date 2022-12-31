@@ -15,19 +15,19 @@ type CreateArticleResponse struct {
 	Message string       `json:"msg"`
 }
 
-func (c *Client) SaveArticle(params map[string]any) (string, error) {
+func (c *Client) saveArticle() (string, error) {
 	endpoint := "/article"
 	var method string
-	articleID, _ := params["id"].(string)
+	articleID, _ := c.params["id"].(string)
 	if articleID == "" {
-		delete(params, "id")
+		delete(c.params, "id")
 		method = http.MethodPost
 	} else {
 		endpoint += "/" + articleID
 		method = http.MethodPut
 	}
 	resp := new(CreateArticleResponse)
-	err := c.Request(method, endpoint, nil, params, &resp)
+	err := c.request(method, endpoint, nil, c.params, &resp)
 	if err != nil {
 		return "", err
 	}

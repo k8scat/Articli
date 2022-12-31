@@ -64,7 +64,6 @@ func save(f string, cfg *Config) error {
 	return err
 }
 
-// GetConfigDir Get dir which store the config file
 func GetConfigDir() string {
 	homeDir, err := homedir.Dir()
 	if err != nil {

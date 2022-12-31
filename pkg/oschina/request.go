@@ -12,8 +12,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Get request with GET method and support response handler
-func (c *Client) Get(rawurl string, params *url.Values, handler func(r *http.Response) (string, error)) (string, error) {
+func (c *Client) get(rawurl string, params *url.Values, handler func(r *http.Response) (string, error)) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, rawurl, nil)
 	if err != nil {
 		return "", err
@@ -38,7 +37,7 @@ func (c *Client) Get(rawurl string, params *url.Values, handler func(r *http.Res
 	return result, err
 }
 
-func (c *Client) Post(path string, values url.Values, handler func(r *http.Response) (string, error)) (string, error) {
+func (c *Client) post(path string, values url.Values, handler func(r *http.Response) (string, error)) (string, error) {
 	var body io.Reader
 	if values != nil {
 		values.Add("user_code", c.userCode)
@@ -69,7 +68,7 @@ func (c *Client) Post(path string, values url.Values, handler func(r *http.Respo
 	return result, err
 }
 
-func DefaultHandler(r *http.Response) (string, error) {
+func defaultHandler(r *http.Response) (string, error) {
 	defer r.Body.Close()
 	b, err := io.ReadAll(r.Body)
 	if err != nil {

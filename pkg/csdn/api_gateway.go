@@ -9,7 +9,7 @@ var (
 	UserGateway     *sign.APIGateway
 )
 
-func InitResourceGateway() error {
+func initResourceGateway() error {
 	gateway, err := sign.NewAPIGateway(ResourceAppKey, ResourceAppSecret)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func InitResourceGateway() error {
 	return nil
 }
 
-func InitUserGateway() error {
+func initUserGateway() error {
 	gateway, err := sign.NewAPIGateway(UserAppKey, UserAppSecret)
 	if err != nil {
 		return err

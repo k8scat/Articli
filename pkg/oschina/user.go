@@ -7,7 +7,7 @@ import (
 
 // parseUser parse user data from html
 func (c *Client) parseUser() error {
-	raw, err := c.Get("https://www.oschina.net/", nil, nil)
+	raw, err := c.get("https://www.oschina.net/", nil, nil)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func (c *Client) parseUser() error {
 	// Parse space id
 	ch := make(chan error, 1)
 	go func(c *Client) {
-		raw, err := c.Get(c.baseURL, nil, nil)
+		raw, err := c.get(c.baseURL, nil, nil)
 		if err != nil {
 			ch <- err
 			return

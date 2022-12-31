@@ -19,7 +19,7 @@ type Category struct {
 // ListCategories list all categories
 func (c *Client) listCategories() ([]*Category, error) {
 	rawurl := c.buildRequestURL("/blog/write")
-	raw, err := c.Get(rawurl, nil, nil)
+	raw, err := c.get(rawurl, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *Client) addCategory(name string) (string, error) {
 		"space": []string{c.spaceID},
 		"name":  []string{name},
 	}
-	raw, err := c.Post(rawurl, values, DefaultHandler)
+	raw, err := c.post(rawurl, values, defaultHandler)
 	if err != nil {
 		return "", err
 	}

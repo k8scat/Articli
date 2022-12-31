@@ -16,7 +16,7 @@ const (
 	ContentTypeHTML     = "4"
 )
 
-func (c *Client) ParseMark(mark *markdown.Mark) (params map[string]any, err error) {
+func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err error) {
 	v := mark.Meta.Get(c.Name())
 	if v == nil {
 		return nil, fmt.Errorf("meta not found for %s", c.Name())

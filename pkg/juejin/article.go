@@ -7,26 +7,25 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// SaveArticle create an article if id is empty, otherwise update the article
-func (c *Client) SaveArticle(params map[string]any) (string, error) {
-	articleID, _ := params["article_id"].(string)
-	draftID, _ := params["draft_id"].(string)
+func (c *Client) saveArticle() (string, error) {
+	articleID, _ := c.params["article_id"].(string)
+	draftID, _ := c.params["draft_id"].(string)
 	if articleID != "" && draftID == "" {
-		article, err := c.GetArticle(articleID)
+		article, err := c.getArticle(articleID)
 		if err != nil {
 			return "", err
 		}
 		draftID = article.Info.DraftID
 	}
 
-	draftID, err := c.SaveDraft(params)
+	draftID, err := c.saveDraft()
 	if err != nil {
 		return "", err
 	}
 	fmt.Printf("draft_id: %s\n", draftID)
 
-	syncToOrg, _ := params["sync_to_org"].(bool)
-	articleID, err = c.PublishArticle(draftID, syncToOrg)
+	syncToOrg, _ := c.params["sync_to_org"].(bool)
+	articleID, err = c.publishArticle(draftID, syncToOrg)
 	if err != nil {
 		return "", err
 	}
@@ -34,13 +33,12 @@ func (c *Client) SaveArticle(params map[string]any) (string, error) {
 	return BuildArticleURL(articleID), nil
 }
 
-// GetArticle get article detail
-func (c *Client) GetArticle(id string) (*Article, error) {
+func (c *Client) getArticle(id string) (*Article, error) {
 	endpoint := buildArticleEndpoint("detail")
 	payload := map[string]interface{}{
 		"article_id": id,
 	}
-	raw, err := c.Post(endpoint, payload)
+	raw, err := c.post(endpoint, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -50,14 +48,13 @@ func (c *Client) GetArticle(id string) (*Article, error) {
 	return article, err
 }
 
-// PublishArticle publish a draft
-func (c *Client) PublishArticle(draftID string, syncToOrg bool) (string, error) {
+func (c *Client) publishArticle(draftID string, syncToOrg bool) (string, error) {
 	endpoint := buildArticleEndpoint("publish")
 	payload := map[string]any{
 		"draft_id":    draftID,
 		"sync_to_org": syncToOrg,
 	}
-	raw, err := c.Post(endpoint, payload)
+	raw, err := c.post(endpoint, payload)
 	if err != nil {
 		return "", err
 	}

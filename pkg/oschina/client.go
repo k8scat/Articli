@@ -14,6 +14,7 @@ type Client struct {
 	userID   string
 	spaceID  string
 	userName string
+	params   map[string]any
 }
 
 func (c *Client) Name() string {
@@ -28,16 +29,20 @@ func (c *Client) Auth(raw string) (string, error) {
 	return c.userName, nil
 }
 
-func (c *Client) Publish(r io.Reader) (string, error) {
+func (c *Client) NewArticle(r io.Reader) error {
 	mark, err := markdown.Parse(r)
 	if err != nil {
-		return "", err
+		return err
 	}
-	params, err := c.ParseMark(mark)
+	c.params, err = c.parseMark(mark)
 	if err != nil {
-		return "", err
+		return err
 	}
-	url, err := c.SaveArticle(params)
+	return nil
+}
+
+func (c *Client) Publish() (string, error) {
+	url, err := c.saveArticle()
 	if err != nil {
 		return "", err
 	}

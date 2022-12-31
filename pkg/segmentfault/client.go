@@ -7,14 +7,12 @@ import (
 	"github.com/k8scat/articli/pkg/markdown"
 )
 
-const (
-	DefaultBaseAPI = "https://segmentfault.com/gateway"
-	DefaultSiteURL = "https://segmentfault.com"
-)
+const DefaultBaseAPI = "https://segmentfault.com/gateway"
 
 type Client struct {
 	baseAPI string
 	token   string
+	params  map[string]any
 }
 
 func (c *Client) Name() string {
@@ -27,23 +25,24 @@ func (c *Client) Auth(token string) (string, error) {
 	}
 	c.token = token
 	c.baseAPI = DefaultBaseAPI
-	resp, err := c.GetMe()
+	resp, err := c.getMe()
 	if err != nil {
 		return "", err
 	}
 	return resp.User.Name, nil
 }
 
-func (c *Client) Publish(r io.Reader) (string, error) {
+func (c *Client) NewArticle(r io.Reader) error {
 	mark, err := markdown.Parse(r)
 	if err != nil {
-		return "", err
+		return err
 	}
-	params, err := c.ParseMark(mark)
-	if err != nil {
-		return "", err
-	}
-	url, err := c.SaveArticle(params)
+	c.params, err = c.parseMark(mark)
+	return err
+}
+
+func (c *Client) Publish() (string, error) {
+	url, err := c.saveArticle()
 	if err != nil {
 		return "", err
 	}

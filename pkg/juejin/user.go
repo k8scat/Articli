@@ -64,9 +64,9 @@ type Badge struct {
 	SeriesID  string `json:"series_id"`
 }
 
-func (c *Client) GetUser() (*User, error) {
+func (c *Client) getUser() (*User, error) {
 	endpoint := "/user_api/v1/user/get"
-	raw, err := c.Get(endpoint, nil)
+	raw, err := c.get(endpoint, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -14,8 +14,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Get request and return raw body
-func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
+func (c *Client) get(endpoint string, query *url.Values) (string, error) {
 	if endpoint == "" {
 		return "", errors.New("empty request endpoint")
 	}
@@ -41,8 +40,7 @@ func (c *Client) Get(endpoint string, query *url.Values) (string, error) {
 	return raw, err
 }
 
-// Post request and return raw body
-func (c *Client) Post(endpoint string, body interface{}) (string, error) {
+func (c *Client) post(endpoint string, body interface{}) (string, error) {
 	if endpoint == "" {
 		return "", errors.New("empty request endpoint")
 	}

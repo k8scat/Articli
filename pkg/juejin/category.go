@@ -17,7 +17,7 @@ type CategoryItem struct {
 // ListCategories list all categories
 func (c *Client) listCategories() ([]*CategoryItem, error) {
 	endpoint := "/tag_api/v1/query_category_list"
-	raw, err := c.Post(endpoint, nil)
+	raw, err := c.post(endpoint, nil)
 	if err != nil {
 		return nil, err
 	}

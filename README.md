@@ -23,14 +23,10 @@ https://k8scat.github.io/Articli
 
 ```go
 type Platform interface {
-	// Name Platform name
-	Name() string
-	// Auth Authenticate with raw auth data, like cookie or user:pass
-	Auth(raw string) (username string, err error)
-	// Publish Post article
-	Publish(r io.Reader) (url string, err error)
-	// ParseMark Parse markdown meta data
-	ParseMark(mark *markdown.Mark) (params map[string]any, err error)
+    Name() string
+    Auth(raw string) (string, error)
+    NewArticle(r io.Reader) error
+    Publish() (string, error)
 }
 ```
 
@@ -39,7 +35,7 @@ type Platform interface {
 ```go
 // pkg/platform/hub.go
 func init() {
-	register(new(another.Platform))
+    register(new(another.Platform))
 }
 ```
 

@@ -24,7 +24,7 @@ func (c *Client) listTags(key string, cursor string) (tags []*TagItem, nextCurso
 		"cursor":   cursor,
 	}
 	var raw string
-	raw, err = c.Post(endpoint, payload)
+	raw, err = c.post(endpoint, payload)
 	if err != nil {
 		return
 	}

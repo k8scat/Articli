@@ -9,8 +9,8 @@ type GetUserResponse struct {
 	User *User `json:"user"`
 }
 
-func (c *Client) GetMe() (resp *GetUserResponse, err error) {
+func (c *Client) getMe() (resp *GetUserResponse, err error) {
 	endpoint := "/user/@me"
-	err = c.Get(endpoint, nil, &resp)
+	err = c.get(endpoint, nil, &resp)
 	return
 }

@@ -17,7 +17,7 @@ type TechnicalField struct {
 // ListTechnicalFields list all technical fields
 func (c *Client) listTechnicalFields() ([]*TechnicalField, error) {
 	rawurl := fmt.Sprintf("%s%s", c.baseURL, "/blog/write")
-	raw, err := c.Get(rawurl, nil, nil)
+	raw, err := c.get(rawurl, nil, nil)
 	if err != nil {
 		return nil, err
 	}

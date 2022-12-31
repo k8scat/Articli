@@ -30,8 +30,11 @@ var (
 			if err != nil {
 				return err
 			}
+			if err = pf.NewArticle(f); err != nil {
+				return err
+			}
 
-			url, err := pf.Publish(f)
+			url, err := pf.Publish()
 			if err != nil {
 				return err
 			}

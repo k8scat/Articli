@@ -21,21 +21,21 @@ type SaveArticleResponse struct {
 	BaseResponse
 }
 
-func (c *Client) SaveArticle(params map[string]any) (string, error) {
-	rawurl := BuildBizAPIURL("/blog-console-api/v3/mdeditor/saveArticle")
-	b, err := json.Marshal(params)
+func (c *Client) saveArticle() (string, error) {
+	rawurl := buildBizAPIURL("/blog-console-api/v3/mdeditor/saveArticle")
+	b, err := json.Marshal(c.params)
 	if err != nil {
 		return "", err
 	}
 
 	if ResourceGateway == nil {
-		if err = InitResourceGateway(); err != nil {
+		if err = initResourceGateway(); err != nil {
 			return "", err
 		}
 	}
 
 	body := bytes.NewReader(b)
-	resp, err := c.Post(rawurl, nil, body, ResourceGateway)
+	resp, err := c.post(rawurl, nil, body, ResourceGateway)
 	if err != nil {
 		return "", err
 	}
