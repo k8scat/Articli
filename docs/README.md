@@ -183,7 +183,7 @@ type Platform interface {
 }
 ```
 
-然后将新的平台注册到全局 `pltformHub` 中：
+然后将新的平台注册到全局 `platformHub` 中：
 
 ```go
 // pkg/platform/hub.go
