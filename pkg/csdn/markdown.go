@@ -69,10 +69,6 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	}
 	params["title"] = title
 
-	markdownContent := markdownHelper.ParseMarkdownContent(mark, meta)
-	params["markdowncontent"] = markdownContent
-	params["content"] = markdown.ConvertToHTML(markdownContent)
-
 	description := meta.GetString("brief_content")
 	if description == "" {
 		description = mark.Brief
@@ -119,6 +115,13 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	if len(coverImages) > 0 {
 		params["cover_images"] = coverImages
 	}
+
+	markdownContent := markdownHelper.ParseMarkdownContent(mark, meta)
+	if len(coverImages) > 0 {
+		markdownContent = fmt.Sprintf("![cover image](%s)\n\n%s", coverImages[0], markdownContent)
+	}
+	params["markdowncontent"] = markdownContent
+	params["content"] = markdown.ConvertToHTML(markdownContent)
 
 	var coverType int
 	switch len(coverImages) {
