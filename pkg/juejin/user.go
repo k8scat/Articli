@@ -76,5 +76,8 @@ func (c *Client) getUser() (*User, error) {
 	}
 	var user *User
 	err = json.Unmarshal([]byte(data), &user)
-	return user, err
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

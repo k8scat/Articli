@@ -25,7 +25,8 @@ func (c *Client) saveArticle() (string, error) {
 	fmt.Printf("draft_id: %s\n", draftID)
 
 	syncToOrg, _ := c.params["sync_to_org"].(bool)
-	articleID, err = c.publishArticle(draftID, syncToOrg)
+	columnIds, _ := c.params["column_ids"].([]string)
+	articleID, err = c.publishArticle(draftID, syncToOrg, columnIds)
 	if err != nil {
 		return "", err
 	}
@@ -48,11 +49,14 @@ func (c *Client) getArticle(id string) (*Article, error) {
 	return article, err
 }
 
-func (c *Client) publishArticle(draftID string, syncToOrg bool) (string, error) {
+func (c *Client) publishArticle(draftID string, syncToOrg bool, columnIDs []string) (string, error) {
 	endpoint := buildArticleEndpoint("publish")
 	payload := map[string]any{
 		"draft_id":    draftID,
 		"sync_to_org": syncToOrg,
+	}
+	if len(columnIDs) > 0 {
+		payload["column_ids"] = columnIDs
 	}
 	raw, err := c.post(endpoint, payload)
 	if err != nil {

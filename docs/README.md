@@ -19,6 +19,12 @@
 
 下载 [releases page](https://github.com/k8scat/Articli/releases).
 
+### Homebrew
+
+```bash
+brew install k8scat/tap/acli
+```
+
 ### 源码编译
 
 ```shell
@@ -60,6 +66,9 @@ juejin:
     category: "后端"
     # 是否同步到组织，个人账号不支持
     sync_to_org: false
+    # 专栏名称
+    columns:
+    - "Golang"
 
 # CSDN平台文章配置
 csdn:

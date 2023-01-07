@@ -42,6 +42,13 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	}
 	params["tag_ids"] = tagIDs
 
+	columnNames := meta.GetStringSlice("columns")
+	columnIDs, err := c.convertColumnNamesToIDs(columnNames)
+	if err != nil {
+		return nil, err
+	}
+	params["column_ids"] = columnIDs
+
 	title := meta.GetString("title")
 	if title == "" {
 		title = mark.Meta.GetString("title")

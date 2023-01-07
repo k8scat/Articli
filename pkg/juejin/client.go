@@ -13,6 +13,7 @@ const (
 type Client struct {
 	cookie string
 	params map[string]any
+	user   *User
 }
 
 func (c *Client) Name() string {
@@ -25,6 +26,7 @@ func (c *Client) Auth(cookie string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	c.user = user
 	return user.Name, nil
 }
 

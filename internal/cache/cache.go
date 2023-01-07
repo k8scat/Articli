@@ -28,6 +28,7 @@ const (
 
 	KeyJuejinCategories = "juejin_categories"
 	KeyJuejinTags       = "juejin_tags"
+	KeyJuejinColumns    = "juejin_columns"
 )
 
 type LocalCache struct {
