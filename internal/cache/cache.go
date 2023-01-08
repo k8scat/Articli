@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/juju/errors"
 	"github.com/k8scat/articli/internal/config"
 )
 
@@ -41,7 +42,7 @@ func NewLocalCache(file string) (*LocalCache, error) {
 		file: file,
 	}
 	if err := c.load(); err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	return c, nil
 }

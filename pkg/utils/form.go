@@ -3,9 +3,12 @@ package utils
 import (
 	"bytes"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"strings"
+
+	"github.com/juju/errors"
 )
 
 // https://stackoverflow.com/questions/20205796/post-data-using-the-content-type-multipart-form-data
@@ -49,14 +52,17 @@ func (f *Form) Encode() (buf *bytes.Buffer, contentType string, err error) {
 		var fw io.Writer
 		if x, ok := r.(*os.File); ok {
 			if fw, err = w.CreateFormFile(k, x.Name()); err != nil {
+				err = errors.Trace(err)
 				return
 			}
 		} else {
 			if fw, err = w.CreateFormField(k); err != nil {
+				err = errors.Trace(err)
 				return
 			}
 		}
 		if _, err = io.Copy(fw, r); err != nil {
+			err = errors.Trace(err)
 			return
 		}
 		if x, ok := r.(io.Closer); ok {
@@ -72,7 +78,7 @@ func (f *Form) Encode() (buf *bytes.Buffer, contentType string, err error) {
 func MustOpen(f string) *os.File {
 	r, err := os.Open(f)
 	if err != nil {
-		panic(err)
+		log.Fatalf("open file [%s] failed: %+v", f, err)
 	}
 	return r
 }

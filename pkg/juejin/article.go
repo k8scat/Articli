@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -13,14 +14,14 @@ func (c *Client) saveArticle() (string, error) {
 	if articleID != "" && draftID == "" {
 		article, err := c.getArticle(articleID)
 		if err != nil {
-			return "", err
+			return "", errors.Trace(err)
 		}
 		draftID = article.Info.DraftID
 	}
 
 	draftID, err := c.saveDraft()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	fmt.Printf("draft_id: %s\n", draftID)
 
@@ -28,7 +29,7 @@ func (c *Client) saveArticle() (string, error) {
 	columnIds, _ := c.params["column_ids"].([]string)
 	articleID, err = c.publishArticle(draftID, syncToOrg, columnIds)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	fmt.Printf("article_id: %s\n", articleID)
 	return BuildArticleURL(articleID), nil
@@ -41,7 +42,7 @@ func (c *Client) getArticle(id string) (*Article, error) {
 	}
 	raw, err := c.post(endpoint, payload)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	data := gjson.Get(raw, "data").String()
 	var article *Article
@@ -60,11 +61,11 @@ func (c *Client) publishArticle(draftID string, syncToOrg bool, columnIDs []stri
 	}
 	raw, err := c.post(endpoint, payload)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	articleID := gjson.Get(raw, "data.article_id").String()
 	if articleID == "" {
-		return "", fmt.Errorf("publish article failed: %s", raw)
+		return "", errors.Errorf("publish article failed: %s", raw)
 	}
 	return articleID, nil
 }

@@ -1,8 +1,7 @@
 package oschina
 
 import (
-	"errors"
-	"fmt"
+	"github.com/juju/errors"
 
 	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
@@ -19,31 +18,30 @@ const (
 func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err error) {
 	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		return nil, fmt.Errorf("meta not found for %s", c.Name())
+		return nil, errors.Errorf("meta not found for %s", c.Name())
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		return nil, fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
+		return nil, errors.Errorf("invalid %s meta: %#v", c.Name(), v)
 	}
 
 	params = map[string]any{
 		"id":           meta.GetString("article_id"),
 		"draft":        meta.GetString("draft_id"),
 		"content_type": ContentTypeMarkdown,
-		"content":      markdownHelper.ParseMarkdownContent(mark, meta),
 	}
 
 	technicalFieldName := meta.GetString("technical_field")
 	technicalFieldID, err := c.getTechnicalFieldID(technicalFieldName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["groups"] = technicalFieldID
 
 	categoryName := meta.GetString("category")
 	categoryID, err := c.getCategoryID(categoryName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["catalog"] = categoryID
 
@@ -87,6 +85,12 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 			coverImage = coverImages[0]
 		}
 	}
+
+	content := markdownHelper.ParseMarkdownContent(mark, meta)
+	if coverImage != "" {
+		content = markdownHelper.AddImagePrefix(content, coverImage)
+	}
+	params["content"] = content
 
 	originURL := meta.GetString("original_url")
 	params["origin_url"] = originURL

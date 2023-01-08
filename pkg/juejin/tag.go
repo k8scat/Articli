@@ -2,8 +2,8 @@ package juejin
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 
 	"github.com/k8scat/articli/internal/cache"
@@ -58,7 +58,7 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]string, error) {
 	tagMap := make(map[string]string)
 	err := cache.GlobalLocalCache.Get(cache.KeyJuejinTags, &tagMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	result := make([]string, 0, len(names))
@@ -73,7 +73,7 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]string, error) {
 
 	tags, err := c.listAllTags()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	tagMap = make(map[string]string, len(tags))
 	for _, t := range tags {
@@ -86,13 +86,13 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]string, error) {
 			result = append(result, id)
 			needUpdateCache = true
 		} else {
-			return nil, fmt.Errorf("tag id not found for %s", name)
+			return nil, errors.Errorf("tag id not found for %s", name)
 		}
 	}
 	if needUpdateCache {
 		err = cache.GlobalLocalCache.Set(cache.KeyJuejinTags, tagMap)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 	}
 	return result, nil

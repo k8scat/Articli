@@ -3,11 +3,12 @@ package csdn
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/juju/errors"
 )
 
 type SaveArticleResponse struct {
@@ -25,33 +26,33 @@ func (c *Client) saveArticle() (string, error) {
 	rawurl := buildBizAPIURL("/blog-console-api/v3/mdeditor/saveArticle")
 	b, err := json.Marshal(c.params)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	if ResourceGateway == nil {
 		if err = initResourceGateway(); err != nil {
-			return "", err
+			return "", errors.Trace(err)
 		}
 	}
 
 	body := bytes.NewReader(b)
 	resp, err := c.post(rawurl, nil, body, ResourceGateway)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	defer resp.Body.Close()
 	b, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("request failed %d: %s", resp.StatusCode, b)
+		return "", errors.Errorf("request failed %d: %s", resp.StatusCode, b)
 	}
 
 	var result *SaveArticleResponse
 	if err = json.Unmarshal(b, &result); err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	if result.Code != 200 {
 		return "", errors.New(result.Message)

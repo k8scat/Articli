@@ -1,9 +1,10 @@
 package segmentfault
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
+
+	"github.com/juju/errors"
 )
 
 type SearchTagRow struct {
@@ -35,7 +36,7 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]int64, error) {
 	for _, name := range names {
 		resp, err := c.searchTags(name)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 
 		found := false
@@ -48,7 +49,7 @@ func (c *Client) convertTagNamesToIDs(names []string) ([]int64, error) {
 			}
 		}
 		if !found {
-			return nil, fmt.Errorf("tag id not found for %s", name)
+			return nil, errors.Errorf("tag id not found for %s", name)
 		}
 	}
 	return result, nil

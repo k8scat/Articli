@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/juju/errors"
 
 	"github.com/k8scat/articli/internal/cache"
 )
@@ -19,16 +20,16 @@ func (c *Client) listTechnicalFields() ([]*TechnicalField, error) {
 	rawurl := fmt.Sprintf("%s%s", c.baseURL, "/blog/write")
 	raw, err := c.get(rawurl, nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	doc, err := htmlquery.Parse(strings.NewReader(raw))
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	q := `//div[@class="inline fields write-card-field-bt"]//div[@class="menu"]/div[@class="item"]`
 	nodes, err := htmlquery.QueryAll(doc, q)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	fields := make([]*TechnicalField, 0)
 	for _, node := range nodes {
@@ -46,10 +47,15 @@ func (c *Client) listTechnicalFields() ([]*TechnicalField, error) {
 }
 
 func (c *Client) getTechnicalFieldID(name string) (string, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return "", nil
+	}
+
 	fieldMap := make(map[string]string)
 	err := cache.GlobalLocalCache.Get(cache.KeyOschinaTechnicalFields, &fieldMap)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	if id, ok := fieldMap[name]; ok {
 		return id, nil
@@ -57,7 +63,7 @@ func (c *Client) getTechnicalFieldID(name string) (string, error) {
 
 	fields, err := c.listTechnicalFields()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	fieldMap = make(map[string]string, len(fields))
 	for _, f := range fields {
@@ -66,9 +72,9 @@ func (c *Client) getTechnicalFieldID(name string) (string, error) {
 	if id, ok := fieldMap[name]; ok {
 		err = cache.GlobalLocalCache.Set(cache.KeyOschinaTechnicalFields, fields)
 		if err != nil {
-			return "", err
+			return "", errors.Trace(err)
 		}
 		return id, nil
 	}
-	return "", fmt.Errorf("technical id not found for %s", name)
+	return "", errors.Errorf("technical id not found for %s", name)
 }

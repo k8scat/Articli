@@ -2,8 +2,8 @@ package juejin
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 
 	"github.com/k8scat/articli/internal/cache"
@@ -33,14 +33,14 @@ func (c *Client) listColumns(cursor, keyword string, limit int) ([]*Column, stri
 	}
 	raw, err := c.post(endpoint, payload)
 	if err != nil {
-		return nil, "", err
+		return nil, "", errors.Trace(err)
 	}
 
 	var columns []*Column
 	data := gjson.Get(raw, "data").String()
 	err = json.Unmarshal([]byte(data), &columns)
 	if err != nil {
-		return nil, "", err
+		return nil, "", errors.Trace(err)
 	}
 
 	var next string
@@ -57,6 +57,7 @@ func (c *Client) listAllColumns() (result []*Column, err error) {
 	for {
 		columns, cursor, err = c.listColumns(cursor, "", 10)
 		if err != nil {
+			err = errors.Trace(err)
 			return
 		}
 		result = append(result, columns...)
@@ -70,7 +71,7 @@ func (c *Client) convertColumnNamesToIDs(names []string) ([]string, error) {
 	columnMap := make(map[string]string)
 	err := cache.GlobalLocalCache.Get(cache.KeyJuejinColumns, &columnMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	result := make([]string, 0, len(names))
@@ -85,7 +86,7 @@ func (c *Client) convertColumnNamesToIDs(names []string) ([]string, error) {
 
 	columns, err := c.listAllColumns()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	columnMap = make(map[string]string, len(columns))
 	for _, column := range columns {
@@ -98,13 +99,13 @@ func (c *Client) convertColumnNamesToIDs(names []string) ([]string, error) {
 			result = append(result, id)
 			needUpdateCache = true
 		} else {
-			return nil, fmt.Errorf("column id not found for %s", name)
+			return nil, errors.Errorf("column id not found for %s", name)
 		}
 	}
 	if needUpdateCache {
 		err = cache.GlobalLocalCache.Set(cache.KeyJuejinColumns, columnMap)
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 	}
 	return result, nil

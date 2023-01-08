@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/juju/errors"
 )
 
 type ArticleData struct {
@@ -29,7 +31,7 @@ func (c *Client) saveArticle() (string, error) {
 	resp := new(CreateArticleResponse)
 	err := c.request(method, endpoint, nil, c.params, &resp)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	fmt.Printf("article_id: %d\n", resp.Data.ID)
 	url := buildArticleURL(resp.Data.ID)

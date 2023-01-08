@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/juju/errors"
+
 	"github.com/k8scat/articli/pkg/markdown"
 )
 
@@ -24,7 +26,7 @@ func (c *Client) Name() string {
 func (c *Client) Auth(raw string) (string, error) {
 	c.cookie = raw
 	if err := c.parseUser(); err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	return c.userName, nil
 }
@@ -32,11 +34,11 @@ func (c *Client) Auth(raw string) (string, error) {
 func (c *Client) NewArticle(r io.Reader) error {
 	mark, err := markdown.Parse(r)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	c.params, err = c.parseMark(mark)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	return nil
 }
@@ -44,7 +46,7 @@ func (c *Client) NewArticle(r io.Reader) error {
 func (c *Client) Publish() (string, error) {
 	url, err := c.saveArticle()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	return url, nil
 }

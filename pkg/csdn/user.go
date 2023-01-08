@@ -2,11 +2,10 @@ package csdn
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/juju/errors"
 	sign "github.com/k8scat/aliyun-api-gateway-sign-golang"
 )
 
@@ -80,7 +79,7 @@ func (c *Client) getAuthInfo() (info *AuthInfo, err error) {
 
 	if UserGateway == nil {
 		if err = initUserGateway(); err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 	}
 
@@ -96,7 +95,7 @@ func (c *Client) getAuthInfo() (info *AuthInfo, err error) {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("request failed %d: %s", resp.StatusCode, b)
+		err = errors.Errorf("request failed %d: %s", resp.StatusCode, b)
 		return
 	}
 

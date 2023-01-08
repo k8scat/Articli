@@ -1,8 +1,7 @@
 package oschina
 
 import (
-	"fmt"
-
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -10,11 +9,11 @@ func (c *Client) saveDraft(params map[string]any) (string, error) {
 	rawurl := c.buildRequestURL("/blog/save_draft")
 	values, err := parseValues(params)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	raw, err := c.post(rawurl, values, defaultHandler)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	draftID, ok := params["draft"].(string)
@@ -23,7 +22,7 @@ func (c *Client) saveDraft(params map[string]any) (string, error) {
 	}
 	draftID = gjson.Get(raw, "result.draft").String()
 	if draftID == "" {
-		return "", fmt.Errorf("draft id not found: %s", raw)
+		return "", errors.Errorf("draft id not found: %s", raw)
 	}
 	return draftID, nil
 }

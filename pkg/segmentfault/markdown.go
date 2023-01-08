@@ -1,8 +1,7 @@
 package segmentfault
 
 import (
-	"errors"
-	"fmt"
+	"github.com/juju/errors"
 
 	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
@@ -17,12 +16,12 @@ const (
 func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err error) {
 	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		err = fmt.Errorf("meta not found for %s", c.Name())
+		err = errors.Errorf("meta not found for %s", c.Name())
 		return
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
+		err = errors.Errorf("invalid %s meta: %#v", c.Name(), v)
 		return
 	}
 
@@ -68,7 +67,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	if len(coverImages) > 0 {
 		coverImage, err := c.convertImageURL(coverImages[0])
 		if err != nil {
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 		params["cover"] = coverImage
 	}
@@ -76,7 +75,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	tagNames := meta.GetStringSlice("tags")
 	tagIDs, err := c.convertTagNamesToIDs(tagNames)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["tags"] = tagIDs
 	return

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/juju/errors"
 	"github.com/mitchellh/go-homedir"
 
 	"gopkg.in/yaml.v3"
@@ -34,7 +35,7 @@ func (c *Config) SetAuth(name, rawAuth string) {
 func Parse() error {
 	c, err := parse(CfgFile)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	Cfg = c
 	return nil
@@ -48,7 +49,7 @@ func Save() error {
 func parse(f string) (*Config, error) {
 	b, err := os.ReadFile(f)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	cfg := new(Config)
 	err = yaml.Unmarshal(b, &cfg)
@@ -58,10 +59,10 @@ func parse(f string) (*Config, error) {
 func save(f string, cfg *Config) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	err = os.WriteFile(f, b, 0644)
-	return err
+	return errors.Trace(err)
 }
 
 func GetConfigDir() string {

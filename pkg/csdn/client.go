@@ -3,6 +3,7 @@ package csdn
 import (
 	"io"
 
+	"github.com/juju/errors"
 	"github.com/k8scat/articli/pkg/markdown"
 )
 
@@ -45,7 +46,7 @@ func (c *Client) Auth(cookie string) (string, error) {
 	var err error
 	info, err := c.getAuthInfo()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	return info.Basic.Nickname, nil
 }
@@ -53,16 +54,16 @@ func (c *Client) Auth(cookie string) (string, error) {
 func (c *Client) NewArticle(r io.Reader) error {
 	mark, err := markdown.Parse(r)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	c.params, err = c.parseMark(mark)
-	return err
+	return errors.Trace(err)
 }
 
 func (c *Client) Publish() (string, error) {
 	url, err := c.saveArticle()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	return url, nil
 }

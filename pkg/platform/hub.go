@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/juju/errors"
+
 	"github.com/k8scat/articli/pkg/csdn"
 	"github.com/k8scat/articli/pkg/juejin"
 	"github.com/k8scat/articli/pkg/oschina"
@@ -35,5 +37,5 @@ func GetByName(name string) (Platform, error) {
 	if ok {
 		return pf, nil
 	}
-	return nil, fmt.Errorf("platform [%s] not supported, current supported platforms: %s", name, strings.Join(platformNames, ", "))
+	return nil, errors.Errorf("platform [%s] not supported, current supported platforms: %s", name, strings.Join(platformNames, ", "))
 }

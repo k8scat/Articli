@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gomarkdown/markdown"
+	"github.com/juju/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,7 +27,7 @@ type Mark struct {
 func (m *Mark) WriteFile(filename string) error {
 	f, err := os.Create(filename)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	defer f.Close()
 
@@ -34,7 +35,7 @@ func (m *Mark) WriteFile(filename string) error {
 
 	b, err := yaml.Marshal(m.Meta)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	f.Write(b)
 

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
 
+	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/cmd/platform"
@@ -72,7 +72,7 @@ func main() {
 	rootCmd.AddCommand(platform.AuthCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 }

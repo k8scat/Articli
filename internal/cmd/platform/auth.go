@@ -3,6 +3,7 @@ package platform
 import (
 	"fmt"
 
+	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
@@ -19,18 +20,18 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pf, err := platform.GetByName(PfName)
 			if err != nil {
-				return err
+				return errors.Trace(err)
 			}
 
 			loggedIn, err := pf.Auth(rawAuth)
 			if err != nil {
-				return err
+				return errors.Trace(err)
 			}
 
 			config.Cfg.SetAuth(PfName, rawAuth)
 			err = config.Save()
 			if err != nil {
-				return err
+				return errors.Trace(err)
 			}
 
 			fmt.Printf("Logged in as %s\n", loggedIn)

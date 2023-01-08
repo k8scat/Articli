@@ -1,6 +1,10 @@
 package markdown
 
-import "github.com/k8scat/articli/pkg/markdown"
+import (
+	"fmt"
+
+	"github.com/k8scat/articli/pkg/markdown"
+)
 
 func ParseMarkdownContent(mark *markdown.Mark, platformMata markdown.Meta) string {
 	markdownContent := mark.Content
@@ -19,4 +23,8 @@ func ParseMarkdownContent(mark *markdown.Mark, platformMata markdown.Meta) strin
 		markdownContent = markdownContent + "\n\n" + suffixContent
 	}
 	return markdownContent
+}
+
+func AddImagePrefix(content, imageURL string) string {
+	return fmt.Sprintf("![image](%s)\n\n%s", imageURL, content)
 }

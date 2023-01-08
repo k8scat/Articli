@@ -1,9 +1,9 @@
 package juejin
 
 import (
-	"errors"
-	"fmt"
 	"strings"
+
+	"github.com/juju/errors"
 
 	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
@@ -12,12 +12,12 @@ import (
 func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err error) {
 	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		err = fmt.Errorf("meta not found for %s", c.Name())
+		err = errors.Errorf("meta not found for %s", c.Name())
 		return
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
+		err = errors.Errorf("invalid %s meta: %#v", c.Name(), v)
 		return
 	}
 
@@ -31,21 +31,21 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	categoryName := meta.GetString("category")
 	categoryID, err := c.getCategoryID(categoryName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["category_id"] = categoryID
 
 	tagNames := meta.GetStringSlice("tags")
 	tagIDs, err := c.convertTagNamesToIDs(tagNames)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["tag_ids"] = tagIDs
 
 	columnNames := meta.GetStringSlice("columns")
 	columnIDs, err := c.convertColumnNamesToIDs(columnNames)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	params["column_ids"] = columnIDs
 

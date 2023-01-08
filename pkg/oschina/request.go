@@ -1,7 +1,6 @@
 package oschina
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,13 +8,14 @@ import (
 	"strings"
 
 	browser "github.com/EDDYCJY/fake-useragent"
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
 func (c *Client) get(rawurl string, params *url.Values, handler func(r *http.Response) (string, error)) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, rawurl, nil)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	req.Header.Set("Cookie", c.cookie)
 	req.Header.Set("User-Agent", browser.Computer())
@@ -24,17 +24,23 @@ func (c *Client) get(rawurl string, params *url.Values, handler func(r *http.Res
 	}
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	if handler == nil {
 		defer res.Body.Close()
 		b, err := io.ReadAll(res.Body)
-		return string(b), err
+		if err != nil {
+			return "", errors.Trace(err)
+		}
+		return string(b), nil
 	}
 
 	result, err := handler(res)
-	return result, err
+	if err != nil {
+		return "", errors.Trace(err)
+	}
+	return result, nil
 }
 
 func (c *Client) post(path string, values url.Values, handler func(r *http.Response) (string, error)) (string, error) {
@@ -45,7 +51,7 @@ func (c *Client) post(path string, values url.Values, handler func(r *http.Respo
 	}
 	req, err := http.NewRequest(http.MethodPost, path, body)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	req.Header.Add("Cookie", c.cookie)
 	req.Header.Add("User-Agent", browser.Computer())
@@ -53,26 +59,29 @@ func (c *Client) post(path string, values url.Values, handler func(r *http.Respo
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	if handler == nil {
 		defer res.Body.Close()
 		b, err := io.ReadAll(res.Body)
 		if err != nil {
-			return "", err
+			return "", errors.Trace(err)
 		}
 		return string(b), nil
 	}
 
 	result, err := handler(res)
-	return result, err
+	if err != nil {
+		return "", errors.Trace(err)
+	}
+	return result, nil
 }
 
 func defaultHandler(r *http.Response) (string, error) {
 	defer r.Body.Close()
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	raw := string(b)
 	if r.StatusCode != http.StatusOK || gjson.Get(raw, "code").Int() != 1 {

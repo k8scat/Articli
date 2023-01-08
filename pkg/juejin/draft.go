@@ -1,8 +1,7 @@
 package juejin
 
 import (
-	"fmt"
-
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -36,13 +35,13 @@ func (c *Client) saveDraft() (string, error) {
 
 	data, err := c.post(endpoint, payload)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	if draftID == "" {
 		draftID = gjson.Get(data, "data.id").String()
 		if draftID == "" {
-			return "", fmt.Errorf("invalid response: %s", data)
+			return "", errors.Errorf("invalid response: %s", data)
 		}
 	}
 	return draftID, nil

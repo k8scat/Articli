@@ -1,9 +1,9 @@
 package csdn
 
 import (
-	"errors"
-	"fmt"
 	"strings"
+
+	"github.com/juju/errors"
 
 	markdownHelper "github.com/k8scat/articli/internal/markdown"
 	"github.com/k8scat/articli/pkg/markdown"
@@ -43,12 +43,12 @@ const (
 func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err error) {
 	v := mark.Meta.Get(c.Name())
 	if v == nil {
-		err = fmt.Errorf("meta not found for %s", c.Name())
+		err = errors.Errorf("meta not found for %s", c.Name())
 		return
 	}
 	meta, ok := v.(markdown.Meta)
 	if !ok {
-		err = fmt.Errorf("invalid %s meta: %#v", c.Name(), v)
+		err = errors.Errorf("invalid %s meta: %#v", c.Name(), v)
 		return
 	}
 
@@ -118,7 +118,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 
 	markdownContent := markdownHelper.ParseMarkdownContent(mark, meta)
 	if len(coverImages) > 0 {
-		markdownContent = fmt.Sprintf("![cover image](%s)\n\n%s", coverImages[0], markdownContent)
+		markdownContent = markdownHelper.AddImagePrefix(markdownContent, coverImages[0])
 	}
 	params["markdowncontent"] = markdownContent
 	params["content"] = markdown.ConvertToHTML(markdownContent)
@@ -146,7 +146,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 		case PublishStatusDraft:
 			articleStatus = ArticleStatusDraft
 		default:
-			err = fmt.Errorf("invalid publish_status: %s", publishStatus)
+			err = errors.Errorf("invalid publish_status: %s", publishStatus)
 			return
 		}
 	}
@@ -160,7 +160,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	switch readType {
 	case ReadTypePublic, ReadTypePrivate, ReadTypeNeedVIP, ReadTypeNeedFans:
 	default:
-		err = fmt.Errorf("invalid read_type: %s", readType)
+		err = errors.Errorf("invalid read_type: %s", readType)
 		return
 	}
 	params["readType"] = readType
@@ -172,7 +172,7 @@ func (c *Client) parseMark(mark *markdown.Mark) (params map[string]any, err erro
 	switch articleType {
 	case SaveArticleTypeReship, SaveArticleTypeOriginal, SaveArticleTypeTranslation:
 	default:
-		err = fmt.Errorf("invalid article_type: %s", articleType)
+		err = errors.Errorf("invalid article_type: %s", articleType)
 		return
 	}
 	params["type"] = articleType

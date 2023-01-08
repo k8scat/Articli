@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -17,7 +18,7 @@ func parseValues(params map[string]any) (url.Values, error) {
 		case int:
 			values.Set(k, strconv.Itoa(v.(int)))
 		default:
-			return nil, fmt.Errorf("invalue value for %s: %#v", k, v)
+			return nil, errors.Errorf("invalue value for %s: %#v", k, v)
 		}
 	}
 	return values, nil
@@ -39,7 +40,7 @@ func (c *Client) saveArticle() (string, error) {
 		if draftID == "" {
 			draftID, err := c.saveDraft(c.params)
 			if err != nil {
-				return "", err
+				return "", errors.Trace(err)
 			}
 			c.params["draft"] = draftID
 			fmt.Printf("draft_id: %s\n", draftID)
@@ -48,17 +49,17 @@ func (c *Client) saveArticle() (string, error) {
 
 	values, err := parseValues(c.params)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	raw, err := c.post(rawurl, values, defaultHandler)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	if articleID == "" {
 		articleID = gjson.Get(raw, "result.id").String()
 		if articleID == "" {
-			return "", fmt.Errorf("article id not found: %s", raw)
+			return "", errors.Errorf("article id not found: %s", raw)
 		}
 	}
 	fmt.Printf("article_id: %s\n", articleID)
