@@ -2,6 +2,7 @@ package juejin
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/juju/errors"
 	"github.com/tidwall/gjson"
@@ -77,6 +78,10 @@ func (c *Client) convertColumnNamesToIDs(names []string) ([]string, error) {
 	result := make([]string, 0, len(names))
 	var namesNotFound []string
 	for _, name := range names {
+		if strings.TrimSpace(name) == "" {
+			continue
+		}
+
 		if id, ok := columnMap[name]; ok {
 			result = append(result, id)
 		} else {
