@@ -6,10 +6,10 @@ import (
 
 	"github.com/juju/errors"
 
-	"github.com/k8scat/articli/pkg/csdn"
-	"github.com/k8scat/articli/pkg/juejin"
-	"github.com/k8scat/articli/pkg/oschina"
-	"github.com/k8scat/articli/pkg/segmentfault"
+	"github.com/k8scat/articli/pkg/platforms/csdn"
+	"github.com/k8scat/articli/pkg/platforms/juejin"
+	"github.com/k8scat/articli/pkg/platforms/oschina"
+	"github.com/k8scat/articli/pkg/platforms/segmentfault"
 )
 
 var (

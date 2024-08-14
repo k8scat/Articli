@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
-	"github.com/k8scat/articli/pkg/platform"
+	platform "github.com/k8scat/articli/pkg/platforms/base"
 )
 
 var (

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/k8scat/articli/internal/config"
-	"github.com/k8scat/articli/pkg/platform"
+	platform "github.com/k8scat/articli/pkg/platforms/base"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 
 	// PublishCmd Publish article from a local file
 	PublishCmd = &cobra.Command{
-		Use:   "pub",
+		Use:   "publish",
 		Short: "Publish article",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pf, err := platform.GetByName(PfName)

@@ -23,7 +23,7 @@ var (
 		Use:   "acli",
 		Short: "Publish article anywhere.",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Use == "pub" || cmd.Use == "auth" {
+			if cmd.Use == "publish" || cmd.Use == "auth" {
 				platform.PfName = strings.TrimSpace(platform.PfName)
 				if platform.PfName == "" {
 					return errors.New("platform is required")
